@@ -35,16 +35,19 @@ const projects = [
     title: "AI Blog Writer",
     desc: "Generador automático de artículos SEO con IA. Investigación, redacción y publicación automatizada.",
     tech: ["Python", "OpenAI", "LangChain", "Next.js"],
+    url: "https://github.com/ignacioimatik-web",
   },
   {
-    title: "Telegram Bot Manager",
-    desc: "Bot de Telegram para gestión de incidencias con notificaciones, roles y dashboard web.",
-    tech: ["Python", "Telegraf", "Supabase", "Vercel"],
+    title: "Telegram AI Bot",
+    desc: "Bot de Telegram con GPT. Responde con IA, mantiene contexto y es personalizable para cualquier negocio.",
+    tech: ["Python", "python-telegram-bot", "OpenAI", "GPT-4o-mini"],
+    url: "https://github.com/ignacioimatik-web/telegram-ai-bot",
   },
   {
     title: "Smart Home Controller",
     desc: "Panel de control unificado para dispositivos IoT con automatización solar y meteorológica.",
     tech: ["Python", "Tuya API", "Next.js", "Tailwind"],
+    url: "https://github.com/ignacioimatik-web",
   },
 ];
 
@@ -199,8 +202,11 @@ function Projects() {
         </p>
         <div className="grid gap-6 sm:grid-cols-3">
           {projects.map((p) => (
-            <div
+            <a
               key={p.title}
+              href={p.url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="group rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all hover:border-zinc-700"
             >
               <h3 className="mb-2 text-lg font-semibold">{p.title}</h3>
@@ -217,7 +223,7 @@ function Projects() {
                   </span>
                 ))}
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
