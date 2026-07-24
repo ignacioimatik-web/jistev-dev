@@ -13,13 +13,37 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Jistev | Desarrollo Full-Stack & Automatización con IA",
+  title: "jistev | Full-Stack Developer & AI Automation",
   description:
-    "Construyo herramientas web, automatizaciones y soluciones con IA para hacer crecer tu negocio. MVP rápido, código limpio, resultados reales.",
+    "Ignacio Estevez (jistev) — Desarrollo web full-stack, automatizaciones con IA, bots y herramientas a medida. MVP en 2 semanas.",
+  keywords: [
+    "desarrollador full-stack",
+    "next.js",
+    "ia",
+    "automatización",
+    "mvp",
+    "python",
+    "typescript",
+    "jistev",
+  ],
   openGraph: {
-    title: "Jistev | Desarrollo Full-Stack & Automatización con IA",
+    title: "jistev | Full-Stack Developer & AI Automation",
     description:
-      "Construyo herramientas web, automatizaciones y soluciones con IA.",
+      "Convierto ideas en productos digitales. Next.js, IA, automatizaciones.",
+    url: "https://jistev-dev.vercel.app",
+    siteName: "jistev.dev",
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "jistev | Full-Stack Developer & AI Automation",
+    description:
+      "Convierto ideas en productos digitales. Next.js, IA, automatizaciones.",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
@@ -33,7 +57,9 @@ export default function RootLayout({
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-      <body>{children}</body>
+      <body className="min-h-screen bg-zinc-950 text-zinc-100">
+        {children}
+      </body>
     </html>
   );
 }
