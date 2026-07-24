@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
-import { skills, type Skill } from "@/lib/data";
+import { skills } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 const categories = [
