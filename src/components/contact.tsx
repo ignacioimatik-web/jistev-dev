@@ -6,26 +6,38 @@ import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Mail, Send } from "lucide-react";
+import { Mail, Send, CheckCircle, AlertCircle } from "lucide-react";
 
 export function Contact() {
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const data = new FormData(form);
+    setStatus("sending");
 
-    // mailto fallback
-    const subject = encodeURIComponent(
-      `Nuevo proyecto: ${(data.get("name") as string) || "sin nombre"}`
-    );
-    const body = encodeURIComponent(
-      `Nombre: ${data.get("name") || ""}\nEmail: ${data.get("email") || ""}\n\nMensaje:\n${data.get("message") || ""}`
-    );
-    window.location.href = `mailto:hola@jistev.dev?subject=${subject}&body=${body}`;
-    setSent(true);
-    setTimeout(() => setSent(false), 4000);
+    const form = e.currentTarget;
+    const data = {
+      name: (form.elements.namedItem("name") as HTMLInputElement).value,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
+    };
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) throw new Error("Error al enviar");
+
+      setStatus("sent");
+      form.reset();
+      setTimeout(() => setStatus("idle"), 5000);
+    } catch {
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 5000);
+    }
   };
 
   return (
@@ -72,9 +84,22 @@ export function Contact() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full gap-2" size="lg">
-              {sent ? (
-                <>¡Enviado! ✅</>
+            <Button
+              type="submit"
+              className="w-full gap-2"
+              size="lg"
+              disabled={status === "sending"}
+            >
+              {status === "sending" ? (
+                <>Enviando…</>
+              ) : status === "sent" ? (
+                <>
+                  ¡Enviado! <CheckCircle className="h-4 w-4" />
+                </>
+              ) : status === "error" ? (
+                <>
+                  Error — intenta de nuevo <AlertCircle className="h-4 w-4" />
+                </>
               ) : (
                 <>
                   Enviar mensaje <Send className="h-4 w-4" />
@@ -86,11 +111,11 @@ export function Contact() {
           <div className="mt-6 border-t border-zinc-800 pt-6">
             <p className="mb-2 text-sm text-zinc-500">O escríbeme directo:</p>
             <a
-              href="mailto:hola@jistev.dev"
+              href="mailto:ignacio@digitalcode.es"
               className="inline-flex items-center gap-2 text-sm text-violet-400 transition-colors hover:text-violet-300"
             >
               <Mail className="h-4 w-4" />
-              hola@jistev.dev
+              ignacio@digitalcode.es
             </a>
           </div>
         </motion.div>
