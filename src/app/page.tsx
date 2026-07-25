@@ -1,10 +1,8 @@
 import { Nav } from "@/components/nav";
 import { Hero } from "@/components/hero";
-import { About } from "@/components/about";
-import { Skills } from "@/components/skills";
 import { Projects } from "@/components/projects";
-import { Services } from "@/components/services";
-import { FAQ } from "@/components/faq";
+import { Capabilities } from "@/components/capabilities";
+import { About } from "@/components/about";
 import { Contact } from "@/components/contact";
 import { Footer } from "@/components/footer";
 
@@ -14,11 +12,9 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
-        <About />
-        <Skills />
         <Projects />
-        <Services />
-        <FAQ />
+        <Capabilities />
+        <About />
         <Contact />
       </main>
       <Footer />

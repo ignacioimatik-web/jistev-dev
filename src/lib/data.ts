@@ -140,6 +140,72 @@ export const services = [
   },
 ];
 
+export interface Capability {
+  icon: string;
+  title: string;
+  price: string;
+  approach: string;
+  example: string;
+  exampleProject: string;
+  whyPrice: string;
+  connectsTo: string[];
+}
+
+export const capabilities: Capability[] = [
+  {
+    icon: "⚡",
+    title: "MVP Factory",
+    price: "desde 1.000€",
+    approach:
+      "No entrego documentación ni wireframes bonitos. Entrego producto funcionando. En la primera semana definimos juntos qué es lo mínimo que necesita para resolver el problema real. En la segunda, lo construyo, lo despliego y lo tienes en producción.",
+    example:
+      "CESTIA nació de una necesidad real: organizar la compra semanal sin volverse loco. En 10 días tenía una PWA funcional con listas multi-hogar, presupuestos por hogar y sincronización en tiempo real. No hubo llamadas de ventas, ni mockups, ni sobreingeniería.",
+    exampleProject: "CESTIA",
+    whyPrice:
+      "Porque no es una plantilla ni un constructor visual. Es un producto completo construido desde cero: frontend responsive, base de datos, autenticación, API, despliegue y 30 días de soporte post-entrega. Cada proyecto tiene su propia arquitectura, no hereda bugs de un tema genérico.",
+    connectsTo: ["automatizacion", "bots"],
+  },
+  {
+    icon: "🤖",
+    title: "Automatización con IA",
+    price: "desde 500€",
+    approach:
+      "No hago demos de ChatGPT. Construyo sistemas que procesan, clasifican y deciden con IA en producción. El reto no es integrar un LLM — es hacer que sea fiable, que no alucine cuando no debe y que mejore con el uso.",
+    example:
+      "LaudIA transcribe consultas médicas en tiempo real con Whisper, genera informes estructurados con LLMs y aprende del feedback del especialista. No es un chatbot bonito: es un sistema que un médico usa cada día para ahorrar horas de papeleo.",
+    exampleProject: "LaudIA",
+    whyPrice:
+      "Porque una automatización con IA real implica orquestación de modelos, gestión de contexto, RAG sobre documentos, control de alucinaciones y testing de fiabilidad. No es 'conectar ChatGPT y listo' — cada integración se prueba hasta que el resultado es consistente en producción.",
+    connectsTo: ["mvp", "bots"],
+  },
+  {
+    icon: "🔄",
+    title: "Automation Tools",
+    price: "desde 300€",
+    approach:
+      "Construyo herramientas que eliminan tareas repetitivas. Scripts Python, scraping, pipelines de datos, integración de APIs, reporting automático. Son soluciones más acotadas que un sistema de IA completo, pero igual de pensadas: si algo se ejecuta solo, tiene que hacerlo bien siempre.",
+    example:
+      "El PAC — Pipeline de Audio descarga, organiza y enriquece música automáticamente desde YouTube con metadatos de MusicBrainz + Discogs, todo corriendo en un NAS Synology. Una vez configurado, nadie vuelve a tocar nada.",
+    exampleProject: "PAC — Pipeline de Audio",
+    whyPrice:
+      "Porque aunque sea una herramienta más acotada, sigue siendo software que tiene que funcionar sin supervisión. Manejo de errores, logging, reintentos, y que sepas que si falla a las 3 de la mañana, no pierdes datos. Eso diferencia un script de una herramienta.",
+    connectsTo: ["bots"],
+  },
+  {
+    icon: "💬",
+    title: "Bots & APIs",
+    price: "desde 400€",
+    approach:
+      "Construyo las tuberías que conectan sistemas que no hablan entre sí. APIs REST, webhooks, bots para Telegram y WhatsApp, sistemas de notificaciones inteligentes. Cada integración está diseñada para que cuando algo falle (y va a fallar), no se pierdan datos ni se rompa el flujo.",
+    example:
+      "El Telegram AI Bot responde con GPT-4o-mini, mantiene memoria de conversación y es personalizable para cualquier negocio. No es un bot de menús — es un asistente que aprende del contexto de cada usuario.",
+    exampleProject: "Telegram AI Bot",
+    whyPrice:
+      "Porque una integración fiable requiere diseño de API, manejo de errores, colas de reintentos, logging y monitoreo. No es 'un script que hace una llamada' — es pieza de infraestructura que tiene que funcionar 24/7. Los bots además necesitan gestión de estados, memoria y manejo de concurrencia.",
+    connectsTo: ["mvp", "ia"],
+  },
+];
+
 export const faqs = [
   { q: "¿Cómo trabajamos?", a: "Hablamos, defines lo que necesitas, te doy un presupuesto y plazo realista. Entrego el proyecto funcionando. Sin vueltas ni sorpresas." },
   { q: "¿Cuánto tardas en construir un MVP?", a: "Depende del proyecto, pero en 1-2 semanas tienes una primera versión funcional que puedes mostrar y testear con usuarios reales." },
