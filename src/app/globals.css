@@ -4,12 +4,20 @@
   --color-background: #09090b;
   --color-foreground: #fafafa;
   --color-muted: #a1a1aa;
+  --color-muted-dim: #71717a;
   --color-accent: #a78bfa;
   --color-accent-hover: #8b5cf6;
+  --color-accent-glow: rgba(167, 139, 250, 0.15);
   --color-card: #18181b;
+  --color-card-hover: #1e1e22;
   --color-border: #27272a;
+  --color-border-hover: #3f3f46;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --text-body: 0.9375rem;
+  --text-body-leading: 1.7;
+  --text-small: 0.8125rem;
+  --text-label: 0.75rem;
 }
 
 * {
@@ -20,6 +28,10 @@
 body {
   background: var(--color-background);
   color: var(--color-foreground);
+  font-size: var(--text-body);
+  line-height: var(--text-body-leading);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html {
@@ -36,4 +48,15 @@ html {
 *:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Improved heading balance */
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+
+/* Prose measure */
+p, li {
+  max-width: 68ch;
 }

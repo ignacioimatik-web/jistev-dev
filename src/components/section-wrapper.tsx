@@ -19,7 +19,7 @@ export function SectionWrapper({ children, id, className, delay = 0 }: SectionWr
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.6, delay, ease: "easeOut" }}
-      className={cn("border-t border-zinc-800 px-6 py-24", className)}
+      className={cn("border-t border-zinc-800 px-6 py-20 md:py-28", className)}
     >
       <div className="mx-auto max-w-5xl">{children}</div>
     </motion.section>
