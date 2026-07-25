@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
 import { capabilities } from "@/lib/data";
@@ -57,6 +58,16 @@ function PhilosophyCard({
   );
 }
 
+function useAsyncVideo(ref: React.RefObject<HTMLVideoElement | null>, offset: number) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const handler = () => { el.currentTime = offset; };
+    el.addEventListener("loadedmetadata", handler, { once: true });
+    return () => el.removeEventListener("loadedmetadata", handler);
+  }, [ref, offset]);
+}
+
 function ServiceCard({
   cap,
   index,
@@ -68,6 +79,10 @@ function ServiceCard({
   expanded: boolean;
   onToggle: () => void;
 }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const offsets = [0, 7.5, 15, 22.5];
+  useAsyncVideo(videoRef, offsets[index]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -76,77 +91,95 @@ function ServiceCard({
       transition={{ delay: index * 0.15, duration: 0.5 }}
       className="group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 transition-all hover:border-zinc-700"
     >
-      {/* Header */}
-      <button
-        onClick={onToggle}
-        className="flex w-full items-start gap-4 p-6 text-left"
+      {/* Video background */}
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster="/services-poster.jpg"
+        className="absolute inset-0 h-full w-full object-cover opacity-30 transition-opacity group-hover:opacity-50"
       >
-        <span className="mt-1 shrink-0 text-2xl">{cap.icon}</span>
-        <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-baseline justify-between gap-4">
-            <h3 className="text-lg font-semibold">{cap.title}</h3>
-            <span className="shrink-0 text-sm font-medium text-violet-400">
-              {cap.price}
+        <source src="/services-bg.mp4" type="video/mp4" />
+      </video>
+
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-zinc-950/85 via-zinc-950/65 to-zinc-950/85" />
+
+      {/* Content */}
+      <div className="relative z-10">
+        <button
+          onClick={onToggle}
+          className="flex w-full items-start gap-4 p-6 text-left"
+        >
+          <span className="mt-1 shrink-0 text-2xl">{cap.icon}</span>
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex items-baseline justify-between gap-4">
+              <h3 className="text-lg font-semibold">{cap.title}</h3>
+              <span className="shrink-0 text-sm font-medium text-violet-400">
+                {cap.price}
+              </span>
+            </div>
+
+            {/* Conexiones */}
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {cap.connectsTo.map((c) => (
+                <span
+                  key={c}
+                  className="rounded-full bg-zinc-800/60 px-2 py-0.5 text-[11px] text-zinc-500"
+                >
+                  ← {connectionLabels[c] || c}
+                </span>
+              ))}
+            </div>
+
+            <p className="text-sm leading-relaxed text-zinc-300">
+              {cap.approach}
+            </p>
+          </div>
+        </button>
+
+        {/* Expanded detail */}
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="overflow-hidden border-t border-zinc-800"
+          >
+            <div className="space-y-5 p-6 pt-5">
+              <div>
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-violet-500">
+                  🎯 Ejemplo real
+                </span>
+                <p className="text-sm leading-relaxed text-zinc-400">
+                  {cap.example}
+                </p>
+                <span className="mt-1 block text-xs text-zinc-600">
+                  Proyecto: {cap.exampleProject}
+                </span>
+              </div>
+              <div>
+                <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-amber-500">
+                  💰 Por qué {cap.price}
+                </span>
+                <p className="text-sm leading-relaxed text-zinc-400">
+                  {cap.whyPrice}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {!expanded && (
+          <div className="px-6 pb-4">
+            <span className="text-xs text-zinc-600 transition-colors group-hover:text-zinc-500">
+              ↓ Pulsa para ver ejemplo y detalle de precio
             </span>
           </div>
-
-          {/* Conexiones */}
-          <div className="mb-3 flex flex-wrap gap-1.5">
-            {cap.connectsTo.map((c) => (
-              <span
-                key={c}
-                className="rounded-full bg-zinc-800/60 px-2 py-0.5 text-[11px] text-zinc-500"
-              >
-                ← {connectionLabels[c] || c}
-              </span>
-            ))}
-          </div>
-
-          <p className="text-sm leading-relaxed text-zinc-300">
-            {cap.approach}
-          </p>
-        </div>
-      </button>
-
-      {/* Expanded detail */}
-      {expanded && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: "auto", opacity: 1 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="overflow-hidden border-t border-zinc-800"
-        >
-          <div className="space-y-5 p-6 pt-5">
-            <div>
-              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-violet-500">
-                🎯 Ejemplo real
-              </span>
-              <p className="text-sm leading-relaxed text-zinc-400">
-                {cap.example}
-              </p>
-              <span className="mt-1 block text-xs text-zinc-600">
-                Proyecto: {cap.exampleProject}
-              </span>
-            </div>
-            <div>
-              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-amber-500">
-                💰 Por qué {cap.price}
-              </span>
-              <p className="text-sm leading-relaxed text-zinc-400">
-                {cap.whyPrice}
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {!expanded && (
-        <div className="px-6 pb-4">
-          <span className="text-xs text-zinc-600 transition-colors group-hover:text-zinc-500">
-            ↓ Pulsa para ver ejemplo y detalle de precio
-          </span>
-        </div>
-      )}
+        )}
+      </div>
     </motion.div>
   );
 }
@@ -179,7 +212,7 @@ export function Capabilities() {
         ))}
       </div>
 
-      {/* Servicios expandibles */}
+      {/* Servicios expandibles con video */}
       <div className="mx-auto max-w-3xl space-y-4">
         {capabilities.map((cap, i) => (
           <ServiceCard
