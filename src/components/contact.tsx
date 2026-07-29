@@ -20,6 +20,7 @@ export function Contact() {
       name: (form.elements.namedItem("name") as HTMLInputElement).value,
       email: (form.elements.namedItem("email") as HTMLInputElement).value,
       message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
+      website: (form.elements.namedItem("website") as HTMLInputElement).value,
     };
 
     try {
@@ -57,6 +58,15 @@ export function Contact() {
           className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-8"
         >
           <form onSubmit={handleSubmit} className="space-y-4 text-left">
+            {/* Honeypot anti-spam: invisible para personas, los bots lo rellenan igualmente */}
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className="absolute left-[-9999px] h-0 w-0 opacity-0"
+            />
             <div>
               <label className="mb-1.5 block text-sm text-zinc-400">
                 Nombre

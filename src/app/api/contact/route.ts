@@ -1,23 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { escapeHtml, isValidEmail, isRateLimited, getClientIp } from "@/lib/mail-utils";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, message } = await req.json();
-
-    if (!name || !email || !message) {
+    const ip = getClientIp(req);
+    if (isRateLimited(`contact:${ip}`)) {
       return NextResponse.json(
-        { error: "Todos los campos son obligatorios" },
+        { error: "Demasiados envíos. Espera unos minutos e inténtalo de nuevo." },
+        { status: 429 }
+      );
+    }
+
+    const body = await req.json();
+    const { name, email, message } = body;
+    // Honeypot: campo oculto que solo rellenan los bots (invisible para humanos en el form)
+    const honeypot = body.website;
+
+    if (honeypot) {
+      // Respondemos éxito falso para no delatar el honeypot a los bots
+      return NextResponse.json({ success: true });
+    }
+
+    if (
+      typeof name !== "string" || !name.trim() ||
+      typeof message !== "string" || !message.trim() ||
+      !isValidEmail(email)
+    ) {
+      return NextResponse.json(
+        { error: "Todos los campos son obligatorios y el email debe ser válido" },
         { status: 400 }
       );
     }
 
-    // Config SMTP desde variables de entorno o defaults de desarrollo
+    if (name.length > 200 || message.length > 5000) {
+      return NextResponse.json(
+        { error: "El nombre o el mensaje son demasiado largos" },
+        { status: 400 }
+      );
+    }
+
+    const safeName = escapeHtml(name);
+    const safeEmail = escapeHtml(email);
+    const safeMessage = escapeHtml(message);
+
+    // Config SMTP desde variables de entorno
     const smtpHost = process.env.SMTP_HOST;
     const smtpUser = process.env.SMTP_USER;
     const smtpPass = process.env.SMTP_PASS;
     const toEmail = "ignacio@digitalcode.es";
-    const fromEmail = process.env.SMTP_FROM || email;
+    const fromEmail = process.env.SMTP_FROM || smtpUser;
 
     if (smtpHost && smtpUser && smtpPass) {
       // --- Modo REAL: enviar email vía SMTP ---
@@ -29,10 +61,10 @@ export async function POST(req: NextRequest) {
       });
 
       await transporter.sendMail({
-        from: `"${name}" <${fromEmail}>`,
-        replyTo: email,
+        from: `"jistev.dev" <${fromEmail}>`,
+        replyTo: `"${safeName}" <${email}>`,
         to: toEmail,
-        subject: `Nuevo proyecto de ${name}`,
+        subject: `Nuevo proyecto de ${safeName}`,
         text: `Nombre: ${name}\nEmail: ${email}\n\nMensaje:\n${message}`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
@@ -41,10 +73,10 @@ export async function POST(req: NextRequest) {
             </div>
             <div style="background:#18181b;padding:24px;border-radius:0 0 12px 12px;border:1px solid #27272a;">
               <table style="width:100%;border-collapse:collapse;">
-                <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Nombre</td><td style="padding:8px 0;color:#fafafa;font-size:14px;">${name}</td></tr>
-                <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Email</td><td style="padding:8px 0;color:#fafafa;font-size:14px;"><a href="mailto:${email}" style="color:#a78bfa;">${email}</a></td></tr>
+                <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Nombre</td><td style="padding:8px 0;color:#fafafa;font-size:14px;">${safeName}</td></tr>
+                <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Email</td><td style="padding:8px 0;color:#fafafa;font-size:14px;"><a href="mailto:${safeEmail}" style="color:#a78bfa;">${safeEmail}</a></td></tr>
                 <tr><td colspan="2" style="padding-top:16px;"><hr style="border:none;border-top:1px solid #27272a;"></td></tr>
-                <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;vertical-align:top;">Mensaje</td><td style="padding:8px 0;color:#fafafa;font-size:14px;white-space:pre-wrap;">${message}</td></tr>
+                <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;vertical-align:top;">Mensaje</td><td style="padding:8px 0;color:#fafafa;font-size:14px;white-space:pre-wrap;">${safeMessage}</td></tr>
               </table>
             </div>
           </div>
