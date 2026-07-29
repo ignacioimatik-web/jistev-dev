@@ -13,23 +13,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "jistev | Full-Stack Developer & AI Automation",
+  title: "jistev | Imagino, lidero y construyo",
   description:
-    "Ignacio Estevez (jistev) — Desarrollo web full-stack, automatizaciones con IA, bots y herramientas a medida. MVP en 2 semanas.",
+    "Ignacio Estevez (jistev) — Director técnico y desarrollador full-stack. Concibo la idea, lidero el proyecto y escribo el código.",
   keywords: [
+    "director técnico",
     "desarrollador full-stack",
     "next.js",
     "ia",
     "automatización",
-    "mvp",
-    "python",
-    "typescript",
+    "producto digital",
     "jistev",
+    "ignacio estevez",
+    "arquitecto de soluciones",
   ],
   openGraph: {
-    title: "jistev | Full-Stack Developer & AI Automation",
+    title: "jistev | Imagino, lidero y construyo",
     description:
-      "Convierto ideas en productos digitales. Next.js, IA, automatizaciones.",
+      "Director técnico y desarrollador full-stack. Concibo la idea, lidero el proyecto y escribo el código.",
     url: "https://jistev-dev.vercel.app",
     siteName: "jistev.dev",
     locale: "es_ES",
@@ -37,9 +38,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "jistev | Full-Stack Developer & AI Automation",
+    title: "jistev | Imagino, lidero y construyo",
     description:
-      "Convierto ideas en productos digitales. Next.js, IA, automatizaciones.",
+      "Director técnico y desarrollador full-stack. Concibo la idea, lidero el proyecto y escribo el código.",
   },
   robots: {
     index: true,
