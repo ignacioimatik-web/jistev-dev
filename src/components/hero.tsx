@@ -87,7 +87,7 @@ export function Hero() {
                               Solicitar presupuesto
                             </Link>
               <Link
-                href="#proyectos"
+                href="#conceptos"
                 className="inline-flex items-center justify-center rounded-[10px] border border-zinc-700 px-7 py-3.5 text-sm font-semibold text-zinc-100 transition-colors hover:border-cyan-400 hover:text-cyan-400"
               >
                 Ver proyectos →

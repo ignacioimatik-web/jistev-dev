@@ -6,7 +6,6 @@ import Link from "next/link";
 const navLinks = [
   { href: "#about", label: "sobre-mi" },
   { href: "#capacidades", label: "capacidades" },
-  { href: "#proyectos", label: "proyectos" },
   { href: "#conceptos", label: "conceptos" },
   { href: "#metodo", label: "metodo" },
   { href: "#skills", label: "stack" },

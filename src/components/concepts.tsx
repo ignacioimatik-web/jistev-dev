@@ -6,64 +6,52 @@ import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
 
 const concepts = [
   {
-    icon: "🛒", title: "CESTIA", tagline: "La cocina como problema de datos",
-    idea: "Convertir recetas en listas de compra inteligentes, organizadas por secciones físicas del supermercado. Escala ingredientes por comensales, respeta preferencias y presupuesto, y te dice exactamente qué comprar en cada pasillo. Mobile-first, para usar con una mano mientras compras.",
-    domains: ["datos", "UX", "logística"], ring: "border-emerald-500/30",
+    icon: "🎵", title: "JazzOne Pipeline", tagline: "Tu música, sin suscripciones, sin esfuerzo",
+    idea: "Pipeline de música: pega una URL de YouTube y el backend descarga, organiza e inyecta la música en tu biblioteca personal. Frontend Next.js en Vercel + backend FastAPI/yt-dlp en NAS Synology vía Docker. Arquitectura híbrida cloud + on-prem.",
+    domains: ["Next.js", "FastAPI", "yt-dlp", "Synology"], repo: "https://github.com/ignacioimatik-web/jazzone-pipeline",
+    ring: "border-rose-500/30",
+  },
+  {
+    icon: "🏥", title: "ZBS Forcall", tagline: "Gestión sanitaria para atención primaria rural",
+    idea: "Plataforma web de gestión del equipo de Atención Primaria de Forcall (Castellón): guardias, libranzas, doblas, reuniones, alertas y avisos del personal médico y de enfermería. Autenticación segura con Supabase Auth y Row Level Security por rol.",
+    domains: ["Next.js", "Supabase", "Auth + RLS"], repo: "https://github.com/ignacioimatik-web/ZBS-Forcall",
+    ring: "border-violet-500/30",
+  },
+  {
+    icon: "📊", title: "studioMo", tagline: "El dashboard que toda oficina en casa debería tener",
+    idea: "Dashboard de monitor de sistema para Mac Studio + Synology NAS + UPS CyberPower. CPU, RAM, discos, red, procesos, RAID y batería centralizados en gráficos en tiempo real. La herramienta que cualquier creador con infraestructura en casa necesita para dormir tranquilo.",
+    domains: ["Next.js 16", "Recharts", "Tailwind"], repo: "https://github.com/ignacioimatik-web/studioMo",
+    ring: "border-cyan-500/30",
+  },
+  {
+    icon: "🛡️", title: "Escudo Digital Familiar", tagline: "Protección infantil en 2 capas",
+    idea: "Operador de internet con protección digital integrada. Protección de menores en 2 capas: DNS de protección + control parental, con configurador guiado paso a paso para cualquier familia, adaptado a cada dispositivo y a la edad de los hijos. UI premium.",
+    domains: ["Next.js 16", "Tailwind 4", "Framer Motion"], repo: "https://github.com/ignacioimatik-web/escudo-digital-landing",
+    ring: "border-sky-500/30",
   },
   {
     icon: "🛡️", title: "HuellaZero", tagline: "Recuperar tu huella digital",
-    idea: "Escanea tu exposición online (brechas de seguridad, contraseñas filtradas, cuentas olvidadas) y automatiza el borrado con 4 métodos progresivos: bookmarklet, extensión, script o agente IA con control de navegador. Un dashboard con puntuación de privacidad para que cualquiera — sin importar su nivel técnico — recupere el control de sus datos.",
-    domains: ["seguridad", "IA", "automatización", "UX"], ring: "border-violet-500/30",
+    idea: "App de privacidad digital: escáner de brechas, catálogo de servicios, checklist y dashboard. Escanea tu exposición online y automatiza el borrado con métodos progresivos, con una puntuación de privacidad para que cualquiera recupere el control de sus datos.",
+    domains: ["TypeScript", "Privacy", "Dashboard"], repo: "https://github.com/ignacioimatik-web/huellazero",
+    ring: "border-emerald-500/30",
   },
   {
-    icon: "👨‍👩‍👧‍👦", title: "Escudo Digital Familiar", tagline: "Protección infantil en 2 capas",
-    idea: "Un método completo de protección digital para menores, basado en DNS de protección + control parental, guiado paso a paso para cualquier familia. No es una app técnica: es un configurador interactivo que adapta la protección a cada dispositivo (móvil, tablet, PC, router) según la edad de los hijos y el nivel técnico de los padres.",
-    domains: ["seguridad", "educación", "familia"], ring: "border-sky-500/30",
+    icon: "🔐", title: "ASP-10", tagline: "Auditoría de seguridad pasiva para consultores",
+    idea: "Herramienta profesional de auditoría de seguridad para intervenciones presenciales. Conecta el MacBook, audita dominios web y dispositivos Android, aplica fixes con un clic y genera presupuestos e informes profesionales.",
+    domains: ["Next.js 16", "TypeScript", "Security"], repo: "https://github.com/ignacioimatik-web/ASP-10",
+    ring: "border-red-500/30",
   },
   {
-    icon: "🎵", title: "JazzOne Pipeline", tagline: "Tu música, sin suscripciones, sin esfuerzo",
-    idea: "Pega una URL de YouTube y el pipeline descarga, organiza e inyecta la música directamente en tu biblioteca Navidrome personal. Detección automática de artista y álbum, enriquecimiento con metadatos, todo corriendo 24/7 en un NAS. Una arquitectura híbrida cloud + on-prem que separa frontend (Vercel) de backend (FastAPI + túnel Cloudflare).",
-    domains: ["automatización", "híbrido", "datos"], ring: "border-rose-500/30",
+    icon: "🖥️", title: "NovaTerm", tagline: "Terminal SSH self-hosted, estilo Termius",
+    idea: "Terminal SSH self-hosted, sin nube ajena. Multi-ventana con túnel WebSocket, SFTP integrado y port forwarding (local, remoto, SOCKS5). Tus hosts, claves y sesiones viven en tu propia infraestructura, con layout persistente.",
+    domains: ["Next.js", "WebSocket", "SFTP", "SQLite"], repo: "https://github.com/ignacioimatik-web/novaterm",
+    ring: "border-blue-500/30",
   },
   {
-    icon: "🎙️", title: "Podcast Pipeline", tagline: "Transcripción 24× más rápida que el audio",
-    idea: "Descarga y transcribe podcasts con aceleración Apple Silicon. 95 minutos de audio → 4 minutos de transcripción usando el Neural Engine del Mac Studio. Con resúmenes automáticos vía IA, cola de trabajos con ETA, y acceso remoto por túnel. Todo gestionado como servicios persistentes, sin intervención manual.",
-    domains: ["IA", "aceleración hardware", "automatización"], ring: "border-amber-500/30",
-  },
-  {
-    icon: "📊", title: "StudioMo", tagline: "El dashboard que toda oficina en casa debería tener",
-    idea: "Monitor en tiempo real de Mac Studio + Synology NAS + UPS. CPU, RAM, discos, red, procesos, temperatura, estado del RAID, batería de la UPS. Todo centralizado en un dashboard elegante con gráficos. No es un sistema de monitorización enterprise — es la herramienta que cualquier creador con infraestructura en casa necesita para dormir tranquilo.",
-    domains: ["infraestructura", "datos", "UX"], ring: "border-cyan-500/30",
-  },
-  {
-    icon: "⚽", title: "Tarjeta Roja", tagline: "Gamificar el coleccionismo de cromos",
-    idea: "Un campeonato mundial de cartas de fútbol híbrido: crea cartas con rarity tiers y avatares SVG procedimentales, construye plantillas mezclando clubes y selecciones, y compite en torneos globales con mecánicas de duelos por atributos. La lógica de torneo completa — grupos, eliminatorias, desempates — corre en el navegador.",
-    domains: ["gamificación", "datos", "UX"], ring: "border-red-500/30",
-  },
-  {
-    icon: "🚵", title: "LEVO", tagline: "Rutas MTB con inteligencia de terreno",
-    idea: "Planificador profesional de rutas MTB/enduro para la zona de Els Ports. Catálogo de 29 tracks GPX reales con un constructor visual que encadena rutas secuencialmente sobre mapa 3D, detecta conexiones entre tracks automáticamente, integra clima en tiempo real y horas de sol, y evalúa el riesgo combinado (meteorología + terreno).",
-    domains: ["outdoor", "datos geo", "clima"], ring: "border-lime-500/30",
-  },
-  {
-    icon: "🏷️", title: "Price Sentinel AI", tagline: "Tu asistente de compras inteligente",
-    idea: "Scraping multi-tienda + análisis IA para monitorizar precios. Scrapea productos de varias tiendas, normaliza datos, usa DeepSeek para analizar históricos y generar recomendaciones (\"oportunidad\", \"esperar\", \"precio alto\"), y te notifica cuando se cumplen tus reglas de alerta. Como tener un analista de mercado para tus compras del día a día.",
-    domains: ["IA", "scraping", "datos", "automatización"], ring: "border-yellow-500/30",
-  },
-  {
-    icon: "🏭", title: "WARDEN", tagline: "E-commerce con ADN de ingeniería",
-    idea: "Tienda online para escenografía BattleTech impresa en 3D con una estética intencionadamente industrial: paleta gris metálico con acentos azul acero, bundles con descuento, drops limitados, y un sistema de selección con presupuesto. No es un shop genérico — es una experiencia de compra que refleja la precisión del producto.",
-    domains: ["e-commerce", "UX", "3D"], ring: "border-slate-500/30",
-  },
-  {
-    icon: "💬", title: "Telegram AI Bot", tagline: "Tu negocio en Telegram con cerebro",
-    idea: "Un bot de Telegram con IA que mantiene contexto de conversación, aprende del usuario y se personaliza para cualquier negocio. No es un bot de menús — es un asistente que entiende preguntas, recuerda conversaciones anteriores y responde con coherencia. Plug-and-play: clona, configura el prompt de personalidad y está listo.",
-    domains: ["IA", "bots", "automatización"], ring: "border-blue-500/30",
-  },
-  {
-    icon: "🏥", title: "LaudIA", tagline: "IA que escucha consultas médicas",
-    idea: "Transcripción en tiempo real de consultas médico-paciente con Whisper, generación automática de informes estructurados con LLMs, y aprendizaje continuo del feedback del especialista. No es un chatbot bonito: es un sistema que un médico usa cada día para ahorrar horas de papeleo. Orquestación de modelos, control de alucinaciones, y fiabilidad en producción.",
-    domains: ["IA", "salud", "automatización"], ring: "border-emerald-500/30",
+    icon: "🔭", title: "AstroLab", tagline: "El RC-Astro casero",
+    idea: "Pipeline IA de astrofotografía: denoising, eliminación de estrellas y deconvolución para cielo profundo. Pensado para el flujo del aficionado (Nikon D610 + NexStar 6 SE, cielos Bortle 2-3). 25 subs + denoise IA superan a 100 subs crudos: el procesado gana a 4× más tiempo de integración.",
+    domains: ["Python", "PyTorch", "Astropy", "MPS"], repo: "https://github.com/ignacioimatik-web/astrolab",
+    ring: "border-amber-500/30",
   },
 ];
 
@@ -104,7 +92,6 @@ export function Concepts() {
             >
               <div className="relative z-10">
                 <div className="mb-3 flex items-start justify-between gap-2">
-                  <span className="text-2xl">{c.icon}</span>
                   <div className="flex flex-wrap justify-end gap-1.5">
                     {c.domains.map((d) => (
                       <span
@@ -130,8 +117,21 @@ export function Concepts() {
                 >
                   {c.idea}
                 </p>
-                <div className="mt-3 font-mono text-[10px] text-zinc-600 transition-colors group-hover:text-zinc-500">
-                  {isOpen ? "▲ contraer" : "▼ leer más"}
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="font-mono text-[10px] text-zinc-600 transition-colors group-hover:text-zinc-500">
+                    {isOpen ? "▲ contraer" : "▼ leer más"}
+                  </span>
+                  {isOpen && (
+                    <a
+                      href={c.repo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="rounded-[6px] border border-zinc-700 px-3 py-1 font-mono text-[11px] text-zinc-300 transition-colors hover:border-cyan-400 hover:text-cyan-400"
+                    >
+                      repo ↗
+                    </a>
+                  )}
                 </div>
               </div>
             </motion.div>
