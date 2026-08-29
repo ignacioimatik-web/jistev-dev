@@ -42,7 +42,7 @@ export function Hero() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
-              $ status: disponibles
+              $ status: onboard
             </motion.span>
 
             <motion.h1
@@ -78,11 +78,11 @@ export function Hero() {
               className="mt-8 flex flex-col gap-3 sm:flex-row"
             >
               <Link
-                href="#contacto"
-                className="inline-flex items-center justify-center rounded-[10px] bg-violet-600 px-7 py-3.5 text-sm font-semibold text-white transition-all hover:bg-violet-500 hover:-translate-y-0.5 shadow-[0_8px_30px_-8px_rgba(139,92,246,0.5)]"
-              >
-                Solicitar presupuesto
-              </Link>
+                              href="/presupuesto"
+                              className="inline-flex items-center justify-center rounded-[10px] bg-violet-600 px-7 py-3.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-violet-500 shadow-[0_8px_30px_-8px_rgba(139,92,246,0.5)]"
+                            >
+                              Solicitar presupuesto
+                            </Link>
               <Link
                 href="#proyectos"
                 className="inline-flex items-center justify-center rounded-[10px] border border-zinc-700 px-7 py-3.5 text-sm font-semibold text-zinc-100 transition-colors hover:border-cyan-400 hover:text-cyan-400"
