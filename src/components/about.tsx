@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
+import { aboutHighlights } from "@/lib/data";
 
 const highlights = [
   {
@@ -88,6 +89,21 @@ export function About() {
           </motion.div>
         ))}
       </div>
+
+      {/* Tagline */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="mx-auto mt-14 max-w-2xl rounded-xl border border-zinc-800 bg-zinc-900/30 p-5 text-center"
+      >
+        <p className="text-sm leading-relaxed text-zinc-500">
+          No pego APIs sin entender el negocio. No dirijo equipos sin saber
+          escribir el código. No imagino productos que no pueda construir.
+          Esa es la diferencia.
+        </p>
+      </motion.div>
     </SectionWrapper>
   );
 }

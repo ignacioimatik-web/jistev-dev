@@ -29,9 +29,26 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  children,
   ...props
 }: ButtonProps) {
-  const Comp = asChild ? "span" : "button";
+  const classes = cn(
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 disabled:pointer-events-none disabled:opacity-50",
+    buttonVariants[variant],
+    buttonSizes[size],
+    className
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    // Fusiona las clases y props del botón directamente sobre el hijo (p.ej. un <Link>),
+    // en vez de envolverlo en un <span>: así el área clicable es la real, no solo el texto.
+    const child = children as React.ReactElement<{ className?: string }>;
+    return React.cloneElement(child, {
+      className: cn(classes, child.props.className),
+      ...props,
+    });
+  }
+
   return (
     <Comp
       className={cn(

@@ -28,6 +28,9 @@ export function Hero() {
       {/* Dark overlay para legibilidad */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0b0d10]/85 via-[#0b0d10]/70 to-[#0b0d10]/95" />
 
+      {/* Accent glow */}
+      <div className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-violet-600/8 blur-[140px]" />
+
       {/* Content */}
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-6 pt-28 pb-14">
         <div className="grid items-center gap-10 md:grid-cols-[1.4fr_0.6fr]">
