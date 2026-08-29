@@ -39,12 +39,12 @@ export function SectionHeading({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="mb-16 text-center"
+      className="mb-16 text-left"
     >
-      <span className="mb-2 block text-sm font-medium uppercase tracking-widest text-violet-400">
-        {label}
+      <span className="mb-3 inline-block font-mono text-xs uppercase tracking-[1.5px] text-cyan-400">
+        {"//"} {label}
       </span>
-      <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+      <h2 className="max-w-2xl text-4xl font-bold tracking-tight sm:text-[40px]">
         {title}
       </h2>
     </motion.div>

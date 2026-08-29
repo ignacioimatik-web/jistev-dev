@@ -1,85 +1,59 @@
 "use client";
 
-import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
-import { services } from "@/lib/data";
 
-function useAsyncVideo(ref: React.RefObject<HTMLVideoElement | null>, offset: number) {
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const handler = () => { el.currentTime = offset; };
-    el.addEventListener("loadedmetadata", handler, { once: true });
-    return () => el.removeEventListener("loadedmetadata", handler);
-  }, [ref, offset]);
-}
-
-function ServiceCard({
-  icon,
-  title,
-  desc,
-  price,
-  index,
-}: {
-  icon: string;
-  title: string;
-  desc: string;
-  price: string;
-  index: number;
-}) {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const offsets = [0, 7.5, 15, 22.5];
-  useAsyncVideo(videoRef, offsets[index]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1, duration: 0.5 }}
-      className="group relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 transition-all hover:border-zinc-700"
-    >
-      {/* Video background */}
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster="/services-poster.jpg"
-        className="absolute inset-0 h-full w-full object-cover opacity-30 transition-opacity group-hover:opacity-50"
-      >
-        <source src="/services-bg.mp4" type="video/mp4" />
-      </video>
-
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zinc-950/85 via-zinc-950/65 to-zinc-950/85" />
-
-      {/* Content */}
-      <div className="relative z-10">
-        <motion.span
-          whileHover={{ scale: 1.2, rotate: [0, -10, 10, 0] }}
-          className="mb-4 block text-3xl"
-        >
-          {icon}
-        </motion.span>
-        <h3 className="mb-2 text-lg font-semibold">{title}</h3>
-        <p className="mb-4 text-sm leading-relaxed text-zinc-400">{desc}</p>
-        <span className="text-sm font-medium text-violet-400">{price}</span>
-      </div>
-    </motion.div>
-  );
-}
+const services = [
+  {
+    icon: "⚡",
+    title: "MVP Factory",
+    desc: "De idea a producto funcional en 1-2 semanas. Web apps, dashboards, prototipos full-stack.",
+    price: "desde 1.000€",
+  },
+  {
+    icon: "🤖",
+    title: "Automatización con IA",
+    desc: "Chatbots, GPTs custom, RAG sobre documentos, automatización de procesos con inteligencia artificial.",
+    price: "desde 500€",
+  },
+  {
+    icon: "🔄",
+    title: "Automation Tools",
+    desc: "Scripts Python, scraping, pipelines de datos, integración de APIs, reporting automático.",
+    price: "desde 300€",
+  },
+  {
+    icon: "💬",
+    title: "Bots & APIs",
+    desc: "Bots para Telegram/WhatsApp, APIs REST, webhooks, sistemas de notificaciones inteligentes.",
+    price: "desde 400€",
+  },
+];
 
 export function Services() {
   return (
     <SectionWrapper id="servicios">
-      <SectionHeading label="Servicios" title="Lo que puedo hacer por ti" />
+      <SectionHeading label="servicios" title="Lo que puedo hacer por ti." />
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         {services.map((s, i) => (
-          <ServiceCard key={s.title} {...s} index={i} />
+          <motion.div
+            key={s.title}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1, duration: 0.5 }}
+            className="rounded-[14px] border border-zinc-800 bg-[#11161d] p-6 transition-all hover:-translate-y-0.5 hover:border-violet-500/50"
+          >
+            <span className="mb-4 block text-3xl">{s.icon}</span>
+            <h3 className="mb-2 text-lg font-semibold">{s.title}</h3>
+            <p className="mb-4 flex-1 text-sm leading-relaxed text-zinc-400">
+              {s.desc}
+            </p>
+            <span className="font-mono text-sm font-medium text-cyan-400">
+              {s.price}
+            </span>
+          </motion.div>
         ))}
       </div>
     </SectionWrapper>

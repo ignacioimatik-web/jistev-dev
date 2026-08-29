@@ -7,10 +7,12 @@ import { Services } from "@/components/services";
 import { FAQ } from "@/components/faq";
 import { Contact } from "@/components/contact";
 import { Footer } from "@/components/footer";
+import { TooltipProvider } from "@/components/tooltip-provider";
 
 export default function Home() {
   return (
     <>
+      <TooltipProvider />
       <Nav />
       <main>
         <Hero />
