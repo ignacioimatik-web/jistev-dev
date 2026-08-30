@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { EASE_OUT } from "@/lib/motion";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
 import { useState } from "react";
 
@@ -55,7 +56,7 @@ export function Method() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+        transition={{ duration: 0.4, delay: 0.1, ease: EASE_OUT }}
         className="mx-auto mb-16 max-w-3xl text-center text-sm leading-relaxed text-zinc-400"
       >
         No empiezo por el código. Empiezo por el problema. Cada proyecto sigue
@@ -71,16 +72,16 @@ export function Method() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
+              transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
               onClick={() => setActiveStep(activeStep === i ? null : i)}
-              className={`group flex flex-col items-center gap-3 rounded-[12px] p-4 transition-all duration-300 ${
+              className={`group flex flex-col items-center gap-3 rounded-[12px] p-4 transition-[transform,border-color,background-color] duration-200 ${
                 activeStep === i
                   ? "border border-violet-500/30 bg-violet-500/10"
                   : "border border-transparent hover:bg-zinc-900/40"
               }`}
             >
               <div
-                className={`flex h-16 w-16 items-center justify-center rounded-full text-2xl transition-all duration-300 ${
+                className={`flex h-16 w-16 items-center justify-center rounded-full text-2xl transition-[transform,border-color,background-color] duration-200 ${
                   activeStep === i
                     ? "scale-110 bg-violet-500/20 ring-2 ring-violet-500/40"
                     : "bg-[#0f141b] ring-1 ring-zinc-800 group-hover:ring-zinc-700"
@@ -112,7 +113,7 @@ export function Method() {
           key={activeStep}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.28, ease: EASE_OUT }}
           className="mx-auto mt-10 hidden max-w-2xl rounded-[14px] border border-zinc-800 bg-[#11161d]/70 p-6 sm:block"
         >
           <div className="mb-2 flex items-center gap-3">
@@ -140,7 +141,7 @@ export function Method() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.08, duration: 0.4 }}
+            transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
             className="rounded-[12px] border border-zinc-800 bg-[#11161d]/60 p-4"
           >
             <div className="mb-2 flex items-center gap-3">

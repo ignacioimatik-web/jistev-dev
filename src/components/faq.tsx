@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
 import { faqs } from "@/lib/data";
 import { ChevronDown } from "lucide-react";
+import { EASE_OUT } from "@/lib/motion";
 
 export function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
@@ -42,7 +43,7 @@ export function FAQ() {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  transition={{ duration: 0.28, ease: EASE_OUT }}
                   className="border-t border-zinc-800"
                 >
                   <div className="px-6 py-4 text-sm leading-relaxed text-zinc-400">

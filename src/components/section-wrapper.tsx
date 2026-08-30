@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { EASE_OUT } from "@/lib/motion";
 
 interface SectionWrapperProps {
   children: ReactNode;
@@ -15,11 +16,11 @@ export function SectionWrapper({ children, id, className, delay = 0 }: SectionWr
   return (
     <motion.section
       id={id}
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6, delay, ease: "easeOut" }}
-      className={cn("border-t border-zinc-800 px-6 py-20 md:py-28", className)}
+      transition={{ duration: 0.5, delay, ease: EASE_OUT }}
+      className={cn("border-t border-zinc-800 px-6 py-24", className)}
     >
       <div className="mx-auto max-w-5xl">{children}</div>
     </motion.section>
@@ -35,10 +36,10 @@ export function SectionHeading({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.4, ease: EASE_OUT }}
       className="mb-16 text-left"
     >
       <span className="mb-3 inline-block font-mono text-xs uppercase tracking-[1.5px] text-cyan-400">

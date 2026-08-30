@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
+import { EASE_OUT } from "@/lib/motion";
 
 const concepts = [
   {
@@ -74,7 +75,7 @@ export function Concepts() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+        transition={{ duration: 0.4, delay: 0.1, ease: EASE_OUT }}
         className="mx-auto mb-14 max-w-3xl text-center text-sm leading-relaxed text-zinc-400"
       >
         No construyo proyectos porque sí. Cada idea nace de un problema real que
@@ -91,10 +92,10 @@ export function Concepts() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: (i % 6) * 0.05, duration: 0.4 }}
+              transition={{ delay: (i % 6) * 0.05, duration: 0.35, ease: EASE_OUT }}
               layout
               onClick={() => setActive(isOpen ? null : i)}
-              className={`group relative min-h-[210px] cursor-pointer overflow-hidden rounded-[14px] border p-5 transition-all duration-300 ${
+              className={`group relative min-h-[210px] cursor-pointer overflow-hidden rounded-[14px] border p-5 transition-[transform,border-color] duration-200 ${
                 isOpen ? c.ring : "border-zinc-800 hover:border-zinc-600"
               }`}
             >
@@ -126,7 +127,7 @@ export function Concepts() {
                   {c.tagline}
                 </p>
                 <p
-                  className={`mt-3 text-sm leading-relaxed transition-all duration-300 ${
+                  className={`mt-3 text-sm leading-relaxed transition-[color] duration-200 ${
                     isOpen ? "text-zinc-300" : "line-clamp-3 text-zinc-500"
                   }`}
                 >

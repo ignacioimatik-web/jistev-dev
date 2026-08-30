@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { EASE_OUT } from "@/lib/motion";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
 
 const capabilities = [
@@ -78,7 +79,7 @@ export function Capabilities() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+        transition={{ duration: 0.4, delay: 0.1, ease: EASE_OUT }}
         className="mx-auto mb-14 max-w-3xl text-center text-sm leading-relaxed text-zinc-400"
       >
         No vendo horas. Vendo capacidad de imaginar, liderar y construir.
@@ -95,7 +96,7 @@ export function Capabilities() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.5 }}
+              transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
               className={`overflow-hidden rounded-[14px] border transition-colors duration-300 ${
                 isOpen
                   ? "border-violet-500/30 bg-[#11161d]"
@@ -132,7 +133,7 @@ export function Capabilities() {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    transition={{ duration: 0.28, ease: EASE_OUT }}
                     className="overflow-hidden border-t border-zinc-800"
                   >
                     <div className="space-y-2.5 p-6 pt-5">
@@ -159,7 +160,7 @@ export function Capabilities() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.3 }}
+        transition={{ duration: 0.4, delay: 0.3, ease: EASE_OUT }}
         className="mx-auto mt-14 max-w-2xl rounded-xl border border-zinc-800 bg-[#11161d]/70 p-5 text-center"
       >
         <span className="mb-2 block text-lg">🎯</span>

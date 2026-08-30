@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { motion } from "framer-motion";
+import { EASE_OUT } from "@/lib/motion";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
 import { aboutHighlights } from "@/lib/data";
 
@@ -67,8 +68,8 @@ export function About() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.1, duration: 0.5 }}
-            className="group relative min-h-[220px] rounded-[14px] border border-zinc-800 bg-zinc-900/40 transition-all hover:-translate-y-0.5 hover:border-violet-500/50"
+            transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
+            className="group relative min-h-[220px] rounded-[14px] border border-zinc-800 bg-zinc-900/40 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-violet-500/50"
             data-title={h.tipTitle}
             data-body={h.tipBody}
             data-tags={h.tags.join(", ")}
@@ -95,7 +96,7 @@ export function About() {
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.3 }}
+        transition={{ duration: 0.4, delay: 0.3, ease: EASE_OUT }}
         className="mx-auto mt-14 max-w-2xl rounded-xl border border-zinc-800 bg-zinc-900/30 p-5 text-center"
       >
         <p className="text-sm leading-relaxed text-zinc-500">

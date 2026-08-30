@@ -50,6 +50,56 @@ p, li {
   max-width: 68ch;
 }
 
+/* ── Emil Kowalski: easings & polish ─────────────────────────── */
+:root {
+  /* strong ease-out for entrances */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* strong ease-in-out for on-screen movement */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  /* iOS-like drawer sheet */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Pressable elements feel responsive (scale down on press) */
+button,
+a[role="button"],
+input[type="submit"],
+.pressable {
+  transition: transform 160ms var(--ease-out);
+}
+button:active,
+a[role="button"]:active,
+input[type="submit"]:active,
+.pressable:active {
+  transform: scale(0.97);
+}
+/* Don't override transform-only transitions on :active with transition-all from utility classes */
+button:disabled {
+  pointer-events: none;
+}
+
+/* Hover effects only on pointer/hover devices */
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Respect reduced motion: fade only, no movement */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .hover-lift:hover {
+    transform: none;
+  }
+}
+
 /* tooltip segue el cursor */
 #tip {
   position: fixed;

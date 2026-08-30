@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { EASE_OUT } from "@/lib/motion";
 
 const stats = [
   { n: "12+", l: "Proyectos entregados" },
@@ -38,7 +39,7 @@ export function Hero() {
             <motion.span
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              transition={{ delay: 0.2, duration: 0.35, ease: EASE_OUT }}
               className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-white/[0.02] px-4 py-1.5 font-mono text-xs text-zinc-400"
             >
               <span className="relative flex h-2 w-2">
@@ -51,7 +52,7 @@ export function Hero() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
+              transition={{ delay: 0.3, duration: 0.4, ease: EASE_OUT }}
               className="mt-6 text-4xl font-bold leading-[1.06] tracking-tight sm:text-5xl md:text-[52px]"
             >
               Escribo código que{" "}
@@ -66,7 +67,7 @@ export function Hero() {
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
+              transition={{ delay: 0.4, duration: 0.4, ease: EASE_OUT }}
               className="mt-5 max-w-lg text-base leading-relaxed text-zinc-400"
             >
               Ignacio Estevez (jistev). Full-stack + IA. De la idea al MVP
@@ -77,18 +78,18 @@ export function Hero() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
+              transition={{ delay: 0.5, duration: 0.4, ease: EASE_OUT }}
               className="mt-8 flex flex-col gap-3 sm:flex-row"
             >
               <Link
                               href="/presupuesto"
-                              className="inline-flex items-center justify-center rounded-[10px] bg-violet-600 px-7 py-3.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-violet-500 shadow-[0_8px_30px_-8px_rgba(139,92,246,0.5)]"
+                              className="pressable inline-flex items-center justify-center rounded-[10px] bg-violet-600 px-7 py-3.5 text-sm font-semibold text-white transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-violet-500 shadow-[0_8px_30px_-8px_rgba(139,92,246,0.5)]"
                             >
                               Solicitar presupuesto
                             </Link>
               <Link
                 href="#conceptos"
-                className="inline-flex items-center justify-center rounded-[10px] border border-zinc-700 px-7 py-3.5 text-sm font-semibold text-zinc-100 transition-colors hover:border-cyan-400 hover:text-cyan-400"
+                className="pressable inline-flex items-center justify-center rounded-[10px] border border-zinc-700 px-7 py-3.5 text-sm font-semibold text-zinc-100 transition-colors hover:border-cyan-400 hover:text-cyan-400"
               >
                 Ver proyectos →
               </Link>
@@ -99,7 +100,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
+            transition={{ delay: 0.5, duration: 0.4, ease: EASE_OUT }}
             className="hidden overflow-hidden rounded-[14px] border border-zinc-800 bg-[#151b24] font-mono text-xs leading-relaxed text-[#9fb0c3] md:block"
           >
             <div className="flex gap-1.5 border-b border-zinc-800 bg-[#0f141b] px-3.5 py-3">
@@ -133,7 +134,7 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.6 }}
+          transition={{ delay: 0.7, duration: 0.4, ease: EASE_OUT }}
           className="mt-16 grid grid-cols-2 gap-5 border-t border-zinc-800 pt-8 sm:grid-cols-4"
         >
           {stats.map((s) => (

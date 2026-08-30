@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { EASE_OUT } from "@/lib/motion";
 import Link from "next/link";
 
 const navLinks = [
@@ -17,7 +18,7 @@ export function Nav() {
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.4, ease: EASE_OUT }}
       className="fixed top-0 z-50 w-full border-b border-zinc-800 bg-[#0b0d10]/80 backdrop-blur-xl"
     >
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
