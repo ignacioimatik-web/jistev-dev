@@ -17,6 +17,7 @@ const navLinks = [
 const extExternal = [
   { href: "https://studiomo.jazzone.click/", label: "studioMo" },
   { href: "https://jazzone-suite.vercel.app/", label: "jazzone" },
+  { href: "http://macbook-air-m4:3001", label: "novaTerm" },
 ];
 
 export function Nav() {
