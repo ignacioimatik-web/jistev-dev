@@ -2,8 +2,20 @@
 
 import { motion } from "framer-motion";
 import { EASE_OUT } from "@/lib/motion";
+import {
+  Search,
+  Lightbulb,
+  Boxes,
+  Compass,
+  Hammer,
+  type LucideIcon,
+} from "lucide-react";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
 import { useState } from "react";
+
+// Iconos SVG premium contextuales (en vez de emojis)
+const methodIcons: LucideIcon[] = [Search, Lightbulb, Boxes, Compass, Hammer];
+const methodIconSizes = ["h-7 w-7", "h-7 w-7", "h-7 w-7", "h-7 w-7", "h-7 w-7"];
 
 const methodSteps = [
   {
@@ -81,13 +93,16 @@ export function Method() {
               }`}
             >
               <div
-                className={`flex h-16 w-16 items-center justify-center rounded-full text-2xl transition-[transform,border-color,background-color] duration-200 ${
+                className={`flex h-16 w-16 items-center justify-center rounded-full transition-[transform,border-color,background-color] duration-200 ${
                   activeStep === i
-                    ? "scale-110 bg-violet-500/20 ring-2 ring-violet-500/40"
-                    : "bg-[#0f141b] ring-1 ring-zinc-800 group-hover:ring-zinc-700"
+                    ? "scale-110 bg-violet-500/20 ring-2 ring-violet-500/40 text-violet-300"
+                    : "bg-[#0f141b] ring-1 ring-zinc-800 text-zinc-400 group-hover:ring-zinc-700"
                 }`}
               >
-                {step.icon}
+                {(() => {
+                  const Icon = methodIcons[i];
+                  return <Icon className={methodIconSizes[i]} strokeWidth={1.6} />;
+                })()}
               </div>
               <div className="text-center">
                 <div
@@ -117,7 +132,12 @@ export function Method() {
           className="mx-auto mt-10 hidden max-w-2xl rounded-[14px] border border-zinc-800 bg-[#11161d]/70 p-6 sm:block"
         >
           <div className="mb-2 flex items-center gap-3">
-            <span className="text-2xl">{methodSteps[activeStep].icon}</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-zinc-700/60 bg-zinc-800/40 text-violet-400">
+              {(() => {
+                const Icon = methodIcons[activeStep];
+                return <Icon className="h-5 w-5" strokeWidth={1.7} />;
+              })()}
+            </span>
             <div>
               <span className="text-sm font-semibold text-violet-400">
                 {methodSteps[activeStep].title}
@@ -145,8 +165,11 @@ export function Method() {
             className="rounded-[12px] border border-zinc-800 bg-[#11161d]/60 p-4"
           >
             <div className="mb-2 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-lg">
-                {step.icon}
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-zinc-300">
+                {(() => {
+                  const Icon = methodIcons[i];
+                  return <Icon className="h-5 w-5" strokeWidth={1.7} />;
+                })()}
               </span>
               <div>
                 <div className="text-sm font-semibold text-zinc-200">{step.title}</div>

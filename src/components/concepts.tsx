@@ -76,7 +76,7 @@ export function Concepts() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.4, delay: 0.1, ease: EASE_OUT }}
-        className="mx-auto mb-14 max-w-3xl text-center text-sm leading-relaxed text-zinc-400"
+        className="mb-14 max-w-3xl text-left text-sm leading-relaxed text-zinc-400"
       >
         No construyo proyectos porque sí. Cada idea nace de un problema real que
         identifico, un concepto original que diseño y un sistema que lidero hasta
