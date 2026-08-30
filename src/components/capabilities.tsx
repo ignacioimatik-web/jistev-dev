@@ -2,12 +2,23 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  Target,
+  Layers,
+  BrainCircuit,
+  Workflow,
+  Globe,
+  type LucideIcon,
+} from "lucide-react";
 import { EASE_OUT } from "@/lib/motion";
 import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
 
+// Iconos premium contextuales de lucide-react (en vez de emojis)
+const capIcons: LucideIcon[] = [Target, Layers, BrainCircuit, Workflow, Globe];
+const capIconSizes = ["h-5 w-5", "h-5 w-5", "h-5 w-5", "h-5 w-5", "h-5 w-5"];
+
 const capabilities = [
   {
-    icon: "🎯",
     title: "Dirección de Producto",
     tagline: "De la idea al roadmap",
     desc: "Defino la visión, priorizo las funcionalidades, y trazo el camino desde el concepto hasta el lanzamiento. Sin caos ni sobreingeniería: solo lo que hace falta para que el producto resuelva el problema real.",
@@ -19,7 +30,6 @@ const capabilities = [
     ],
   },
   {
-    icon: "🏗️",
     title: "Arquitectura Full-Stack",
     tagline: "Diseño y ejecuto sistemas completos",
     desc: "Diseño la arquitectura y construyo cada capa. Frontend, backend, APIs, base de datos, despliegue. No hay 'eso lo hace otro' — entiendo y ejecuto todo el stack.",
@@ -31,7 +41,6 @@ const capabilities = [
     ],
   },
   {
-    icon: "🤖",
     title: "IA en Producción",
     tagline: "No demos. Sistemas que funcionan.",
     desc: "Integro LLMs, RAG, Whisper y automatización en productos reales. El reto no es conectar un modelo — es hacer que sea fiable, que no alucine cuando no debe, y que mejore con el uso.",
@@ -43,7 +52,6 @@ const capabilities = [
     ],
   },
   {
-    icon: "🔄",
     title: "Automatización Inteligente",
     tagline: "Lo que se ejecuta solo, funciona siempre",
     desc: "Pipelines, scraping, bots, procesamiento de datos, integración de APIs. Herramientas que eliminan tareas repetitivas y funcionan sin supervisión 24/7.",
@@ -55,7 +63,6 @@ const capabilities = [
     ],
   },
   {
-    icon: "🌐",
     title: "Ecosistemas Híbridos",
     tagline: "Cloud + on-prem, sin fricción",
     desc: "Diseño sistemas que cruzan la frontera entre cloud y tu propio hardware. Frontend en Vercel, backend en un NAS en casa, túneles Cloudflare para acceso seguro. Lo mejor de ambos mundos.",
@@ -108,7 +115,12 @@ export function Capabilities() {
                 className="w-full p-6 text-left"
               >
                 <div className="flex items-start gap-4">
-                  <span className="mt-0.5 shrink-0 text-2xl">{cap.icon}</span>
+                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-zinc-700/60 bg-zinc-800/40 text-violet-400">
+                    {(() => {
+                      const Icon = capIcons[i];
+                      return <Icon className={capIconSizes[i]} strokeWidth={1.75} />;
+                    })()}
+                  </span>
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-baseline justify-between gap-4">
                       <h3 className="text-lg font-semibold">{cap.title}</h3>
@@ -163,7 +175,9 @@ export function Capabilities() {
         transition={{ duration: 0.4, delay: 0.3, ease: EASE_OUT }}
         className="mx-auto mt-14 max-w-2xl rounded-xl border border-zinc-800 bg-[#11161d]/70 p-5 text-center"
       >
-        <span className="mb-2 block text-lg">🎯</span>
+        <span className="mb-2 flex items-center justify-center text-violet-400">
+          <Target className="h-6 w-6" strokeWidth={1.75} />
+        </span>
         <p className="text-sm leading-relaxed text-zinc-400">
           Estas capacidades no son compartimentos estancos. La IA que desarrollo
           alimenta las automatizaciones que construyo. La arquitectura híbrida
