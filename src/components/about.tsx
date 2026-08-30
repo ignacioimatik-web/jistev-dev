@@ -54,7 +54,7 @@ export function About() {
     <SectionWrapper id="about">
       <SectionHeading label="sobre-mi" title="De la idea al producto." />
 
-      <div className="mx-auto mb-12 max-w-2xl">
+      <div className="mb-12 max-w-2xl text-left">
         <p className="text-lg leading-relaxed text-zinc-400">
           Me muevo cómodo entre frontend y backend. Código limpio, decisiones
           pragmáticas y desde 2024 IA en cada proyecto.
