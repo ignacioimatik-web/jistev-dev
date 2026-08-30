@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function CorreoLogin() {
-  const router = useRouter();
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,7 +18,11 @@ export default function CorreoLogin() {
         body: JSON.stringify({ pin }),
       });
       if (r.ok) {
-        router.push("/correo");
+        // Navegación dura: garantiza que la cookie httpOnly de la respuesta
+        // del POST ya está en el navegador antes de pedir /correo.
+        // (router.push podía adelantarse al Set-Cookie y el middleware
+        // redirigía de vuelta al login.)
+        window.location.assign("/correo");
       } else {
         setPin("");
         setError("PIN incorrecto");
