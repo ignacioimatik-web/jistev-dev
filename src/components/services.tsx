@@ -44,7 +44,7 @@ export function Services() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
-            className="group relative min-h-[220px] overflow-hidden rounded-[14px] border border-zinc-800 bg-[#11161d] p-6 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-violet-500/50"
+            className="group relative min-h-[220px] overflow-hidden rounded-[14px] border border-zinc-800 bg-card p-6 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-violet-500/50"
           >
             <img
               src={s.bg}
@@ -52,7 +52,7 @@ export function Services() {
               loading="lazy"
               className="absolute inset-0 h-full w-full object-cover opacity-30 transition-opacity duration-300 group-hover:opacity-40"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0b0d10] via-[#0b0d10]/85 to-[#0b0d10]/65" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/65" />
 
             <div className="relative z-10 flex h-full min-h-[188px] flex-col justify-end">
               <h3 className="mb-2 text-lg font-semibold">{s.title}</h3>

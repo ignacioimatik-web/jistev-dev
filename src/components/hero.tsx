@@ -27,7 +27,7 @@ export function Hero() {
       </video>
 
       {/* Dark overlay para legibilidad */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0b0d10]/85 via-[#0b0d10]/70 to-[#0b0d10]/95" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/85 via-background/70 to-background/95" />
 
       {/* Accent glow */}
       <div className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-violet-600/8 blur-[140px]" />
@@ -100,7 +100,7 @@ export function Hero() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.4, ease: EASE_OUT }}
-            className="hidden overflow-hidden rounded-[14px] border border-zinc-800 bg-[#151b24] font-mono text-xs leading-relaxed text-[#9fb0c3] md:block"
+            className="hidden overflow-hidden rounded-[14px] border border-zinc-800 bg-subtle font-mono text-xs leading-relaxed text-[#9fb0c3] md:block"
           >
             <div className="flex gap-1.5 border-b border-zinc-800 bg-[#0f141b] px-3.5 py-3">
               <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />

@@ -106,8 +106,8 @@ export function Capabilities() {
               transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
               className={`overflow-hidden rounded-[14px] border transition-colors duration-300 ${
                 isOpen
-                  ? "border-violet-500/30 bg-[#11161d]"
-                  : "border-zinc-800 bg-[#11161d]/70 hover:border-zinc-700"
+                  ? "border-violet-500/30 bg-card"
+                  : "border-zinc-800 bg-card/70 hover:border-zinc-700"
               }`}
             >
               <button
@@ -173,7 +173,7 @@ export function Capabilities() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.4, delay: 0.3, ease: EASE_OUT }}
-        className="mx-auto mt-14 max-w-2xl rounded-xl border border-zinc-800 bg-[#11161d]/70 p-5 text-center"
+        className="mx-auto mt-14 max-w-2xl rounded-xl border border-zinc-800 bg-card/70 p-5 text-center"
       >
         <span className="mb-2 flex items-center justify-center text-violet-400">
           <Target className="h-6 w-6" strokeWidth={1.75} />

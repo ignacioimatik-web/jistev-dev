@@ -129,7 +129,7 @@ export function Method() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.28, ease: EASE_OUT }}
-          className="mx-auto mt-10 hidden max-w-2xl rounded-[14px] border border-zinc-800 bg-[#11161d]/70 p-6 sm:block"
+          className="mx-auto mt-10 hidden max-w-2xl rounded-[14px] border border-zinc-800 bg-card/70 p-6 sm:block"
         >
           <div className="mb-2 flex items-center gap-3">
             <span className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-zinc-700/60 bg-zinc-800/40 text-violet-400">
@@ -162,7 +162,7 @@ export function Method() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
-            className="rounded-[12px] border border-zinc-800 bg-[#11161d]/60 p-4"
+            className="rounded-[12px] border border-zinc-800 bg-card/60 p-4"
           >
             <div className="mb-2 flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-zinc-300">

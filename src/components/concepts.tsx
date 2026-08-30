@@ -105,7 +105,7 @@ export function Concepts() {
                 loading="lazy"
                 className="absolute inset-0 h-full w-full object-cover opacity-25 transition-opacity duration-300 group-hover:opacity-35"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0b0d10] via-[#0b0d10]/85 to-[#0b0d10]/60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/60" />
               <div className="relative z-10">
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div className="flex flex-wrap justify-end gap-1.5">

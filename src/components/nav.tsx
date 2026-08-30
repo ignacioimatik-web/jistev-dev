@@ -19,7 +19,7 @@ export function Nav() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: EASE_OUT }}
-      className="fixed top-0 z-50 w-full border-b border-zinc-800 bg-[#0b0d10]/80 backdrop-blur-xl"
+      className="fixed top-0 z-50 w-full border-b border-zinc-800 bg-background/80 backdrop-blur-xl"
     >
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         <Link

@@ -81,7 +81,7 @@ export function About() {
                 loading="lazy"
                 className="absolute inset-0 h-full w-full object-cover opacity-40 transition-opacity duration-300 group-hover:opacity-55"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0b0d10] via-[#0b0d10]/70 to-[#0b0d10]/25" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/25" />
             </div>
             <div className="relative z-10 flex h-full min-h-[220px] flex-col justify-end p-6">
               <h3 className="mb-2 text-lg font-semibold">{h.title}</h3>
