@@ -7,7 +7,7 @@ import { EASE_OUT } from "@/lib/motion";
 const stats = [
   { n: "12+", l: "Proyectos entregados" },
   { n: "8", l: "Open Source" },
-  { n: "2 sem", l: "MVP funcional" },
+  { n: "2-4 sem", l: "Beta funcional" },
   { n: "Full", l: "De casa al deploy" },
 ];
 
@@ -123,7 +123,7 @@ export function Hero() {
               <br />
               &nbsp;&nbsp;rol: <span className="text-cyan-300">"full-stack + ia"</span>,<br />
               &nbsp;&nbsp;stack: [<span className="text-cyan-300">"next"</span>,<span className="text-cyan-300">"ts"</span>,<span className="text-cyan-300">"python"</span>],<br />
-              &nbsp;&nbsp;mvp: <span className="text-amber-300">14</span> <span className="text-zinc-600">// dias</span>,<br />
+              &nbsp;&nbsp;beta: <span className="text-amber-300">14-28</span> <span className="text-zinc-600">// dias</span>,<br />
               &nbsp;&nbsp;entregas: <span className="text-amber-300">12</span>+,<br />
               &nbsp;&nbsp;iaProd: <span className="text-amber-300">true</span>,<br />
               {"};"}
