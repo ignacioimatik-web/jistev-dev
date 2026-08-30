@@ -12,9 +12,7 @@ const highlights = [
     title: "Full-Stack por naturaleza",
     desc: "No solo maqueto  -  construyo sistemas completos. Frontend, backend, APIs, infraestructura.",
     tipTitle: "full-stack",
-    tipBody: `Asumo el producto entero de punta a punta: interfaz, lógica de negocio, APIs, base de datos y despliegue. Trabajo por igual en frontend y backend, sin delegar lo esencial a terceros.
-Me muevo entre capas con el mismo criterio: el contrato de la API, el modelo de datos y el diseño de la UI se piensan como un solo sistema. Eso elimina los típicos silos de equipo y acelera el ciclo idea→producción.
-En la práctica eso significa que si tu proyecto necesita un dashboard web, una API pública y un proceso batch, lo construyo y lo conecto yo mismo, con una única fuente de verdad y un despliegue reproducible.`,
+    tipBody: `Asumo el producto entero de punta a punta: interfaz, lógica de negocio, APIs, base de datos y despliegue. Me muevo entre capas con el mismo criterio, sin silos de equipo: si necesitas un dashboard, una API y un proceso batch, lo construyo y lo conecto yo mismo con una única fuente de verdad.`,
     tags: ["Next.js", "FastAPI", "PostgreSQL", "Docker", "REST"],
   },
   {
@@ -22,9 +20,7 @@ En la práctica eso significa que si tu proyecto necesita un dashboard web, una 
     title: "Delivery-focused",
     desc: "De la idea al MVP funcional en semanas. Código limpio, pragmático, sin sobreingeniería.",
     tipTitle: "delivery",
-    tipBody: `Mi unidad de tiempo es la entrega, no el perfeccionismo. Un MVP funcional y validable en 1-2 semanas, con el que puedes enseñar la idea a usuarios reales y recoger feedback de inmediato.
-Empiezo por el núcleo que genera valor y despliego temprano, aunque sea pequeño: mejor un sistema simple funcionando en producción que una arquitectura elegante que nadie usa.
-Cada iteración añade lo que la realidad te pide (no lo que yo imagino). Decisiones pragmáticas y código limpio, recortando sobreingeniería y todo lo que no aporta a tus objetivos medibles.`,
+    tipBody: `Mi unidad de tiempo es la entrega, no el perfeccionismo. Un MVP funcional y validable en 1-2 semanas, con el que puedes enseñar la idea a usuarios reales. Despliego temprano, aunque sea pequeño: mejor un sistema simple en producción que una arquitectura elegante que nadie usa.`,
     tags: ["MVP", "2 semanas", "agile", "iteración"],
   },
   {
@@ -32,9 +28,7 @@ Cada iteración añade lo que la realidad te pide (no lo que yo imagino). Decisi
     title: "IA en producción",
     desc: "No solo prompteo. Integro LLMs, RAG, automatizaciones y bots en productos reales.",
     tipTitle: "ia+prod",
-    tipBody: `La IA no es aquí un prompt de laboratorio ni una demo: la integro dentro de productos reales que soportan tráfico real.
-Integro modelos de lenguaje (GPT y open-source), RAG sobre tus propios documentos, automatización de procesos, y bots para Telegram/WhatsApp que funcionan 24/7.
-Me ocupo del detalle que la demo no muestra: control de costes por llamada, límites y fallbacks cuando el modelo falla, latencia, y datos que quedan donde deben. Es decir, IA que un negocio puede usar sin estar pendiente de que se rompa.`,
+    tipBody: `Integro LLMs y RAG dentro de productos reales que soportan tráfico real, no demos de laboratorio. Me ocupo del detalle que la demo no muestra: control de costes por llamada, límites y fallbacks cuando el modelo falla, y datos que quedan donde deben. IA que un negocio puede usar sin estar pendiente de que se rompa.`,
     tags: ["LLMs", "RAG", "LangChain", "Bots", "MLOps"],
   },
   {
@@ -42,9 +36,7 @@ Me ocupo del detalle que la demo no muestra: control de costes por llamada, lím
     title: "Stack moderno",
     desc: "Next.js, TypeScript, shadcn/ui, Framer Motion, Python, FastAPI, Docker.",
     tipTitle: "stack",
-    tipBody: `Tecnologías actuales y mantenibles, elegidas porque tu producto debe durar y evolucionar, no porque estén de moda.
-Frontend con Next.js + TypeScript + Tailwind 4 + shadcn/ui y animaciones con Framer Motion. Backend con Python/FastAPI o Node, y Docker para que el despliegue sea reproducible en cualquier entorno.
-Es un stack que escala contigo: cuando tu MVP crece no te encuentras con un prototipo imposible de tocar, sino con una base sólida y documentada que un equipo futuro puede mantener.`,
+    tipBody: `Tecnologías actuales y mantenibles, elegidas porque tu producto debe durar y evolucionar, no porque estén de moda. Frontend con Next.js + TypeScript + Tailwind 4 + shadcn/ui y Framer Motion. Backend con Python/FastAPI o Node, y Docker para despliegues reproducibles. Un stack que escala contigo: cuando tu MVP crece te encuentras una base sólida, no un prototipo imposible de tocar.`,
     tags: ["Next.js", "TypeScript", "Tailwind", "shadcn/ui", "Python"],
   },
 ];

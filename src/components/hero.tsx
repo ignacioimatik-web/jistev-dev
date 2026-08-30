@@ -33,7 +33,7 @@ export function Hero() {
       <div className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-orange-600/8 blur-[140px]" />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-6 pt-28 pb-14">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-6 pt-28 pb-14">
         <div className="grid items-center gap-10 md:grid-cols-[1.4fr_0.6fr]">
           <div>
             <motion.span
@@ -47,6 +47,15 @@ export function Hero() {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
               $ status: onboard
+              <span className="ml-1.5 text-cyan-400">·</span>
+              <a
+                href="https://digitalcode.es"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-orange-400 transition-colors hover:text-orange-300"
+              >
+                digitalcode.es
+              </a>
             </motion.span>
 
             <motion.h1

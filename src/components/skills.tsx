@@ -65,6 +65,78 @@ const skills = [
     tags: "jistev.dev, studioMo, Escudo",
     body: "Mi plataforma de despliegue principal. Tu sitio jistev.dev, studioMo y Escudo Digital corren en Vercel con auto-deploy desde git.",
   },
+  {
+    name: "TypeScript",
+    icon: "TS",
+    tags: "todo el stack frontend",
+    body: "Tipado estático en todo el frontend. Next.js, React y las APIs que construyo van con TypeScript de serie, por contratos claros y menos bugs en producción.",
+  },
+  {
+    name: "React",
+    icon: "⚛️",
+    tags: "Next.js, SPAs",
+    body: "La base de toda la UI. Componentes, hooks y animaciones sobre React, siempre bajo Next.js para aprovechar SSR y el routing.",
+  },
+  {
+    name: "Tailwind CSS",
+    icon: "🎨",
+    tags: "shadcn/ui, diseño",
+    body: "Estilos utilitarios con Tailwind 4. Rapidísimo de iterar, diseño responsive y opcionalmente con tokens de tema en CSS puro.",
+  },
+  {
+    name: "shadcn/ui",
+    icon: "🧩",
+    tags: "UI premium",
+    body: "Componentes accesibles y copiables encima de Radix. Consigo interfaces premium sin reinventar primitivas ni arrastrar dependencias pesadas.",
+  },
+  {
+    name: "Framer Motion",
+    icon: "✦",
+    tags: "animaciones",
+    body: "Microinteracciones y animaciones de entrada que dan vida a mis UIs. Layout animado, scroll reveals y transiciones fluidas sin framer jank.",
+  },
+  {
+    name: "Supabase",
+    icon: "🔥",
+    tags: "ZBS Forcall, auth",
+    body: "Backend como servicio con Auth y Row Level Security. Gestiona el acceso por roles del sistema sanitario de ZBS Forcall sin montar servidor propio.",
+  },
+  {
+    name: "SQLite",
+    icon: "🗄️",
+    tags: "NovaTerm, local-first",
+    body: "Base de datos embebida, cero configuración. Ideal para apps local-first como NovaTerm (hosts, sesiones y clave SSH en SQLite).",
+  },
+  {
+    name: "ChromaDB",
+    icon: "🧠",
+    tags: "RAG, embeddings",
+    body: "Almacén vectorial para RAG. Indexa embeddings de documentos y hace búsqueda semántica para los asistentes y bots con respaldo propio.",
+  },
+  {
+    name: "Git / GitHub",
+    icon: "⎇",
+    tags: "workflow, CI/CD",
+    body: "Control de versiones y colaboración. Repos, PRs y auto-deploy conectado a Vercel en cada push a main.",
+  },
+  {
+    name: "Cloudflare",
+    icon: "🛡️",
+    tags: "túneles, DNS",
+    body: "Túneles seguros para exponer servicios on-prem (NAS) sin abrir puertos, más DNS y protección por delante de las apps.",
+  },
+  {
+    name: "Playwright",
+    icon: "🎭",
+    tags: "scraping, testing",
+    body: "Automatización de navegador para scraping multi-tienda y tests E2E. El motor de Price Sentinel AI y mis test de humo.",
+  },
+  {
+    name: "Whisper",
+    icon: "🎙️",
+    tags: "transcripción, IA",
+    body: "Transcripción de voz con aceleración Apple Silicon. Convierte 95 min de audio en 4 min de texto en el Mac Studio.",
+  },
 ];
 
 const categories = [
@@ -81,15 +153,27 @@ type CategoryKey = (typeof categories)[number]["key"];
 // mantener el filtrado por categoría del original: mapa tecnología -> categoría
 const catMap: Record<string, CategoryKey> = {
   "Next.js": "frontend",
+  React: "frontend",
+  "TypeScript": "frontend",
+  "Tailwind CSS": "frontend",
+  "shadcn/ui": "frontend",
+  "Framer Motion": "frontend",
   Python: "backend",
   FastAPI: "backend",
   "Node.js": "backend",
   Docker: "devops",
   "OpenAI / GPT": "ai",
   RAG: "ai",
+  Whisper: "ai",
+  "ChromaDB": "ai",
   "REST APIs": "backend",
   PostgreSQL: "database",
+  Supabase: "database",
+  SQLite: "database",
   Vercel: "devops",
+  "Git / GitHub": "devops",
+  Cloudflare: "devops",
+  Playwright: "devops",
 };
 
 export function Skills() {
