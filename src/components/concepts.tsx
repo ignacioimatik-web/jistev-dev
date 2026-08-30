@@ -96,7 +96,7 @@ export function Concepts() {
               layout
               onClick={() => setActive(isOpen ? null : i)}
               className={`group relative min-h-[210px] cursor-pointer overflow-hidden rounded-[14px] border p-5 transition-[transform,border-color] duration-200 ${
-                isOpen ? c.ring : "border-zinc-800 hover:border-zinc-600"
+                isOpen ? c.ring : "border-line hover:border-muted/50"
               }`}
             >
               <img
@@ -112,7 +112,7 @@ export function Concepts() {
                     {c.domains.map((d) => (
                       <span
                         key={d}
-                        className="rounded-full border border-zinc-700/60 bg-zinc-800/40 px-2 py-0.5 font-mono text-[10px] text-zinc-500"
+                        className="rounded-full border border-line/70 bg-subtle/50 px-2 py-0.5 font-mono text-[10px] text-zinc-500"
                       >
                         {d}
                       </span>
@@ -143,7 +143,7 @@ export function Concepts() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="rounded-[6px] border border-zinc-700 px-3 py-1 font-mono text-[11px] text-zinc-300 transition-colors hover:border-cyan-400 hover:text-cyan-400"
+                      className="rounded-[6px] border border-line px-3 py-1 font-mono text-[11px] text-zinc-300 transition-colors hover:border-cyan-400 hover:text-cyan-400"
                     >
                       repo ↗
                     </a>

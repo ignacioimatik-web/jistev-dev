@@ -110,7 +110,7 @@ export function Skills() {
             className={
               active === cat.key
                 ? "rounded-full bg-orange-600 px-4 py-1.5 text-xs font-medium text-white"
-                : "rounded-full bg-zinc-800/50 px-4 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
+                : "rounded-full bg-subtle/50 px-4 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
             }
           >
             {cat.label}
@@ -127,7 +127,7 @@ export function Skills() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3 }}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-[10px] border border-zinc-800 bg-card px-4 py-2.5 font-mono text-sm text-[#b8c4d4] transition-colors hover:border-orange-500/50"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-[10px] border border-line bg-card px-4 py-2.5 font-mono text-sm text-[#b8c4d4] transition-colors hover:border-orange-500/50"
             data-title={skill.name}
             data-body={skill.body}
             data-tags={skill.tags}

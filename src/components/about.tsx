@@ -69,7 +69,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
-            className="group relative min-h-[220px] rounded-[14px] border border-zinc-800 bg-zinc-900/40 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-orange-500/50"
+            className="group relative min-h-[220px] rounded-[14px] border border-line bg-card/60 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-orange-500/50"
             data-title={h.tipTitle}
             data-body={h.tipBody}
             data-tags={h.tags.join(", ")}
@@ -97,7 +97,7 @@ export function About() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.4, delay: 0.3, ease: EASE_OUT }}
-        className="mx-auto mt-14 max-w-2xl rounded-xl border border-zinc-800 bg-zinc-900/30 p-5 text-center"
+        className="mx-auto mt-14 max-w-2xl rounded-xl border border-line bg-card/50 p-5 text-center"
       >
         <p className="text-sm leading-relaxed text-zinc-500">
           No pego APIs sin entender el negocio. No dirijo equipos sin saber

@@ -107,7 +107,7 @@ export function Capabilities() {
               className={`overflow-hidden rounded-[14px] border transition-colors duration-300 ${
                 isOpen
                   ? "border-orange-500/30 bg-card"
-                  : "border-zinc-800 bg-card/70 hover:border-zinc-700"
+                  : "border-line bg-card/70 hover:border-muted/40"
               }`}
             >
               <button
@@ -115,7 +115,7 @@ export function Capabilities() {
                 className="w-full p-6 text-left"
               >
                 <div className="flex items-start gap-4">
-                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-zinc-700/60 bg-zinc-800/40 text-orange-400">
+                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-line/70 bg-subtle/50 text-orange-400">
                     {(() => {
                       const Icon = capIcons[i];
                       return <Icon className={capIconSizes[i]} strokeWidth={1.75} />;
@@ -146,7 +146,7 @@ export function Capabilities() {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.28, ease: EASE_OUT }}
-                    className="overflow-hidden border-t border-zinc-800"
+                    className="overflow-hidden border-t border-line"
                   >
                     <div className="space-y-2.5 p-6 pt-5">
                       {cap.details.map((detail) => (
@@ -173,7 +173,7 @@ export function Capabilities() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.4, delay: 0.3, ease: EASE_OUT }}
-        className="mx-auto mt-14 max-w-2xl rounded-xl border border-zinc-800 bg-card/70 p-5 text-center"
+        className="mx-auto mt-14 max-w-2xl rounded-xl border border-line bg-card/70 p-5 text-center"
       >
         <span className="mb-2 flex items-center justify-center text-orange-400">
           <Target className="h-6 w-6" strokeWidth={1.75} />

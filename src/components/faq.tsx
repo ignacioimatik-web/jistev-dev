@@ -22,11 +22,11 @@ export function FAQ() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.05 }}
-            className="overflow-hidden rounded-xl border border-zinc-800"
+            className="overflow-hidden rounded-xl border border-line"
           >
             <button
               onClick={() => setOpen(open === i ? null : i)}
-              className="flex w-full items-center justify-between px-6 py-4 text-left text-sm font-medium transition-colors hover:bg-zinc-900/50"
+              className="flex w-full items-center justify-between px-6 py-4 text-left text-sm font-medium transition-colors hover:bg-card/70"
             >
               <span>{f.q}</span>
               <motion.span
@@ -44,7 +44,7 @@ export function FAQ() {
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.28, ease: EASE_OUT }}
-                  className="border-t border-zinc-800"
+                  className="border-t border-line"
                 >
                   <div className="px-6 py-4 text-sm leading-relaxed text-zinc-400">
                     {f.a}

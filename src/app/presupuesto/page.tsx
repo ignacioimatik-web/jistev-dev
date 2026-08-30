@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -9,40 +9,76 @@ import { Button } from "@/components/ui/button";
 const SERVICES = [
   {
     id: "mvp",
-    icon: "⚡",
     name: "MVP Factory",
     desc: "Web app, dashboard o prototipo full-stack en 1-2 semanas.",
     price: 1000,
   },
   {
     id: "ia",
-    icon: "🤖",
     name: "Automatización con IA",
     desc: "Chatbots, RAG, GPTs custom, sistemas que aprenden.",
     price: 500,
   },
   {
     id: "tools",
-    icon: "🔄",
     name: "Automation Tools",
     desc: "Scripts Python, scraping, pipelines, reporting.",
     price: 300,
   },
   {
     id: "bots",
-    icon: "💬",
     name: "Bots & APIs",
     desc: "Bots Telegram/WhatsApp, APIs REST, webhooks.",
     price: 400,
   },
   {
     id: "full",
-    icon: "🏗️",
     name: "Proyecto Completo",
     desc: "Combinación de varios servicios. Presupuesto personalizado.",
     price: -1, // custom
   },
 ];
+
+// ─── Iconos premium (SVG de marca, gradiente naranja→cian) ────
+const SERVICE_PATHS: Record<string, ReactNode> = {
+  mvp: (
+    <>
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+      <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+      <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+    </>
+  ),
+  ia: (
+    <>
+      <path d="M9.94 15.5a2 2 0 0 0-1.44-1.44l-6.13-1.58a.5.5 0 0 1 0-.96l6.13-1.58A2 2 0 0 0 9.94 8.5l1.58-6.13a.5.5 0 0 1 .96 0l1.58 6.13a2 2 0 0 0 1.44 1.44l6.13 1.58a.5.5 0 0 1 0 .96l-6.13 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.96 0z" />
+      <path d="M20 3v4" />
+      <path d="M22 5h-4" />
+      <path d="M4 17v2" />
+      <path d="M5 18H3" />
+    </>
+  ),
+  tools: (
+    <>
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  bots: (
+    <>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      <path d="M8 9h8" />
+      <path d="M8 13h5" />
+    </>
+  ),
+  full: (
+    <>
+      <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
+      <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" />
+      <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" />
+    </>
+  ),
+};
 
 const TIMELINE_OPTIONS = [
   { value: "urgente", label: "Urgente (menos de 1 semana)", multiplier: 1.5 },
@@ -155,7 +191,7 @@ export default function PresupuestoPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Nav */}
-      <nav className="fixed top-0 z-50 w-full border-b border-zinc-800 bg-background/80 backdrop-blur-xl">
+      <nav className="fixed top-0 z-50 w-full border-b border-line bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="font-mono text-base font-bold tracking-tight hover:text-cyan-400">
             ~/jistev<span className="text-cyan-400">_</span>
@@ -190,7 +226,7 @@ export default function PresupuestoPage() {
                     className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
                       i + 1 <= step
                         ? "bg-orange-600 text-white"
-                        : "bg-zinc-800 text-zinc-500"
+                        : "bg-subtle text-zinc-500"
                     }`}
                   >
                     {i + 1}
@@ -198,7 +234,7 @@ export default function PresupuestoPage() {
                   {i < TOTAL_STEPS - 1 && (
                     <div
                       className={`h-1 w-12 rounded transition-all ${
-                        i + 1 < step ? "bg-orange-600" : "bg-zinc-800"
+                        i + 1 < step ? "bg-orange-600" : "bg-subtle"
                       }`}
                     />
                   )}
@@ -298,10 +334,34 @@ function StepServices({
               className={`flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-all ${
                 isSelected
                   ? "border-orange-600 bg-orange-600/10"
-                  : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-700"
+                  : "border-line bg-card/60 hover:border-muted/40"
               }`}
             >
-              <span className="text-2xl">{svc.icon}</span>
+              <span
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-gradient-to-br from-orange-500/15 via-transparent to-cyan-400/10 transition-colors ${
+                  isSelected ? "border-orange-500/60" : "border-line/80"
+                }`}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke={`url(#sg-${svc.id})`}
+                  strokeWidth={1.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-5 w-5 drop-shadow-[0_0_6px_rgba(249,115,22,0.3)]"
+                  aria-hidden="true"
+                >
+                  <defs>
+                    <linearGradient id={`sg-${svc.id}`} x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#fb923c" />
+                      <stop offset="55%" stopColor="#f97316" />
+                      <stop offset="100%" stopColor="#22d3ee" />
+                    </linearGradient>
+                  </defs>
+                  {SERVICE_PATHS[svc.id]}
+                </svg>
+              </span>
               <div className="flex-1">
                 <div className="flex items-baseline justify-between">
                   <span className="font-semibold">{svc.name}</span>
@@ -313,7 +373,7 @@ function StepServices({
               </div>
               <div
                 className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all ${
-                  isSelected ? "border-orange-600 bg-orange-600" : "border-zinc-600"
+                  isSelected ? "border-orange-600 bg-orange-600" : "border-muted/40"
                 }`}
               >
                 {isSelected && (
@@ -336,7 +396,7 @@ function StepServices({
               className={`flex-1 rounded-lg border p-3 text-center text-sm transition-all ${
                 timeline === opt.value
                   ? "border-orange-600 bg-orange-600/10 text-orange-400"
-                  : "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700"
+                  : "border-line bg-card/60 text-zinc-400 hover:border-muted/40"
               }`}
             >
               <div className="font-medium">{opt.label}</div>
@@ -383,7 +443,7 @@ function StepDetails({
           <input
             value={form.name}
             onChange={(e) => onChange("name", e.target.value)}
-            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
+            className="flex h-12 w-full rounded-xl border border-line bg-deep px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
             placeholder="Tu nombre"
           />
         </div>
@@ -393,7 +453,7 @@ function StepDetails({
             type="email"
             value={form.email}
             onChange={(e) => onChange("email", e.target.value)}
-            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
+            className="flex h-12 w-full rounded-xl border border-line bg-deep px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
             placeholder="tu@email.com"
           />
         </div>
@@ -402,7 +462,7 @@ function StepDetails({
           <input
             value={form.company}
             onChange={(e) => onChange("company", e.target.value)}
-            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
+            className="flex h-12 w-full rounded-xl border border-line bg-deep px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
             placeholder="Nombre de tu empresa"
           />
         </div>
@@ -414,7 +474,7 @@ function StepDetails({
           <textarea
             value={form.description}
             onChange={(e) => onChange("description", e.target.value)}
-            className="flex min-h-[140px] w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500 resize-none"
+            className="flex min-h-[140px] w-full rounded-xl border border-line bg-deep px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500 resize-none"
             placeholder="Describe tu proyecto con el máximo detalle posible..."
           />
         </div>
@@ -423,7 +483,7 @@ function StepDetails({
           <input
             value={form.budget}
             onChange={(e) => onChange("budget", e.target.value)}
-            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
+            className="flex h-12 w-full rounded-xl border border-line bg-deep px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
             placeholder="Ej: 2.000€ - 5.000€"
           />
         </div>
@@ -465,7 +525,7 @@ function StepReview({
     >
       <h2 className="mb-6 text-xl font-semibold">Revisa tu presupuesto</h2>
 
-      <div className="mb-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+      <div className="mb-6 rounded-2xl border border-line bg-card/60 p-6">
         <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-500">
           Desglose
         </h3>
@@ -476,7 +536,7 @@ function StepReview({
               <span className="text-sm font-medium">{item.price.toLocaleString()}€</span>
             </div>
           ))}
-          <div className="border-t border-zinc-700 pt-3">
+          <div className="border-t border-line pt-3">
             <div className="flex items-center justify-between">
               <span className="font-semibold">Total estimado</span>
               <span className="text-lg font-bold text-orange-400">
@@ -490,12 +550,12 @@ function StepReview({
         </div>
       </div>
 
-      <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/30 p-4">
+      <div className="mb-6 rounded-xl border border-line bg-card/50 p-4">
         <div className="space-y-2 text-sm text-zinc-400">
           <p><span className="text-zinc-500">Nombre:</span> {form.name}</p>
           <p><span className="text-zinc-500">Email:</span> {form.email}</p>
           {form.company && <p><span className="text-zinc-500">Empresa:</span> {form.company}</p>}
-          <p className="pt-2 border-t border-zinc-800">
+          <p className="pt-2 border-t border-line">
             <span className="text-zinc-500">Descripción:</span>
             <br />{form.description}
           </p>
@@ -536,7 +596,25 @@ function StepConfirmation({
       animate={{ opacity: 1, scale: 1 }}
       className="text-center"
     >
-      <div className="mb-6 text-5xl">🎉</div>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="url(#sg-check)"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+        className="mx-auto mb-6 block h-16 w-16 drop-shadow-[0_0_18px_rgba(34,211,238,0.35)]"
+      >
+        <defs>
+          <linearGradient id="sg-check" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#22d3ee" />
+            <stop offset="100%" stopColor="#fb923c" />
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="12" r="10" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
       <h2 className="mb-3 text-2xl font-bold">¡Presupuesto enviado!</h2>
       <p className="mb-8 text-zinc-400">
         Gracias, {form.name}. Te responderé en menos de 24h con un presupuesto detallado.
@@ -545,7 +623,29 @@ function StepConfirmation({
 
       <div className="flex flex-col items-center gap-4">
         <Button onClick={onDownload} className="px-8">
-          📄 Descargar PDF del presupuesto
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="url(#sg-file)"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className="mr-2 inline h-4 w-4"
+          >
+            <defs>
+              <linearGradient id="sg-file" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#fb923c" />
+                <stop offset="100%" stopColor="#22d3ee" />
+              </linearGradient>
+            </defs>
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+            <path d="M16 13H8" />
+            <path d="M16 17H8" />
+            <path d="M10 9H8" />
+          </svg>
+          Descargar PDF del presupuesto
         </Button>
         <div className="flex gap-4 text-sm">
           <Link href="/" className="text-orange-400 hover:text-orange-300 transition-colors">

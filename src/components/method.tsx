@@ -50,7 +50,7 @@ function StepConnector({ active }: { active: boolean }) {
     <div className="hidden items-center justify-center py-2 sm:flex">
       <div
         className={`h-0.5 w-12 transition-colors duration-500 ${
-          active ? "bg-orange-500/40" : "bg-zinc-800"
+          active ? "bg-orange-500/40" : "bg-subtle"
         }`}
       />
     </div>
@@ -89,14 +89,14 @@ export function Method() {
               className={`group flex flex-col items-center gap-3 rounded-[12px] p-4 transition-[transform,border-color,background-color] duration-200 ${
                 activeStep === i
                   ? "border border-orange-500/30 bg-orange-500/10"
-                  : "border border-transparent hover:bg-zinc-900/40"
+                  : "border border-transparent hover:bg-card/60"
               }`}
             >
               <div
                 className={`flex h-16 w-16 items-center justify-center rounded-full transition-[transform,border-color,background-color] duration-200 ${
                   activeStep === i
                     ? "scale-110 bg-orange-500/20 ring-2 ring-orange-500/40 text-orange-300"
-                    : "bg-[#0f141b] ring-1 ring-zinc-800 text-zinc-400 group-hover:ring-zinc-700"
+                    : "bg-background ring-1 ring-zinc-800 text-zinc-400 group-hover:ring-zinc-700"
                 }`}
               >
                 {(() => {
@@ -129,10 +129,10 @@ export function Method() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.28, ease: EASE_OUT }}
-          className="mx-auto mt-10 hidden max-w-2xl rounded-[14px] border border-zinc-800 bg-card/70 p-6 sm:block"
+          className="mx-auto mt-10 hidden max-w-2xl rounded-[14px] border border-line bg-card/70 p-6 sm:block"
         >
           <div className="mb-2 flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-zinc-700/60 bg-zinc-800/40 text-orange-400">
+            <span className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-line/70 bg-subtle/50 text-orange-400">
               {(() => {
                 const Icon = methodIcons[activeStep];
                 return <Icon className="h-5 w-5" strokeWidth={1.7} />;
@@ -162,10 +162,10 @@ export function Method() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
-            className="rounded-[12px] border border-zinc-800 bg-card/60 p-4"
+            className="rounded-[12px] border border-line bg-card/60 p-4"
           >
             <div className="mb-2 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-zinc-300">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-subtle text-zinc-300">
                 {(() => {
                   const Icon = methodIcons[i];
                   return <Icon className="h-5 w-5" strokeWidth={1.7} />;

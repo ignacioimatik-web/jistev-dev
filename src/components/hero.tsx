@@ -40,7 +40,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.35, ease: EASE_OUT }}
-              className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-white/[0.02] px-4 py-1.5 font-mono text-xs text-zinc-400"
+              className="inline-flex items-center gap-2 rounded-full border border-line bg-white/[0.02] px-4 py-1.5 font-mono text-xs text-zinc-400"
             >
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -82,13 +82,13 @@ export function Hero() {
             >
               <Link
                               href="/presupuesto"
-                              className="pressable inline-flex items-center justify-center rounded-[10px] bg-orange-600 px-7 py-3.5 text-sm font-semibold text-white transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-orange-500 shadow-[0_8px_30px_-8px_rgba(249,115,22,0.5)]"
+                              className="pressable inline-flex items-center justify-center rounded-[10px] bg-orange-700 px-7 py-3.5 text-sm font-semibold text-white transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-orange-600 shadow-[0_8px_30px_-8px_rgba(249,115,22,0.5)]"
                             >
                               Solicitar presupuesto
                             </Link>
               <Link
                 href="#conceptos"
-                className="pressable inline-flex items-center justify-center rounded-[10px] border border-zinc-700 px-7 py-3.5 text-sm font-semibold text-zinc-100 transition-colors hover:border-cyan-400 hover:text-cyan-400"
+                className="pressable inline-flex items-center justify-center rounded-[10px] border border-line px-7 py-3.5 text-sm font-semibold text-zinc-100 transition-colors hover:border-cyan-400 hover:text-cyan-400"
               >
                 Ver proyectos →
               </Link>
@@ -100,9 +100,9 @@ export function Hero() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.4, ease: EASE_OUT }}
-            className="hidden overflow-hidden rounded-[14px] border border-zinc-800 bg-subtle font-mono text-xs leading-relaxed text-[#9fb0c3] md:block"
+            className="hidden overflow-hidden rounded-[14px] border border-line bg-subtle font-mono text-xs leading-relaxed text-[#9fb0c3] md:block"
           >
-            <div className="flex gap-1.5 border-b border-zinc-800 bg-[#0f141b] px-3.5 py-3">
+            <div className="flex gap-1.5 border-b border-line bg-background px-3.5 py-3">
               <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
               <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
@@ -134,7 +134,7 @@ export function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7, duration: 0.4, ease: EASE_OUT }}
-          className="mt-16 grid grid-cols-2 gap-5 border-t border-zinc-800 pt-8 sm:grid-cols-4"
+          className="mt-16 grid grid-cols-2 gap-5 border-t border-line pt-8 sm:grid-cols-4"
         >
           {stats.map((s) => (
             <div key={s.l} className="text-left">

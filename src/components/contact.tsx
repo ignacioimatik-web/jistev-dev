@@ -55,7 +55,7 @@ export function Contact() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="rounded-2xl border border-zinc-800 bg-zinc-900/30 p-8"
+          className="rounded-2xl border border-line bg-card/50 p-8"
         >
           <form onSubmit={handleSubmit} className="space-y-4 text-left">
             {/* Honeypot anti-spam: invisible para personas, los bots lo rellenan igualmente */}
@@ -118,7 +118,7 @@ export function Contact() {
             </Button>
           </form>
 
-          <div className="mt-6 border-t border-zinc-800 pt-6">
+          <div className="mt-6 border-t border-line pt-6">
             <p className="mb-2 text-sm text-zinc-500">O escríbeme directo:</p>
             <a
               href="mailto:ignacio@digitalcode.es"

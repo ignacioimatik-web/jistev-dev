@@ -2,8 +2,8 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = {
-  default: "bg-orange-600 text-white hover:bg-orange-500 shadow-[0_8px_30px_-8px_rgba(249,115,22,0.5)]",
-  outline: "border border-zinc-700 text-zinc-200 hover:border-cyan-400 hover:text-cyan-400",
+  default: "bg-orange-700 text-white hover:bg-orange-600 shadow-[0_8px_30px_-8px_rgba(249,115,22,0.5)]",
+  outline: "border border-line text-zinc-200 hover:border-cyan-400 hover:text-cyan-400",
   ghost: "text-zinc-400 hover:text-white",
   link: "text-cyan-400 underline-offset-4 hover:underline",
 } as const;

@@ -8,7 +8,7 @@ export function Footer() {
       <div className="flex flex-wrap justify-center gap-3">
         <a
           href="mailto:ignacio@digitalcode.es"
-          className="rounded-[8px] border border-zinc-700 px-5 py-3 font-mono text-sm text-zinc-400 transition-colors hover:border-orange-500 hover:text-orange-400"
+          className="rounded-[8px] border border-line px-5 py-3 font-mono text-sm text-zinc-400 transition-colors hover:border-orange-500 hover:text-orange-400"
         >
           @ email
         </a>
@@ -16,7 +16,7 @@ export function Footer() {
           href="https://github.com/ignacioimatik-web"
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-[8px] border border-zinc-700 px-5 py-3 font-mono text-sm text-zinc-400 transition-colors hover:border-orange-500 hover:text-orange-400"
+          className="rounded-[8px] border border-line px-5 py-3 font-mono text-sm text-zinc-400 transition-colors hover:border-orange-500 hover:text-orange-400"
         >
           @ github
         </a>

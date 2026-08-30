@@ -4,12 +4,12 @@ description: Portfolio dark premium de Ignacio Estevez (jistev) — IA en produc
 colors:
   primary: "#f97316"
   accent-glare: "#22d3ee"
-  neutral-bg: "#0b0d10"
-  neutral-surface: "#11161d"
-  neutral-subtle: "#151b24"
-  neutral-line: "#1e2733"
+  neutral-bg: "#20242d"
+  neutral-surface: "#282e3a"
+  neutral-subtle: "#303646"
+  neutral-line: "#3c4354"
   neutral-foreground: "#e8ecf1"
-  neutral-muted: "#8b96a8"
+  neutral-muted: "#9aa5b6"
 typography:
   display:
     fontFamily: "Inter, system-ui, sans-serif"
@@ -66,7 +66,7 @@ components:
 
 **Creative North Star: "El Laboratorio Nocturno"**
 
-jistev.dev es un laboratorio de trabajo en la oscuridad: un fondo casi negro (`#0b0d10`) donde cada resultado se ilumina con intención. La metáfora es la de un técnico probando y afinando bajo luz de referencia constante — dominante, precisa, sin ruido. El naranja eléctrico es la firma del experimento; el cian neón es el plano/luz de estado. No hay gradientes de marca: el laboratorio distingue su instrumento (naranja sólido) de su lectura (cian sólido).
+jistev.dev es un laboratorio de trabajo en la oscuridad: un fondo grafito (`#20242d`) — gris profundo, no negro donde cada resultado se ilumina con intención. La metáfora es la de un técnico probando y afinando bajo luz de referencia constante — dominante, precisa, sin ruido. El naranja eléctrico es la firma del experimento; el cian neón es el plano/luz de estado. No hay gradientes de marca: el laboratorio distingue su instrumento (naranja sólido) de su lectura (cian sólido).
 
 La densidad es media-baja. El contenido respira con `py-24` entre secciones y espacio generoso en cards. El lenguaje es **mono para el sistema** (labels, taglines, tags, precios como `$ ...`) e **Inter para la voz** (títulos y cuerpo). La atmósfera es técnica y templada: capacidad de imaginar, liderar y construir, sin hype folleto.
 
@@ -89,12 +89,12 @@ El único acento que "habla": botón primario ("Solicitar presupuesto"), enlace 
 No es una segunda voz: es **lectura de estado y sistema**. Tags/labels mono (`$ status: onboard`, `// sobre-mi`, `▸ full-stack`), precios (`desde 500€`), números de stats, iconos de detalle. Donde el naranja dice "actúa", el cian dice "lee/repara". Se usa en texto mono de sistema, nunca en botones.
 
 ### Neutral
-- **Fondo de laboratorio** (`#0b0d10`): el lienzo base del sitio en general y hero.
-- **Superficie card** (`#11161d`): tarjetas, acordeones, contenedores elevados un paso sobre el fondo.
-- **Superficie sutil** (`#151b24`): paneles internos, blockquote, inputs sobre card, header del code-panel.
-- **Línea** (`#1e2733`): todos los bordes (`border-zinc-800`).
+- **Fondo de laboratorio** (`#20242d`): el lienzo base del sitio en general y hero.
+- **Superficie card** (`#282e3a`): tarjetas, acordeones, contenedores elevados un paso sobre el fondo.
+- **Superficie sutil** (`#303646`): paneles internos, blockquote, inputs sobre card, header del code-panel.
+- **Línea** (`#3c4354`): todos los bordes (`border-zinc-800`).
 - **Texto primario** (`#e8ecf1`): títulos y texto de máxima legibilidad.
-- **Texto mutado** (`#8b96a8`): cuerpo secundario, descripciones, `text-zinc-400`.
+- **Texto mutado** (`#9aa5b6`): cuerpo secundario, descripciones, `text-zinc-400`.
 
 > **La Regla de Voz Única.** El naranja eléctrico se reserva a elementos de acción/jerarquía y aparece en ≤10% de cualquier pantalla. Su rareza es el punto. No se combina con el cian en gradientes.
 
@@ -121,7 +121,7 @@ Responsive: mobile-first con `sm:`/`md:`/`lg:`. Las cards colapsan a 1 columna e
 
 ## Elevation & Depth
 
-El sistema es **casi plano por tonalidad**, no por sombra. La profundidad se logra apilando superficies de luz creciente: fondo `#0b0d10` → surface `#11161d` → panel `#151b24`, más bordes `#1e2733` que separan. Las sombras aparecen sólo como respuesta de estado (hover del botón primario y del tooltip), no en reposo.
+El sistema es **casi plano por tonalidad**, no por sombra. La profundidad se logra apilando superficies de luz creciente: fondo `#20242d` → surface `#282e3a` → panel `#303646`, más bordes `#3c4354` que separan. Las sombras aparecen sólo como respuesta de estado (hover del botón primario y del tooltip), no en reposo.
 
 ### Shadow Vocabulary
 - **Hover-reactivo** (`0 8px 30px -8px rgba(139,92,246,0.5)`): el botón primario al hacer hover — "el laboratorio ilumina su instrumento".
@@ -131,7 +131,7 @@ El sistema es **casi plano por tonalidad**, no por sombra. La profundidad se log
 
 ## Shapes
 
-Lenguaje de esquinas **ligeramente redondeadas y contenidas**: `radius` estándar 10px en botones/inputs, 14px en cards y contenedores, 6px en tags y mini-chips. Ni agresivamente redondeado ni cuadrado. Bordes de `#1e2733` (1px) sobre superficies oscuras; el foco se marca con ring de naranja/cian. Los iconos viven en tiles cuadrados 40px con borde fino (`rounded-[10px] border-zinc-700/60`).
+Lenguaje de esquinas **ligeramente redondeadas y contenidas**: `radius` estándar 10px en botones/inputs, 14px en cards y contenedores, 6px en tags y mini-chips. Ni agresivamente redondeado ni cuadrado. Bordes de `#3c4354` (1px) sobre superficies oscuras; el foco se marca con ring de naranja/cian. Los iconos viven en tiles cuadrados 40px con borde fino (`rounded-[10px] border-zinc-700/60`).
 
 ## Components
 
@@ -140,27 +140,27 @@ Componentes de respuesta precisa y contenida: botones firmes, cards discretas, i
 ### Buttons
 - **Shape:** esquinas 10px, altura 44px para el primario.
 - **Primary:** naranja eléctrico (`#f97316`), texto blanco, padding 14/28. Hover: naranja más profundo (`#ea580c`) + lift y sombra reactiva. Active: `scale(0.97)` (respuesta de pulsación física).
-- **Ghost:** borde fino `#1e2733`, texto claro. Hover: borde/`text` cian neón (`hover:border-cyan-400 hover:text-cyan-400`). Active: `scale(0.97)`.
+- **Ghost:** borde fino `#3c4354`, texto claro. Hover: borde/`text` cian neón (`hover:border-cyan-400 hover:text-cyan-400`). Active: `scale(0.97)`.
 - **Focus:** ring naranja visible.
 
 ### Tags & Chips (dominios, tecnologías)
-- **Style:** superficie sutil `#151b24`, texto `#9fb0c3`, borde fino, radio 6px, mono. Son de **lectura**, nunca de acción.
+- **Style:** superficie sutil `#303646`, texto `#9fb0c3`, borde fino, radio 6px, mono. Son de **lectura**, nunca de acción.
 
 ### Cards / Containers
 - **Corner Style:** 14px.
-- **Background:** superficie `#11161d`.
+- **Background:** superficie `#282e3a`.
 - **Shadow Strategy:** plano en reposo (ver Elevation).
-- **Border:** 1px `#1e2733`.
-- **Fondo opcional:** imágenes de código o foto con overlay oscuro (`opacity 0.25-0.4`) y gradiente `#0b0d10` al fondo para legibilidad.
+- **Border:** 1px `#3c4354`.
+- **Fondo opcional:** imágenes de código o foto con overlay oscuro (`opacity 0.25-0.4`) y gradiente `#20242d` al fondo para legibilidad.
 - **Internal Padding:** `p-6` (24px).
 
 ### Inputs / Fields
-- **Style:** borde `#1e2733`, fondo `#0b0d10`, radio 12px, texto Inter.
+- **Style:** borde `#3c4354`, fondo `#20242d`, radio 12px, texto Inter.
 - **Focus:** borde + ring cian neón (`focus:border-cyan-400 focus:ring-cyan-400`).
 - **Placeholder:** `text-zinc-600` — lectura de sistema, no voz.
 
 ### Navigation
-- **Style:** fija, `backdrop-blur`, borde inferior `#1e2733`, fondo `#0b0d10/80`.
+- **Style:** fija, `backdrop-blur`, borde inferior `#3c4354`, fondo `#20242d/80`.
 - **Typography:** enlaces mono 13px `text-zinc-400`, hover `text-white`.
 - **CTA:** botón `$ start` con borde.
 - **Mobile:** los enlaces se ocultan; queda sólo el CTA.
@@ -184,4 +184,4 @@ Ventana que sigue al cursor en Capacidades y Stack. Fondo `#0c1219`, borde `rgba
 - **Don't** animar desde `scale(0)`; entra desde `scale(0.9-0.97)` con opacity.
 - **Don't** poner el acento en fondos de sección o en más del ~10% de la pantalla.
 - **Don't** animar acciones de teclado (100+/día) — elimínalas.
-- **Don't** hardcodear `#11161d`/`#0b0d10` si existe el token; usa `bg-card`/`bg-background`.
+- **Don't** hardcodear `#282e3a`/`#20242d` si existe el token; usa `bg-card`/`bg-background`.

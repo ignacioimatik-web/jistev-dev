@@ -19,7 +19,7 @@ export function Nav() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: EASE_OUT }}
-      className="fixed top-0 z-50 w-full border-b border-zinc-800 bg-background/80 backdrop-blur-xl"
+      className="fixed top-0 z-50 w-full border-b border-line bg-background/80 backdrop-blur-xl"
     >
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         <Link
@@ -41,7 +41,7 @@ export function Nav() {
           ))}
           <Link
             href="#contacto"
-            className="rounded-[8px] border border-zinc-700 px-4 py-2 text-[13px] text-zinc-200 transition-colors hover:border-orange-500 hover:text-orange-400"
+            className="rounded-[8px] border border-line px-4 py-2 text-[13px] text-zinc-200 transition-colors hover:border-orange-500 hover:text-orange-400"
           >
             $ start
           </Link>
