@@ -193,8 +193,14 @@ export default function PresupuestoPage() {
       {/* Nav */}
       <nav className="fixed top-0 z-50 w-full border-b border-line bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="font-mono text-base font-bold tracking-tight hover:text-cyan-400">
+          <Link href="/" className="flex items-center gap-2 font-mono text-base font-bold tracking-tight hover:text-cyan-400">
             ~/jistev<span className="text-cyan-400">_</span>
+            <img
+              src="/logo.png"
+              alt=""
+              aria-hidden
+              className="h-5 w-5 shrink-0"
+            />
           </Link>
           <Link href="/" className="text-sm text-zinc-400 transition-colors hover:text-white">
             ← Volver

@@ -30,9 +30,15 @@ export function Nav() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
         <Link
           href="#"
-          className="font-mono text-base font-bold tracking-tight transition-colors hover:text-cyan-400"
+          className="flex items-center gap-2 font-mono text-base font-bold tracking-tight transition-colors hover:text-cyan-400"
         >
           ~/jistev<span className="text-cyan-400">_</span>
+          <img
+            src="/logo.png"
+            alt=""
+            aria-hidden
+            className="h-5 w-5 shrink-0"
+          />
         </Link>
 
         <div className="hidden items-center gap-5 font-mono text-[13px] text-zinc-400 sm:flex">
