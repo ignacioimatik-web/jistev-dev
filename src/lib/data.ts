@@ -301,7 +301,7 @@ export const services = [
 export const faqs = [
   { q: "¿Cómo trabajamos?", a: "Hablamos, me cuentas tu idea o problema, te propongo una solución con roadmap y presupuesto. Si te funciona, arrancamos. Sin vueltas ni sorpresas." },
   { q: "¿Eres desarrollador o jefe de proyecto?", a: "Ambos. Concibo la idea, lidero el proyecto y escribo el código. No hay brecha entre lo que imagino y lo que entrego." },
-  { q: "¿Cuánto tarda un proyecto?", a: "Depende del alcance, pero en 1-2 semanas tienes una primera versión funcional lista para testear con usuarios reales." },
+  { q: "¿Cuánto tarda un proyecto?", a: "Depende del alcance: al menos 2 semanas para presentar una beta funcional; a partir de ahí, según la complejidad y las necesidades del proyecto, pueden ser 4 semanas o más. No hay plazos estándar: cada proyecto define los suyos." },
   { q: "¿Ofreces mantenimiento?", a: "Sí. Todos los proyectos incluyen 30 días de soporte post-entrega. Después podemos acordar un plan continuo." },
   { q: "¿Con quién trabajas?", a: "Con founders que necesitan su MVP, empresas que quieren automatizar procesos, o cualquiera que tenga una idea y necesite a alguien que la haga real." },
 ];

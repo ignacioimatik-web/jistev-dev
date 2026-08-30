@@ -10,7 +10,7 @@ const SERVICES = [
   {
     id: "mvp",
     name: "MVP Factory",
-    desc: "Web app, dashboard o prototipo full-stack en 1-2 semanas.",
+    desc: "Web app, dashboard o prototipo full-stack. Primera beta funcional en 2-4 semanas según alcance.",
     price: 1000,
   },
   {
@@ -81,9 +81,9 @@ const SERVICE_PATHS: Record<string, ReactNode> = {
 };
 
 const TIMELINE_OPTIONS = [
-  { value: "urgente", label: "Urgente (menos de 1 semana)", multiplier: 1.5 },
-  { value: "normal", label: "Normal (1-3 semanas)", multiplier: 1 },
-  { value: "flexible", label: "Sin prisa (1-2 meses)", multiplier: 0.85 },
+  { value: "urgente", label: "Urgente (prioridad absoluta)", multiplier: 1.5 },
+  { value: "normal", label: "Normal (2-4 semanas)", multiplier: 1 },
+  { value: "flexible", label: "Sin prisa (1-3 meses)", multiplier: 0.85 },
 ];
 
 // ─── Steps ────────────────────────────────────────────────────

@@ -7,7 +7,7 @@ import { EASE_OUT } from "@/lib/motion";
 const services = [
   {
     title: "MVP Factory",
-    desc: "De idea a producto funcional en 1-2 semanas. Web apps, dashboards, prototipos full-stack.",
+    desc: "De idea a producto funcional. Beta en 2-4 semanas según alcance; proyectos complejos, 4 semanas o más.",
     price: "desde 1.000€",
     bg: "/svc-bg/mvp.jpg",
   },

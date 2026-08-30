@@ -20,8 +20,8 @@ const highlights = [
     title: "Delivery-focused",
     desc: "De la idea al MVP funcional en semanas. Código limpio, pragmático, sin sobreingeniería.",
     tipTitle: "delivery",
-    tipBody: `Mi unidad de tiempo es la entrega, no el perfeccionismo. Un MVP funcional y validable en 1-2 semanas, con el que puedes enseñar la idea a usuarios reales. Despliego temprano, aunque sea pequeño: mejor un sistema simple en producción que una arquitectura elegante que nadie usa.`,
-    tags: ["MVP", "2 semanas", "agile", "iteración"],
+    tipBody: `Mi unidad de tiempo es la entrega, no el perfeccionismo. Un MVP funcional y validable en 2-4 semanas, con el que puedes enseñar la idea a usuarios reales. Despliego temprano, aunque sea pequeño: mejor un sistema simple en producción que una arquitectura elegante que nadie usa.`,
+    tags: ["MVP", "2-4 semanas", "agile", "iteración"],
   },
   {
     img: "/about-zenit/ia.jpg",
