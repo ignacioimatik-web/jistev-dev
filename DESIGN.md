@@ -2,7 +2,7 @@
 name: jistev.dev — El Laboratorio Nocturno
 description: Portfolio dark premium de Ignacio Estevez (jistev) — IA en producción + arquitectura híbrida.
 colors:
-  primary: "#8b5cf6"
+  primary: "#f97316"
   accent-glare: "#22d3ee"
   neutral-bg: "#0b0d10"
   neutral-surface: "#11161d"
@@ -39,12 +39,12 @@ spacing:
   xl: "40px"
 components:
   button-primary:
-    backgroundColor: "#7c3aed"
+    backgroundColor: "#ea580c"
     textColor: "#ffffff"
     rounded: "{rounded.md}"
     padding: "14px 28px"
   button-primary-hover:
-    backgroundColor: "#6d28d9"
+    backgroundColor: "#c2410c"
   button-ghost:
     backgroundColor: "transparent"
     textColor: "{colors.neutral-foreground}"
@@ -66,12 +66,12 @@ components:
 
 **Creative North Star: "El Laboratorio Nocturno"**
 
-jistev.dev es un laboratorio de trabajo en la oscuridad: un fondo casi negro (`#0b0d10`) donde cada resultado se ilumina con intención. La metáfora es la de un técnico probando y afinando bajo luz de referencia constante — dominante, precisa, sin ruido. El violeta eléctrico es la firma del experimento; el cian neón es el plano/luz de estado. No hay gradientes de marca: el laboratorio distingue su instrumento (violeta sólido) de su lectura (cian sólido).
+jistev.dev es un laboratorio de trabajo en la oscuridad: un fondo casi negro (`#0b0d10`) donde cada resultado se ilumina con intención. La metáfora es la de un técnico probando y afinando bajo luz de referencia constante — dominante, precisa, sin ruido. El naranja eléctrico es la firma del experimento; el cian neón es el plano/luz de estado. No hay gradientes de marca: el laboratorio distingue su instrumento (naranja sólido) de su lectura (cian sólido).
 
 La densidad es media-baja. El contenido respira con `py-24` entre secciones y espacio generoso en cards. El lenguaje es **mono para el sistema** (labels, taglines, tags, precios como `$ ...`) e **Inter para la voz** (títulos y cuerpo). La atmósfera es técnica y templada: capacidad de imaginar, liderar y construir, sin hype folleto.
 
 **Key Characteristics:**
-- Dark premium, acentos saturados y escasos (el violeta es el único "hablante"; el cian es lectura, no voz).
+- Dark premium, acentos saturados y escasos (el naranja es el único "hablante"; el cian es lectura, no voz).
 - Tipografía dual: Inter (voz) + JetBrains Mono (sistema).
 - Cards discretas con borde fino y superficie ligeramente más clara que el fondo.
 - Video 4K ondas de fondo en el hero + imágenes de código como fondo de cards de proyectos/servicios.
@@ -82,11 +82,11 @@ La densidad es media-baja. El contenido respira con `py-24` entre secciones y es
 
 Sistema oscuro con un solo acento hablante y un secundario de lectura.
 
-### Primary — **Violeta Eléctrico** (`#8b5cf6`)
+### Primary — **Naranja Eléctrico** (`#f97316`)
 El único acento que "habla": botón primario ("Solicitar presupuesto"), enlace activo, hover de focus, iconos de estado. Se usa con parcimonia — es la firma del laboratorio, no un color de relleno. Solo en elementos de acción o de máxima jerarquía; nunca como fondo de sección ni en gradientes.
 
 ### Secondary — **Cian Neón** (`#22d3ee`)
-No es una segunda voz: es **lectura de estado y sistema**. Tags/labels mono (`$ status: onboard`, `// sobre-mi`, `▸ full-stack`), precios (`desde 500€`), números de stats, iconos de detalle. Donde el violeta dice "actúa", el cian dice "lee/repara". Se usa en texto mono de sistema, nunca en botones.
+No es una segunda voz: es **lectura de estado y sistema**. Tags/labels mono (`$ status: onboard`, `// sobre-mi`, `▸ full-stack`), precios (`desde 500€`), números de stats, iconos de detalle. Donde el naranja dice "actúa", el cian dice "lee/repara". Se usa en texto mono de sistema, nunca en botones.
 
 ### Neutral
 - **Fondo de laboratorio** (`#0b0d10`): el lienzo base del sitio en general y hero.
@@ -96,7 +96,7 @@ No es una segunda voz: es **lectura de estado y sistema**. Tags/labels mono (`$ 
 - **Texto primario** (`#e8ecf1`): títulos y texto de máxima legibilidad.
 - **Texto mutado** (`#8b96a8`): cuerpo secundario, descripciones, `text-zinc-400`.
 
-> **La Regla de Voz Única.** El violeta eléctrico se reserva a elementos de acción/jerarquía y aparece en ≤10% de cualquier pantalla. Su rareza es el punto. No se combina con el cian en gradientes.
+> **La Regla de Voz Única.** El naranja eléctrico se reserva a elementos de acción/jerarquía y aparece en ≤10% de cualquier pantalla. Su rareza es el punto. No se combina con el cian en gradientes.
 
 ## Typography
 
@@ -131,7 +131,7 @@ El sistema es **casi plano por tonalidad**, no por sombra. La profundidad se log
 
 ## Shapes
 
-Lenguaje de esquinas **ligeramente redondeadas y contenidas**: `radius` estándar 10px en botones/inputs, 14px en cards y contenedores, 6px en tags y mini-chips. Ni agresivamente redondeado ni cuadrado. Bordes de `#1e2733` (1px) sobre superficies oscuras; el foco se marca con ring de violeta/cian. Los iconos viven en tiles cuadrados 40px con borde fino (`rounded-[10px] border-zinc-700/60`).
+Lenguaje de esquinas **ligeramente redondeadas y contenidas**: `radius` estándar 10px en botones/inputs, 14px en cards y contenedores, 6px en tags y mini-chips. Ni agresivamente redondeado ni cuadrado. Bordes de `#1e2733` (1px) sobre superficies oscuras; el foco se marca con ring de naranja/cian. Los iconos viven en tiles cuadrados 40px con borde fino (`rounded-[10px] border-zinc-700/60`).
 
 ## Components
 
@@ -139,9 +139,9 @@ Componentes de respuesta precisa y contenida: botones firmes, cards discretas, i
 
 ### Buttons
 - **Shape:** esquinas 10px, altura 44px para el primario.
-- **Primary:** violeta eléctrico (`#8b5cf6`), texto blanco, padding 14/28. Hover: violeta más profundo (`#7c3aed`) + lift y sombra reactiva. Active: `scale(0.97)` (respuesta de pulsación física).
+- **Primary:** naranja eléctrico (`#f97316`), texto blanco, padding 14/28. Hover: naranja más profundo (`#ea580c`) + lift y sombra reactiva. Active: `scale(0.97)` (respuesta de pulsación física).
 - **Ghost:** borde fino `#1e2733`, texto claro. Hover: borde/`text` cian neón (`hover:border-cyan-400 hover:text-cyan-400`). Active: `scale(0.97)`.
-- **Focus:** ring violeta visible.
+- **Focus:** ring naranja visible.
 
 ### Tags & Chips (dominios, tecnologías)
 - **Style:** superficie sutil `#151b24`, texto `#9fb0c3`, borde fino, radio 6px, mono. Son de **lectura**, nunca de acción.
@@ -171,7 +171,7 @@ Ventana que sigue al cursor en Capacidades y Stack. Fondo `#0c1219`, borde `rgba
 ## Do's and Don'ts
 
 ### Do:
-- **Do** usar el violeta eléctrico (`#8b5cf6`) como único acento de acción; su rareza es su poder.
+- **Do** usar el naranja eléctrico (`#f97316`) como único acento de acción; su rareza es su poder.
 - **Do** reservar el cian neón (`#22d3ee`) para lectura de sistema: labels mono, tags, precios, números.
 - **Do** mantener `<300ms` en transiciones de UI con curvas custom (`cubic-bezier(0.23,1,0.32,1)`).
 - **Do** animar sólo `transform` y `opacity`; dejar todo lo demás quieto.
@@ -179,7 +179,7 @@ Ventana que sigue al cursor en Capacidades y Stack. Fondo `#0c1219`, borde `rgba
 - **Do** dar `scale(0.97)` a cualquier elemento pulsable.
 
 ### Don't:
-- **Don't** usar gradientes violeta→cian como marca (`bg-clip-text`+`from-violet-300`) — es el sello de UI generada por IA que el sistema rechaza. Usa violeta sólido.
+- **Don't** usar gradientes naranja→cian como marca (`bg-clip-text`+`from-orange-300`): es el sello de UI generada por IA que el sistema rechaza. Usa naranja sólido.
 - **Don't** aplicar `transition: all`; especifica propiedades exactas.
 - **Don't** animar desde `scale(0)`; entra desde `scale(0.9-0.97)` con opacity.
 - **Don't** poner el acento en fondos de sección o en más del ~10% de la pantalla.

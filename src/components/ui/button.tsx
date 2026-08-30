@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = {
-  default: "bg-violet-600 text-white hover:bg-violet-500 shadow-[0_8px_30px_-8px_rgba(139,92,246,0.5)]",
+  default: "bg-orange-600 text-white hover:bg-orange-500 shadow-[0_8px_30px_-8px_rgba(249,115,22,0.5)]",
   outline: "border border-zinc-700 text-zinc-200 hover:border-cyan-400 hover:text-cyan-400",
   ghost: "text-zinc-400 hover:text-white",
   link: "text-cyan-400 underline-offset-4 hover:underline",
@@ -35,7 +35,7 @@ function Button({
   return (
     <Comp
       className={cn(
-        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 disabled:pointer-events-none disabled:opacity-50",
         buttonVariants[variant],
         buttonSizes[size],
         className

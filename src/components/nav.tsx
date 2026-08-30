@@ -41,7 +41,7 @@ export function Nav() {
           ))}
           <Link
             href="#contacto"
-            className="rounded-[8px] border border-zinc-700 px-4 py-2 text-[13px] text-zinc-200 transition-colors hover:border-violet-500 hover:text-violet-400"
+            className="rounded-[8px] border border-zinc-700 px-4 py-2 text-[13px] text-zinc-200 transition-colors hover:border-orange-500 hover:text-orange-400"
           >
             $ start
           </Link>

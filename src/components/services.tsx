@@ -44,7 +44,7 @@ export function Services() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
-            className="group relative min-h-[220px] overflow-hidden rounded-[14px] border border-zinc-800 bg-card p-6 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-violet-500/50"
+            className="group relative min-h-[220px] overflow-hidden rounded-[14px] border border-zinc-800 bg-card p-6 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-orange-500/50"
           >
             <img
               src={s.bg}

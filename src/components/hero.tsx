@@ -30,7 +30,7 @@ export function Hero() {
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/85 via-background/70 to-background/95" />
 
       {/* Accent glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-violet-600/8 blur-[140px]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-orange-600/8 blur-[140px]" />
 
       {/* Content */}
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-6 pt-28 pb-14">
@@ -56,7 +56,7 @@ export function Hero() {
               className="mt-6 text-4xl font-bold leading-[1.06] tracking-tight sm:text-5xl md:text-[52px]"
             >
               Escribo código que{" "}
-              <span className="text-violet-400">
+              <span className="text-orange-400">
                 convierte ideas
                 <br />
                 en productos
@@ -82,7 +82,7 @@ export function Hero() {
             >
               <Link
                               href="/presupuesto"
-                              className="pressable inline-flex items-center justify-center rounded-[10px] bg-violet-600 px-7 py-3.5 text-sm font-semibold text-white transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-violet-500 shadow-[0_8px_30px_-8px_rgba(139,92,246,0.5)]"
+                              className="pressable inline-flex items-center justify-center rounded-[10px] bg-orange-600 px-7 py-3.5 text-sm font-semibold text-white transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-orange-500 shadow-[0_8px_30px_-8px_rgba(249,115,22,0.5)]"
                             >
                               Solicitar presupuesto
                             </Link>
@@ -110,7 +110,7 @@ export function Hero() {
             <div className="space-y-0.5 p-4">
               <span className="text-zinc-600"># /dev/jistev</span>
               <br />
-              <span className="text-violet-300">const</span> jistev = {"{"}
+              <span className="text-orange-300">const</span> jistev = {"{"}
               <br />
               &nbsp;&nbsp;rol: <span className="text-cyan-300">"full-stack + ia"</span>,<br />
               &nbsp;&nbsp;stack: [<span className="text-cyan-300">"next"</span>,<span className="text-cyan-300">"ts"</span>,<span className="text-cyan-300">"python"</span>],<br />
@@ -120,7 +120,7 @@ export function Hero() {
               {"};"}
               <br />
               <br />
-              <span className="text-violet-300">if</span> (teInteresa) {"{"}
+              <span className="text-orange-300">if</span> (teInteresa) {"{"}
               <br />
               &nbsp;&nbsp;hablemos();
               <br />

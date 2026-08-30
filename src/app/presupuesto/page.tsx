@@ -170,7 +170,7 @@ export default function PresupuestoPage() {
         <div className="mx-auto max-w-3xl px-6 pb-24">
           {/* Header */}
           <div className="mb-10 text-center">
-            <span className="mb-2 block text-sm font-medium uppercase tracking-widest text-violet-400">
+            <span className="mb-2 block text-sm font-medium uppercase tracking-widest text-orange-400">
               Presupuesto
             </span>
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -189,7 +189,7 @@ export default function PresupuestoPage() {
                   <div
                     className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all ${
                       i + 1 <= step
-                        ? "bg-violet-600 text-white"
+                        ? "bg-orange-600 text-white"
                         : "bg-zinc-800 text-zinc-500"
                     }`}
                   >
@@ -198,7 +198,7 @@ export default function PresupuestoPage() {
                   {i < TOTAL_STEPS - 1 && (
                     <div
                       className={`h-1 w-12 rounded transition-all ${
-                        i + 1 < step ? "bg-violet-600" : "bg-zinc-800"
+                        i + 1 < step ? "bg-orange-600" : "bg-zinc-800"
                       }`}
                     />
                   )}
@@ -297,7 +297,7 @@ function StepServices({
               onClick={() => onToggle(svc.id)}
               className={`flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-all ${
                 isSelected
-                  ? "border-violet-600 bg-violet-600/10"
+                  ? "border-orange-600 bg-orange-600/10"
                   : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-700"
               }`}
             >
@@ -305,7 +305,7 @@ function StepServices({
               <div className="flex-1">
                 <div className="flex items-baseline justify-between">
                   <span className="font-semibold">{svc.name}</span>
-                  <span className="text-sm font-medium text-violet-400">
+                  <span className="text-sm font-medium text-orange-400">
                     {svc.price > 0 ? `desde ${svc.price.toLocaleString()}€` : "A consultar"}
                   </span>
                 </div>
@@ -313,7 +313,7 @@ function StepServices({
               </div>
               <div
                 className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all ${
-                  isSelected ? "border-violet-600 bg-violet-600" : "border-zinc-600"
+                  isSelected ? "border-orange-600 bg-orange-600" : "border-zinc-600"
                 }`}
               >
                 {isSelected && (
@@ -335,7 +335,7 @@ function StepServices({
               onClick={() => onTimelineChange(opt.value)}
               className={`flex-1 rounded-lg border p-3 text-center text-sm transition-all ${
                 timeline === opt.value
-                  ? "border-violet-600 bg-violet-600/10 text-violet-400"
+                  ? "border-orange-600 bg-orange-600/10 text-orange-400"
                   : "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700"
               }`}
             >
@@ -383,7 +383,7 @@ function StepDetails({
           <input
             value={form.name}
             onChange={(e) => onChange("name", e.target.value)}
-            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-violet-500"
+            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
             placeholder="Tu nombre"
           />
         </div>
@@ -393,7 +393,7 @@ function StepDetails({
             type="email"
             value={form.email}
             onChange={(e) => onChange("email", e.target.value)}
-            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-violet-500"
+            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
             placeholder="tu@email.com"
           />
         </div>
@@ -402,7 +402,7 @@ function StepDetails({
           <input
             value={form.company}
             onChange={(e) => onChange("company", e.target.value)}
-            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-violet-500"
+            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
             placeholder="Nombre de tu empresa"
           />
         </div>
@@ -414,7 +414,7 @@ function StepDetails({
           <textarea
             value={form.description}
             onChange={(e) => onChange("description", e.target.value)}
-            className="flex min-h-[140px] w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-violet-500 resize-none"
+            className="flex min-h-[140px] w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500 resize-none"
             placeholder="Describe tu proyecto con el máximo detalle posible..."
           />
         </div>
@@ -423,7 +423,7 @@ function StepDetails({
           <input
             value={form.budget}
             onChange={(e) => onChange("budget", e.target.value)}
-            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-violet-500"
+            className="flex h-12 w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm outline-none transition-colors placeholder:text-zinc-600 focus:border-orange-500"
             placeholder="Ej: 2.000€ - 5.000€"
           />
         </div>
@@ -479,7 +479,7 @@ function StepReview({
           <div className="border-t border-zinc-700 pt-3">
             <div className="flex items-center justify-between">
               <span className="font-semibold">Total estimado</span>
-              <span className="text-lg font-bold text-violet-400">
+              <span className="text-lg font-bold text-orange-400">
                 {budget.total.toLocaleString()}€
               </span>
             </div>
@@ -548,11 +548,11 @@ function StepConfirmation({
           📄 Descargar PDF del presupuesto
         </Button>
         <div className="flex gap-4 text-sm">
-          <Link href="/" className="text-violet-400 hover:text-violet-300 transition-colors">
+          <Link href="/" className="text-orange-400 hover:text-orange-300 transition-colors">
             ← Volver al inicio
           </Link>
           <span className="text-zinc-600">·</span>
-          <Link href="/#contacto" className="text-violet-400 hover:text-violet-300 transition-colors">
+          <Link href="/#contacto" className="text-orange-400 hover:text-orange-300 transition-colors">
             Contactar directamente
           </Link>
         </div>
@@ -572,8 +572,8 @@ function PrintableQuote({
   return (
     <div className="bg-white p-12 text-black" style={{ fontFamily: "system-ui, sans-serif" }}>
       {/* Header */}
-      <div className="mb-10 border-b-2 border-violet-600 pb-6">
-        <h1 className="text-3xl font-bold text-violet-600">jistev<span style={{ color: "#8b5cf6" }}>.</span></h1>
+      <div className="mb-10 border-b-2 border-orange-600 pb-6">
+        <h1 className="text-3xl font-bold text-orange-600">jistev<span style={{ color: "#f97316" }}>.</span></h1>
         <p className="mt-1 text-sm text-gray-500">Desarrollo Full-Stack & Automatización con IA</p>
       </div>
 
@@ -606,7 +606,7 @@ function PrintableQuote({
         <tfoot>
           <tr>
             <td className="pt-4 text-base font-bold">TOTAL ESTIMADO</td>
-            <td className="pt-4 text-right text-base font-bold text-violet-600">
+            <td className="pt-4 text-right text-base font-bold text-orange-600">
               {budget.total.toLocaleString()} €
             </td>
           </tr>

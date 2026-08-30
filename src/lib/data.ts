@@ -80,7 +80,7 @@ export const concepts: Concept[] = [
     tagline: "Recuperar tu huella digital",
     idea: "Escanea tu exposición online (brechas de seguridad, contraseñas filtradas, cuentas olvidadas) y automatiza el borrado con 4 métodos progresivos: bookmarklet, extensión, script o agente IA con control de navegador. Un dashboard con puntuación de privacidad para que cualquiera  -  sin importar su nivel técnico  -  recupere el control de sus datos.",
     domains: ["seguridad", "IA", "automatización", "UX"],
-    gradient: "from-violet-500/20 to-purple-600/10",
+    gradient: "from-orange-500/20 to-purple-600/10",
   },
   {
     icon: "👨‍👩‍👧‍👦",

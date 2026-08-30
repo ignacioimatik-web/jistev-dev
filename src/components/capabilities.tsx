@@ -106,7 +106,7 @@ export function Capabilities() {
               transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
               className={`overflow-hidden rounded-[14px] border transition-colors duration-300 ${
                 isOpen
-                  ? "border-violet-500/30 bg-card"
+                  ? "border-orange-500/30 bg-card"
                   : "border-zinc-800 bg-card/70 hover:border-zinc-700"
               }`}
             >
@@ -115,7 +115,7 @@ export function Capabilities() {
                 className="w-full p-6 text-left"
               >
                 <div className="flex items-start gap-4">
-                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-zinc-700/60 bg-zinc-800/40 text-violet-400">
+                  <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-zinc-700/60 bg-zinc-800/40 text-orange-400">
                     {(() => {
                       const Icon = capIcons[i];
                       return <Icon className={capIconSizes[i]} strokeWidth={1.75} />;
@@ -175,7 +175,7 @@ export function Capabilities() {
         transition={{ duration: 0.4, delay: 0.3, ease: EASE_OUT }}
         className="mx-auto mt-14 max-w-2xl rounded-xl border border-zinc-800 bg-card/70 p-5 text-center"
       >
-        <span className="mb-2 flex items-center justify-center text-violet-400">
+        <span className="mb-2 flex items-center justify-center text-orange-400">
           <Target className="h-6 w-6" strokeWidth={1.75} />
         </span>
         <p className="text-sm leading-relaxed text-zinc-400">

@@ -69,7 +69,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.06, duration: 0.35, ease: EASE_OUT }}
-            className="group relative min-h-[220px] rounded-[14px] border border-zinc-800 bg-zinc-900/40 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-violet-500/50"
+            className="group relative min-h-[220px] rounded-[14px] border border-zinc-800 bg-zinc-900/40 transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-orange-500/50"
             data-title={h.tipTitle}
             data-body={h.tipBody}
             data-tags={h.tags.join(", ")}

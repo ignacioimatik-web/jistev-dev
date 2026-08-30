@@ -122,7 +122,7 @@ export function Contact() {
             <p className="mb-2 text-sm text-zinc-500">O escríbeme directo:</p>
             <a
               href="mailto:ignacio@digitalcode.es"
-              className="inline-flex items-center gap-2 text-sm text-violet-400 transition-colors hover:text-violet-300"
+              className="inline-flex items-center gap-2 text-sm text-orange-400 transition-colors hover:text-orange-300"
             >
               <Mail className="h-4 w-4" />
               ignacio@digitalcode.es

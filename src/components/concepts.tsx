@@ -18,7 +18,7 @@ const concepts = [
     idea: "Plataforma web de gestión del equipo de Atención Primaria de Forcall (Castellón): guardias, libranzas, doblas, reuniones, alertas y avisos del personal médico y de enfermería. Autenticación segura con Supabase Auth y Row Level Security por rol.",
     domains: ["Next.js", "Supabase", "Auth + RLS"], repo: "https://github.com/ignacioimatik-web/ZBS-Forcall",
     bg: "/proj-bg/p2.jpg",
-    ring: "border-violet-500/30",
+    ring: "border-orange-500/30",
   },
   {
     icon: "📊", title: "studioMo", tagline: "El dashboard que toda oficina en casa debería tener",

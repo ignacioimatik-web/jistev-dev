@@ -72,14 +72,14 @@ export async function POST(req: NextRequest) {
               `<tr><td style="padding:10px 0;border-bottom:1px solid #27272a;color:#e4e4e7;">${escapeHtml(i.name)}</td><td style="padding:10px 0;border-bottom:1px solid #27272a;color:#fafafa;text-align:right;">${i.price.toLocaleString()} €</td></tr>`
           )
           .join("") +
-        `<tr><td style="padding:12px 0;font-weight:600;color:#fafafa;font-size:15px;">TOTAL ESTIMADO</td><td style="padding:12px 0;text-align:right;font-weight:700;color:#a78bfa;font-size:17px;">${total.toLocaleString()} €</td></tr>`
+        `<tr><td style="padding:12px 0;font-weight:600;color:#fafafa;font-size:15px;">TOTAL ESTIMADO</td><td style="padding:12px 0;text-align:right;font-weight:700;color:#fb923c;font-size:17px;">${total.toLocaleString()} €</td></tr>`
       : "";
 
     const toEmail = "ignacio@digitalcode.es";
 
     const html = `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:linear-gradient(135deg,#a78bfa,#8b5cf6);padding:28px;border-radius:12px 12px 0 0;">
+        <div style="background:linear-gradient(135deg,#fb923c,#f97316);padding:28px;border-radius:12px 12px 0 0;">
           <h1 style="color:#fff;margin:0;font-size:22px;">📋 Nueva solicitud de presupuesto</h1>
         </div>
         <div style="background:#18181b;padding:28px;border-radius:0 0 12px 12px;border:1px solid #27272a;">
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
           <table style="width:100%;border-collapse:collapse;">
             <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;width:100px;">Cliente</td><td style="padding:8px 0;color:#fafafa;font-size:14px;">${safeName}</td></tr>
             ${safeCompany ? `<tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Empresa</td><td style="padding:8px 0;color:#fafafa;font-size:14px;">${safeCompany}</td></tr>` : ""}
-            <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Email</td><td style="padding:8px 0;color:#fafafa;font-size:14px;"><a href="mailto:${safeEmail}" style="color:#a78bfa;">${safeEmail}</a></td></tr>
+            <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Email</td><td style="padding:8px 0;color:#fafafa;font-size:14px;"><a href="mailto:${safeEmail}" style="color:#fb923c;">${safeEmail}</a></td></tr>
             <tr><td colspan="2" style="padding-top:12px;"><hr style="border:none;border-top:1px solid #27272a;"></td></tr>
           </table>
 
@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
         subject: `📄 Tu solicitud de presupuesto - jistev.dev`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
-            <div style="background:linear-gradient(135deg,#a78bfa,#8b5cf6);padding:28px;border-radius:12px 12px 0 0;">
+            <div style="background:linear-gradient(135deg,#fb923c,#f97316);padding:28px;border-radius:12px 12px 0 0;">
               <h1 style="color:#fff;margin:0;font-size:22px;">✅ Presupuesto recibido</h1>
             </div>
             <div style="background:#18181b;padding:28px;border-radius:0 0 12px 12px;border:1px solid #27272a;">

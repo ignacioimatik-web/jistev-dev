@@ -68,13 +68,13 @@ export async function POST(req: NextRequest) {
         text: `Nombre: ${name}\nEmail: ${email}\n\nMensaje:\n${message}`,
         html: `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
-            <div style="background:linear-gradient(135deg,#a78bfa,#8b5cf6);padding:24px;border-radius:12px 12px 0 0;">
+            <div style="background:linear-gradient(135deg,#fb923c,#f97316);padding:24px;border-radius:12px 12px 0 0;">
               <h1 style="color:#fff;margin:0;font-size:20px;">📬 Nuevo contacto desde jistev.dev</h1>
             </div>
             <div style="background:#18181b;padding:24px;border-radius:0 0 12px 12px;border:1px solid #27272a;">
               <table style="width:100%;border-collapse:collapse;">
                 <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Nombre</td><td style="padding:8px 0;color:#fafafa;font-size:14px;">${safeName}</td></tr>
-                <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Email</td><td style="padding:8px 0;color:#fafafa;font-size:14px;"><a href="mailto:${safeEmail}" style="color:#a78bfa;">${safeEmail}</a></td></tr>
+                <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;">Email</td><td style="padding:8px 0;color:#fafafa;font-size:14px;"><a href="mailto:${safeEmail}" style="color:#fb923c;">${safeEmail}</a></td></tr>
                 <tr><td colspan="2" style="padding-top:16px;"><hr style="border:none;border-top:1px solid #27272a;"></td></tr>
                 <tr><td style="padding:8px 0;color:#a1a1aa;font-size:13px;vertical-align:top;">Mensaje</td><td style="padding:8px 0;color:#fafafa;font-size:14px;white-space:pre-wrap;">${safeMessage}</td></tr>
               </table>

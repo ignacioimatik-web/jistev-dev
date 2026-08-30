@@ -50,7 +50,7 @@ function StepConnector({ active }: { active: boolean }) {
     <div className="hidden items-center justify-center py-2 sm:flex">
       <div
         className={`h-0.5 w-12 transition-colors duration-500 ${
-          active ? "bg-violet-500/40" : "bg-zinc-800"
+          active ? "bg-orange-500/40" : "bg-zinc-800"
         }`}
       />
     </div>
@@ -88,14 +88,14 @@ export function Method() {
               onClick={() => setActiveStep(activeStep === i ? null : i)}
               className={`group flex flex-col items-center gap-3 rounded-[12px] p-4 transition-[transform,border-color,background-color] duration-200 ${
                 activeStep === i
-                  ? "border border-violet-500/30 bg-violet-500/10"
+                  ? "border border-orange-500/30 bg-orange-500/10"
                   : "border border-transparent hover:bg-zinc-900/40"
               }`}
             >
               <div
                 className={`flex h-16 w-16 items-center justify-center rounded-full transition-[transform,border-color,background-color] duration-200 ${
                   activeStep === i
-                    ? "scale-110 bg-violet-500/20 ring-2 ring-violet-500/40 text-violet-300"
+                    ? "scale-110 bg-orange-500/20 ring-2 ring-orange-500/40 text-orange-300"
                     : "bg-[#0f141b] ring-1 ring-zinc-800 text-zinc-400 group-hover:ring-zinc-700"
                 }`}
               >
@@ -107,7 +107,7 @@ export function Method() {
               <div className="text-center">
                 <div
                   className={`text-sm font-semibold transition-colors ${
-                    activeStep === i ? "text-violet-400" : "text-zinc-300"
+                    activeStep === i ? "text-orange-400" : "text-zinc-300"
                   }`}
                 >
                   {step.title}
@@ -132,14 +132,14 @@ export function Method() {
           className="mx-auto mt-10 hidden max-w-2xl rounded-[14px] border border-zinc-800 bg-card/70 p-6 sm:block"
         >
           <div className="mb-2 flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-zinc-700/60 bg-zinc-800/40 text-violet-400">
+            <span className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-zinc-700/60 bg-zinc-800/40 text-orange-400">
               {(() => {
                 const Icon = methodIcons[activeStep];
                 return <Icon className="h-5 w-5" strokeWidth={1.7} />;
               })()}
             </span>
             <div>
-              <span className="text-sm font-semibold text-violet-400">
+              <span className="text-sm font-semibold text-orange-400">
                 {methodSteps[activeStep].title}
               </span>
               <span className="ml-2 text-sm text-zinc-600">

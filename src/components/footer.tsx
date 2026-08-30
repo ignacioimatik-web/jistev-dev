@@ -3,12 +3,12 @@ export function Footer() {
     <footer className="px-6 pb-24 pt-16 text-center">
       <p className="mx-auto mb-9 max-w-[640px] text-3xl font-bold tracking-tight sm:text-4xl">
         ¿Tienes una idea?{" "}
-        <span className="text-violet-400">Hagámosla funcionar.</span>
+        <span className="text-orange-400">Hagámosla funcionar.</span>
       </p>
       <div className="flex flex-wrap justify-center gap-3">
         <a
           href="mailto:ignacio@digitalcode.es"
-          className="rounded-[8px] border border-zinc-700 px-5 py-3 font-mono text-sm text-zinc-400 transition-colors hover:border-violet-500 hover:text-violet-400"
+          className="rounded-[8px] border border-zinc-700 px-5 py-3 font-mono text-sm text-zinc-400 transition-colors hover:border-orange-500 hover:text-orange-400"
         >
           @ email
         </a>
@@ -16,7 +16,7 @@ export function Footer() {
           href="https://github.com/ignacioimatik-web"
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-[8px] border border-zinc-700 px-5 py-3 font-mono text-sm text-zinc-400 transition-colors hover:border-violet-500 hover:text-violet-400"
+          className="rounded-[8px] border border-zinc-700 px-5 py-3 font-mono text-sm text-zinc-400 transition-colors hover:border-orange-500 hover:text-orange-400"
         >
           @ github
         </a>

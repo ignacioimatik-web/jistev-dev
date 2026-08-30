@@ -5,7 +5,7 @@
   --color-foreground: #e8ecf1;
   --color-muted: #8b96a8;
   --color-line: #1e2733;
-  --color-accent: #8b5cf6;
+  --color-accent: #f97316;
   --color-accent2: #22d3ee;
   --color-card: #11161d;
   --color-subtle: #151b24;
@@ -25,12 +25,12 @@ html {
 body {
   background: #0b0d10;
   color: #e8ecf1;
-  background-image: radial-gradient(600px 300px at 80% -10%, rgba(139, 92, 246, 0.12), transparent),
+  background-image: radial-gradient(600px 300px at 80% -10%, rgba(249,115,22,0.12), transparent),
     radial-gradient(500px 300px at 10% 20%, rgba(34, 211, 238, 0.08), transparent);
 }
 
 ::selection {
-  background: rgba(139, 92, 246, 0.35);
+  background: rgba(249,115,22,0.35);
   color: #fafafa;
 }
 
