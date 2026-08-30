@@ -18,6 +18,22 @@ interface MailSummary {
 }
 interface FullMail extends MailSummary {
   text: string;
+  html: string | null;
+  attachments: MailAttachment[];
+}
+interface MailAttachment {
+  index: number;
+  filename: string;
+  contentType: string;
+  size: number;
+  disposition: "inline" | "attachment" | null;
+  cid: string | null;
+}
+
+function fmtBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function fmtDate(ts: number): string {
@@ -348,12 +364,60 @@ export default function CorreoPage() {
               <div className="rounded-[12px] border border-line bg-subtle/40 p-5">
                 {loadingMsg ? (
                   <p className="text-sm text-zinc-500">Cargando…</p>
+                ) : sel.html ? (
+                  <iframe
+                    srcDoc={sel.html}
+                    sandbox="allow-popups"
+                    title="Contenido del correo"
+                    className="h-[62vh] w-full rounded-[8px] border-0 bg-white"
+                  />
                 ) : (
                   <div className="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-zinc-300">
                     {sel.text || "(sin contenido)"}
                   </div>
                 )}
               </div>
+              {!loadingMsg && sel.attachments.length > 0 && (
+                <div className="mt-3 rounded-[12px] border border-line bg-subtle/40 p-4">
+                  <p className="mb-2 font-mono text-xs text-zinc-500">
+                    Adjuntos ({sel.attachments.length})
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {sel.attachments.map((att) => {
+                      const isPdf = att.contentType.includes("pdf");
+                      const isImg = att.contentType.startsWith("image/");
+                      return (
+                        <a
+                          key={att.index}
+                          href={`/api/correo/attachment?folder=${encodeURIComponent(
+                            folder
+                          )}&uid=${sel.uid}&i=${att.index}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={
+                            isPdf
+                              ? "Abrir PDF"
+                              : isImg
+                                ? "Ver imagen"
+                                : "Descargar"
+                          }
+                          className="inline-flex max-w-full items-center gap-2 rounded-[8px] border border-line bg-card/60 px-3 py-2 font-mono text-xs text-zinc-300 transition-colors hover:border-cyan-500/50 hover:text-cyan-300"
+                        >
+                          <span aria-hidden>
+                            {isPdf ? "📄" : isImg ? "🖼" : "📎"}
+                          </span>
+                          <span className="max-w-[240px] truncate">
+                            {att.filename}
+                          </span>
+                          <span className="shrink-0 text-zinc-500">
+                            · {fmtBytes(att.size)}
+                          </span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div>

@@ -1,4 +1,5 @@
 import { ImapFlow, type FetchMessageObject } from "imapflow";
+import { simpleParser } from "mailparser";
 import nodemailer from "nodemailer";
 
 const IMAP_HOST = process.env.MAIL_IMAP_HOST || "mail.digitalcode.es";
@@ -163,100 +164,58 @@ export async function listMessages(folder: string, page = 1, perPage = 30, searc
   }
 }
 
+export interface MailAttachment {
+  index: number;
+  filename: string;
+  contentType: string;
+  size: number;
+  disposition: "inline" | "attachment" | null;
+  cid: string | null;
+}
+
 export interface FullMail extends MailSummary {
   text: string;
+  html: string | null;
+  attachments: MailAttachment[];
 }
 
-function stripHtml(html: string): string {
-  return html
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n\n")
-    .replace(/<\/div>/gi, "\n")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/[ \t]+/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+function escapeRe(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// Decode RFC2047 encoded-words ("=?UTF-8?B?...?=" / "=?UTF-8?Q?...?=")
-function decodeWords(s: string): string {
-  return s.replace(/=\?[^?]+\?([bBqQ])\?([^?]*)\?=/g, (_m, enc, data) => {
-    try {
-            if (enc.toLowerCase() === "b") return Buffer.from(data, "base64").toString("utf8");
-            return data
-              .replace(/_/g, " ")
-              .replace(/=([0-9a-fA-F]{2})/g, (_a: string, h: string) => String.fromCharCode(parseInt(h, 16)));
-    } catch {
-      return "";
+// Parse raw MIME source with mailparser and build the payload the UI needs:
+// clean text, full HTML (with cid: embedded images rewritten to our API),
+// and a flat attachment list (inline images + files, PDFs included).
+export async function parseSource(
+  folder: string,
+  uid: number,
+  source: Buffer
+): Promise<{ text: string; html: string | null; attachments: MailAttachment[] }> {
+  const parsed = await simpleParser(source);
+  const attachments: MailAttachment[] = (parsed.attachments || []).map((att, i) => ({
+    index: i,
+    filename:
+      att.filename ||
+      (att.contentId ? att.contentId.replace(/[<>]/g, "") : `adjunto-${i + 1}`),
+    contentType: att.contentType || "application/octet-stream",
+    size: att.content?.length || 0,
+    disposition: (att.contentDisposition as "inline" | "attachment" | null) || null,
+    cid: att.contentId ? att.contentId.replace(/[<>]/g, "") : null,
+  }));
+
+  let html = parsed.html || null;
+  if (html) {
+    for (const att of attachments) {
+      if (!att.cid) continue;
+      const url = `/api/correo/attachment?folder=${encodeURIComponent(folder)}&uid=${uid}&i=${att.index}`;
+      // match cid:xyz  (angle brackets around the id are optional)
+      html = html.replace(new RegExp(`cid:<?${escapeRe(att.cid)}>?`, "gi"), url);
     }
-  });
-}
-
-// Decode a MIME body part given its transfer-encoding + raw content
-function decodePart(raw: string, encoding: string): string {
-  let out = raw.replace(/\r\n/g, "\n");
-  const ct = (encoding || "").toLowerCase().trim();
-  if (ct === "base64") {
-    try {
-      out = Buffer.from(out.replace(/\s+/g, ""), "base64").toString("utf8");
-    } catch {
-      out = raw;
-    }
-  } else if (ct === "quoted-printable") {
-    out = out
-      .replace(/=\r?\n/g, "")
-      .replace(/=([0-9a-fA-F]{2})/g, (_a, h) => String.fromCharCode(parseInt(h, 16)));
+    // hard cap against multi-MB newsletters
+    if (html.length > 1_500_000) html = html.slice(0, 1_500_000);
   }
-  return out;
-}
 
-// Best-effort MIME text extraction from a full raw source buffer.
-// Handles nested multipart (mixed → alternative, etc.) by recursion on parts.
-function extractMailText(source: Buffer): string {
-  const raw = source.toString("utf8").replace(/\r\n/g, "\n");
-  let plain = "";
-  let html = "";
-
-  const processRaw = (rawPart: string) => {
-    const headerEnd = rawPart.indexOf("\n\n");
-    if (headerEnd === -1) return;
-    const head = rawPart.slice(0, headerEnd);
-    const body = rawPart.slice(headerEnd + 2);
-    const ctMatch = head.match(/^content-type:\s*([^;\n]+)/im);
-    const teMatch = head.match(/^content-transfer-encoding:\s*([^\n]+)/im);
-    const type = (ctMatch?.[1] || "").toLowerCase().trim();
-    const enc = (teMatch?.[1] || "").toLowerCase().trim();
-    if (type.includes("multipart")) {
-      const bnd = head.match(/boundary="?([\w./_=+-]+)"?/i);
-      if (!bnd) return;
-      const chunks = body.split(`--${bnd[1]}`);
-      for (const chunk of chunks) {
-        // skip epilogue/fluff (final -- or empty)
-        if (/^\s*$/.test(chunk.replace(/^-+/, ""))) continue;
-        processRaw(chunk);
-      }
-    } else if (type.includes("text/plain")) {
-      plain = plain ? `${plain}\n\n${decodePart(body, enc)}` : decodePart(body, enc);
-    } else if (type.includes("text/html")) {
-      html = html ? `${html}\n${decodePart(body, enc)}` : decodePart(body, enc);
-    }
-  };
-
-  processRaw(raw);
-
-  if (plain.trim()) return decodeWords(plain).trim();
-  if (html.trim()) return stripHtml(decodeWords(html));
-  // fallback: strip headers of raw
-  const headerEnd = raw.indexOf("\n\n");
-  return (headerEnd === -1 ? raw : raw.slice(headerEnd + 2)).trim();
+  return { text: (parsed.text || "").trim(), html, attachments };
 }
 
 export async function readMessage(folder: string, uid: number): Promise<FullMail | null> {
@@ -275,10 +234,15 @@ export async function readMessage(folder: string, uid: number): Promise<FullMail
       : "";
 
     let text = "";
+    let html: string | null = null;
+    let attachments: MailAttachment[] = [];
     try {
       const sourceBuf = (msg as any).source as Buffer | undefined;
       if (sourceBuf && sourceBuf.length) {
-        text = extractMailText(sourceBuf);
+        const parsed = await parseSource(folder, uid, sourceBuf);
+        text = parsed.text;
+        html = parsed.html;
+        attachments = parsed.attachments;
       }
     } catch {
       text = "";
@@ -292,6 +256,46 @@ export async function readMessage(folder: string, uid: number): Promise<FullMail
       flags: Array.from(msg.flags || []),
       size: msg.size || 0,
       text,
+      html,
+      attachments,
+    };
+  } finally {
+    await c.logout().catch(() => {});
+  }
+}
+
+// Re-fetch the raw source and return one attachment by index.
+export async function getAttachment(
+  folder: string,
+  uid: number,
+  index: number
+): Promise<{ buffer: Buffer; attachment: MailAttachment } | null> {
+  const c = client();
+  try {
+    await c.connect();
+    const opened = await c.mailboxOpen(folder);
+    if (!opened) return null;
+    const msg = (await c.fetchOne(`${uid}`, { source: true }, { uid: true })) as
+      | FetchMessageObject
+      | false;
+    if (!msg) return null;
+    const sourceBuf = (msg as any).source as Buffer | undefined;
+    if (!sourceBuf || !sourceBuf.length) return null;
+    const parsed = await simpleParser(sourceBuf);
+    const att = parsed.attachments?.[index];
+    if (!att?.content) return null;
+    return {
+      buffer: att.content,
+      attachment: {
+        index,
+        filename:
+          att.filename ||
+          (att.contentId ? att.contentId.replace(/[<>]/g, "") : `adjunto-${index + 1}`),
+        contentType: att.contentType || "application/octet-stream",
+        size: att.content.length,
+        disposition: (att.contentDisposition as "inline" | "attachment" | null) || null,
+        cid: att.contentId ? att.contentId.replace(/[<>]/g, "") : null,
+      },
     };
   } finally {
     await c.logout().catch(() => {});
