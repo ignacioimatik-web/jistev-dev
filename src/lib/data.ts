@@ -1,5 +1,5 @@
 /* ============================================================
-   jistev.dev — Data Layer
+   jistev.dev  -  Data Layer
    Positioning: Director Técnico & Arquitecto de Soluciones
    ============================================================ */
 
@@ -19,7 +19,7 @@ export const methodSteps: Step[] = [
     verb: "Encuentro el problema",
     desc: "No parto de la tecnología. Parto de la necesidad real.",
     detail:
-      "Un problema bien definido es medio proyecto resuelto. Escucho, pregunto, identifico dónde duele. Muchas veces el problema no es el que te cuentan — es el que hay debajo.",
+      "Un problema bien definido es medio proyecto resuelto. Escucho, pregunto, identifico dónde duele. Muchas veces el problema no es el que te cuentan  -  es el que hay debajo.",
   },
   {
     icon: "💡",
@@ -60,7 +60,7 @@ export interface Concept {
   icon: string;
   title: string;
   tagline: string;
-  idea: string;         // La idea original — qué problema resuelve de forma no obvia
+  idea: string;         // La idea original  -  qué problema resuelve de forma no obvia
   domains: string[];    // Áreas que mezcla (IA, automatización, datos...)
   gradient: string;     // bg-gradient class
 }
@@ -78,7 +78,7 @@ export const concepts: Concept[] = [
     icon: "🛡️",
     title: "HuellaZero",
     tagline: "Recuperar tu huella digital",
-    idea: "Escanea tu exposición online (brechas de seguridad, contraseñas filtradas, cuentas olvidadas) y automatiza el borrado con 4 métodos progresivos: bookmarklet, extensión, script o agente IA con control de navegador. Un dashboard con puntuación de privacidad para que cualquiera — sin importar su nivel técnico — recupere el control de sus datos.",
+    idea: "Escanea tu exposición online (brechas de seguridad, contraseñas filtradas, cuentas olvidadas) y automatiza el borrado con 4 métodos progresivos: bookmarklet, extensión, script o agente IA con control de navegador. Un dashboard con puntuación de privacidad para que cualquiera  -  sin importar su nivel técnico  -  recupere el control de sus datos.",
     domains: ["seguridad", "IA", "automatización", "UX"],
     gradient: "from-violet-500/20 to-purple-600/10",
   },
@@ -110,7 +110,7 @@ export const concepts: Concept[] = [
     icon: "📊",
     title: "StudioMo",
     tagline: "El dashboard que toda oficina en casa debería tener",
-    idea: "Monitor en tiempo real de Mac Studio + Synology NAS + UPS. CPU, RAM, discos, red, procesos, temperatura, estado del RAID, batería de la UPS. Todo centralizado en un dashboard elegante con gráficos. No es un sistema de monitorización enterprise — es la herramienta que cualquier creador con infraestructura en casa necesita para dormir tranquilo.",
+    idea: "Monitor en tiempo real de Mac Studio + Synology NAS + UPS. CPU, RAM, discos, red, procesos, temperatura, estado del RAID, batería de la UPS. Todo centralizado en un dashboard elegante con gráficos. No es un sistema de monitorización enterprise  -  es la herramienta que cualquier creador con infraestructura en casa necesita para dormir tranquilo.",
     domains: ["infraestructura", "datos", "UX"],
     gradient: "from-cyan-500/20 to-teal-600/10",
   },
@@ -118,7 +118,7 @@ export const concepts: Concept[] = [
     icon: "⚽",
     title: "Tarjeta Roja",
     tagline: "Gamificar el coleccionismo de cromos",
-    idea: "Un campeonato mundial de cartas de fútbol híbrido: crea cartas con rarity tiers y avatares SVG procedimentales, construye plantillas mezclando clubes y selecciones, y compite en torneos globales con mecánicas de duelos por atributos. La lógica de torneo completa — grupos, eliminatorias, desempates — corre en el navegador.",
+    idea: "Un campeonato mundial de cartas de fútbol híbrido: crea cartas con rarity tiers y avatares SVG procedimentales, construye plantillas mezclando clubes y selecciones, y compite en torneos globales con mecánicas de duelos por atributos. La lógica de torneo completa  -  grupos, eliminatorias, desempates  -  corre en el navegador.",
     domains: ["gamificación", "datos", "UX"],
     gradient: "from-red-500/20 to-rose-600/10",
   },
@@ -142,7 +142,7 @@ export const concepts: Concept[] = [
     icon: "🏭",
     title: "WARDEN",
     tagline: "E-commerce con ADN de ingeniería",
-    idea: "Tienda online para escenografía BattleTech impresa en 3D con una estética intencionadamente industrial: paleta gris metálico con acentos azul acero, bundles con descuento, drops limitados, y un sistema de selección con presupuesto. No es un shop genérico — es una experiencia de compra que refleja la precisión del producto.",
+    idea: "Tienda online para escenografía BattleTech impresa en 3D con una estética intencionadamente industrial: paleta gris metálico con acentos azul acero, bundles con descuento, drops limitados, y un sistema de selección con presupuesto. No es un shop genérico  -  es una experiencia de compra que refleja la precisión del producto.",
     domains: ["e-commerce", "UX", "3D"],
     gradient: "from-slate-500/20 to-zinc-600/10",
   },
@@ -150,7 +150,7 @@ export const concepts: Concept[] = [
     icon: "💬",
     title: "Telegram AI Bot",
     tagline: "Tu negocio en Telegram con cerebro",
-    idea: "Un bot de Telegram con IA que mantiene contexto de conversación, aprende del usuario y se personaliza para cualquier negocio. No es un bot de menús — es un asistente que entiende preguntas, recuerda conversaciones anteriores y responde con coherencia. Plug-and-play: clona, configura el prompt de personalidad y está listo.",
+    idea: "Un bot de Telegram con IA que mantiene contexto de conversación, aprende del usuario y se personaliza para cualquier negocio. No es un bot de menús  -  es un asistente que entiende preguntas, recuerda conversaciones anteriores y responde con coherencia. Plug-and-play: clona, configura el prompt de personalidad y está listo.",
     domains: ["IA", "bots", "automatización"],
     gradient: "from-blue-500/20 to-indigo-600/10",
   },
@@ -190,7 +190,7 @@ export const capabilities: Capability[] = [
     icon: "🏗️",
     title: "Arquitectura Full-Stack",
     tagline: "Diseño y ejecuto sistemas completos",
-    desc: "Diseño la arquitectura y construyo cada capa. Frontend, backend, APIs, base de datos, despliegue. No hay 'eso lo hace otro' — entiendo y ejecuto todo el stack.",
+    desc: "Diseño la arquitectura y construyo cada capa. Frontend, backend, APIs, base de datos, despliegue. No hay 'eso lo hace otro'  -  entiendo y ejecuto todo el stack.",
     details: [
       "Frontend: Next.js, React, TypeScript, animaciones",
       "Backend: Python, FastAPI, Node.js, APIs REST",
@@ -202,7 +202,7 @@ export const capabilities: Capability[] = [
     icon: "🤖",
     title: "IA en Producción",
     tagline: "No demos. Sistemas que funcionan.",
-    desc: "Integro LLMs, RAG, Whisper y automatización en productos reales. El reto no es conectar un modelo — es hacer que sea fiable, que no alucine cuando no debe, y que mejore con el uso.",
+    desc: "Integro LLMs, RAG, Whisper y automatización en productos reales. El reto no es conectar un modelo  -  es hacer que sea fiable, que no alucine cuando no debe, y que mejore con el uso.",
     details: [
       "LLMs: OpenAI, DeepSeek, Claude, modelos locales",
       "RAG sobre documentos con ChromaDB + embeddings NVIDIA",
@@ -247,7 +247,7 @@ export const aboutHighlights: AboutHighlight[] = [
   {
     icon: "🧠",
     title: "Imagino",
-    desc: "Concibo ideas originales donde otros ven problemas cotidianos. No espero a que me digan qué construir — identifico lo que falta y lo creo.",
+    desc: "Concibo ideas originales donde otros ven problemas cotidianos. No espero a que me digan qué construir  -  identifico lo que falta y lo creo.",
   },
   {
     icon: "🧭",
@@ -269,7 +269,7 @@ export const stats = [
   { n: "Full-Stack", l: "De la visión al código" },
 ];
 
-/* ─── Services (precios — keep lean) ─── */
+/* ─── Services (precios  -  keep lean) ─── */
 export const services = [
   {
     icon: "🚀",

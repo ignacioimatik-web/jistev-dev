@@ -108,7 +108,7 @@ export function Contact() {
                 </>
               ) : status === "error" ? (
                 <>
-                  Error — intenta de nuevo <AlertCircle className="h-4 w-4" />
+                  Error  -  intenta de nuevo <AlertCircle className="h-4 w-4" />
                 </>
               ) : (
                 <>

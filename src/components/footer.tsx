@@ -3,9 +3,7 @@ export function Footer() {
     <footer className="px-6 pb-24 pt-16 text-center">
       <p className="mx-auto mb-9 max-w-[640px] text-3xl font-bold tracking-tight sm:text-4xl">
         ¿Tienes una idea?{" "}
-        <span className="bg-gradient-to-r from-violet-300 to-cyan-300 bg-clip-text text-transparent">
-          Hagámosla funcionar.
-        </span>
+        <span className="text-violet-400">Hagámosla funcionar.</span>
       </p>
       <div className="flex flex-wrap justify-center gap-3">
         <a

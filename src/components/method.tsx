@@ -21,7 +21,7 @@ const methodSteps = [
   {
     icon: "🔍", title: "Observar", verb: "Encuentro el problema",
     desc: "No parto de la tecnología. Parto de la necesidad real.",
-    detail: "Un problema bien definido es medio proyecto resuelto. Escucho, pregunto, identifico dónde duele. Muchas veces el problema no es el que te cuentan — es el que hay debajo.",
+    detail: "Un problema bien definido es medio proyecto resuelto. Escucho, pregunto, identifico dónde duele. Muchas veces el problema no es el que te cuentan  -  es el que hay debajo.",
   },
   {
     icon: "💡", title: "Concebir", verb: "Diseño la idea",
@@ -72,7 +72,7 @@ export function Method() {
         className="mx-auto mb-16 max-w-3xl text-center text-sm leading-relaxed text-zinc-400"
       >
         No empiezo por el código. Empiezo por el problema. Cada proyecto sigue
-        el mismo flujo — desde que identifico la necesidad hasta que el producto
+        el mismo flujo  -  desde que identifico la necesidad hasta que el producto
         está funcionando en producción.
       </motion.p>
 
@@ -122,7 +122,7 @@ export function Method() {
         ))}
       </div>
 
-      {/* Active step detail — desktop */}
+      {/* Active step detail  -  desktop */}
       {activeStep !== null && (
         <motion.div
           key={activeStep}
@@ -143,7 +143,7 @@ export function Method() {
                 {methodSteps[activeStep].title}
               </span>
               <span className="ml-2 text-sm text-zinc-600">
-                — {methodSteps[activeStep].verb}
+                 -  {methodSteps[activeStep].verb}
               </span>
             </div>
           </div>

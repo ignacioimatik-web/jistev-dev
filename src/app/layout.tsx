@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "jistev | Imagino, lidero y construyo",
   description:
-    "Ignacio Estevez (jistev) — Director técnico y desarrollador full-stack. Concibo la idea, lidero el proyecto y escribo el código.",
+    "Ignacio Estevez (jistev)  -  Director técnico y desarrollador full-stack. Concibo la idea, lidero el proyecto y escribo el código.",
   keywords: [
     "director técnico",
     "desarrollador full-stack",

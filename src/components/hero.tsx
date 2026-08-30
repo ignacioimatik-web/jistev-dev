@@ -13,7 +13,7 @@ const stats = [
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-screen flex-col overflow-hidden">
+    <section className="relative flex min-h-[100dvh] flex-col overflow-hidden">
       {/* Video Background */}
       <video
         autoPlay
@@ -56,12 +56,11 @@ export function Hero() {
               className="mt-6 text-4xl font-bold leading-[1.06] tracking-tight sm:text-5xl md:text-[52px]"
             >
               Escribo código que{" "}
-              <span className="bg-gradient-to-r from-violet-300 to-cyan-300 bg-clip-text text-transparent">
+              <span className="text-violet-400">
                 convierte ideas
                 <br />
                 en productos
-              </span>
-              .
+              </span>.
             </motion.h1>
 
             <motion.p

@@ -32,7 +32,7 @@ const capabilities = [
   {
     title: "Arquitectura Full-Stack",
     tagline: "Diseño y ejecuto sistemas completos",
-    desc: "Diseño la arquitectura y construyo cada capa. Frontend, backend, APIs, base de datos, despliegue. No hay 'eso lo hace otro' — entiendo y ejecuto todo el stack.",
+    desc: "Diseño la arquitectura y construyo cada capa. Frontend, backend, APIs, base de datos, despliegue. No hay 'eso lo hace otro'  -  entiendo y ejecuto todo el stack.",
     details: [
       "Frontend: Next.js, React, TypeScript, animaciones",
       "Backend: Python, FastAPI, Node.js, APIs REST",
@@ -43,7 +43,7 @@ const capabilities = [
   {
     title: "IA en Producción",
     tagline: "No demos. Sistemas que funcionan.",
-    desc: "Integro LLMs, RAG, Whisper y automatización en productos reales. El reto no es conectar un modelo — es hacer que sea fiable, que no alucine cuando no debe, y que mejore con el uso.",
+    desc: "Integro LLMs, RAG, Whisper y automatización en productos reales. El reto no es conectar un modelo  -  es hacer que sea fiable, que no alucine cuando no debe, y que mejore con el uso.",
     details: [
       "LLMs: OpenAI, DeepSeek, Claude, modelos locales",
       "RAG sobre documentos con ChromaDB + embeddings NVIDIA",

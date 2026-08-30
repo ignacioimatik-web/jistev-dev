@@ -627,7 +627,7 @@ function PrintableQuote({
       <div className="border-t-2 border-gray-200 pt-6 text-xs text-gray-400">
         <p className="mb-1">• Incluye 30 días de soporte post-entrega.</p>
         <p className="mb-1">• Forma de pago: 50% al inicio, 50% a la entrega.</p>
-        <p className="mb-1">• jistev.dev — ignacio@digitalcode.es</p>
+        <p className="mb-1">• jistev.dev  -  ignacio@digitalcode.es</p>
       </div>
     </div>
   );

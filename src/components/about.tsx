@@ -10,7 +10,7 @@ const highlights = [
   {
     img: "/about-zenit/fullstack.jpg",
     title: "Full-Stack por naturaleza",
-    desc: "No solo maqueto — construyo sistemas completos. Frontend, backend, APIs, infraestructura.",
+    desc: "No solo maqueto  -  construyo sistemas completos. Frontend, backend, APIs, infraestructura.",
     tipTitle: "full-stack",
     tipBody: `Asumo el producto entero de punta a punta: interfaz, lógica de negocio, APIs, base de datos y despliegue. Trabajo por igual en frontend y backend, sin delegar lo esencial a terceros.
 Me muevo entre capas con el mismo criterio: el contrato de la API, el modelo de datos y el diseño de la UI se piensan como un solo sistema. Eso elimina los típicos silos de equipo y acelera el ciclo idea→producción.
@@ -22,7 +22,7 @@ En la práctica eso significa que si tu proyecto necesita un dashboard web, una 
     title: "Delivery-focused",
     desc: "De la idea al MVP funcional en semanas. Código limpio, pragmático, sin sobreingeniería.",
     tipTitle: "delivery",
-    tipBody: `Mi unidad de tiempo es la entrega, no el perfeccionismo. Un MVP funcional y validable en 1–2 semanas, con el que puedes enseñar la idea a usuarios reales y recoger feedback de inmediato.
+    tipBody: `Mi unidad de tiempo es la entrega, no el perfeccionismo. Un MVP funcional y validable en 1-2 semanas, con el que puedes enseñar la idea a usuarios reales y recoger feedback de inmediato.
 Empiezo por el núcleo que genera valor y despliego temprano, aunque sea pequeño: mejor un sistema simple funcionando en producción que una arquitectura elegante que nadie usa.
 Cada iteración añade lo que la realidad te pide (no lo que yo imagino). Decisiones pragmáticas y código limpio, recortando sobreingeniería y todo lo que no aporta a tus objetivos medibles.`,
     tags: ["MVP", "2 semanas", "agile", "iteración"],

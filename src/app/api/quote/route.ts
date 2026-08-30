@@ -163,7 +163,7 @@ export async function POST(req: NextRequest) {
               }
 
               <p style="color:#a1a1aa;font-size:14px;line-height:1.6;">Si mientras tanto tienes alguna duda, puedes responderme directamente a este email.</p>
-              <p style="color:#a1a1aa;font-size:14px;">— Ignacio (jistev)</p>
+              <p style="color:#a1a1aa;font-size:14px;"> -  Ignacio (jistev)</p>
               <hr style="border:none;border-top:1px solid #27272a;margin:20px 0;">
               <p style="color:#52525b;font-size:12px;">jistev.dev · Desarrollo Full-Stack & Automatización con IA</p>
             </div>
