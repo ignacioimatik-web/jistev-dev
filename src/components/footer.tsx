@@ -21,7 +21,13 @@ export function Footer() {
           @ github
         </a>
       </div>
-      <p className="mt-12 font-mono text-xs text-zinc-500">
+      <p className="mt-12 flex items-center justify-center gap-2 font-mono text-xs text-zinc-500">
+        <img
+          src="/logo.png"
+          alt=""
+          aria-hidden
+          className="h-3.5 w-3.5 shrink-0"
+        />
         © {new Date().getFullYear()}{" "}
         <a
           href="https://digitalcode.es"
