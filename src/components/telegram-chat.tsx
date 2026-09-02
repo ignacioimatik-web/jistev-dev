@@ -1,15 +1,11 @@
 "use client";
 
-// Widget de chat embebido. Habla con el puente Telegram que corre en la infra
-// del dueño (bot/ dir, proceso continuo). La URL pública de ese puente se
-// configura con NEXT_PUBLIC_TELEGRAM_API (p.ej. http://100.110.148.69:8787 o
-// un túnel/dominio). Si no está configurada, el widget no se muestra.
+// Widget de chat embebido. Habla con rutas propias de este despliegue
+// (/api/telegram/*); el server de Vercel añade la API key y reenvía al puente
+// (VPS). El navegador nunca ve el secreto ni la URL del puente.
 
 import { useState, useEffect, useRef, type FormEvent } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
-
-const API =
-  process.env.NEXT_PUBLIC_TELEGRAM_API?.replace(/\/$/, "") || "";
 
 type Msg = { from: "user" | "owner"; text: string };
 
@@ -21,16 +17,13 @@ export function TelegramChat() {
   const [status, setStatus] = useState<"idle" | "loading" | "starting">("idle");
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Si no hay API configurada, no renderizamos nada (fallback silencioso).
-  if (!API) return null;
-
   // Crear sesión la primera vez que se abre el chat.
   useEffect(() => {
     if (!open || session) return;
     (async () => {
       setStatus("starting");
       try {
-        const res = await fetch(`${API}/api/session`);
+        const res = await fetch("/api/telegram/session");
         const data = await res.json();
         setSession(data.sessionId);
         setStatus("idle");
@@ -45,7 +38,7 @@ export function TelegramChat() {
     if (!open || !session) return;
     const t = setInterval(async () => {
       try {
-        const res = await fetch(`${API}/api/poll?session=${session}`);
+        const res = await fetch(`/api/telegram/poll?session=${session}`);
         const data = await res.json();
         if (data.reply) {
           setMessages((prev) => [...prev, { from: "owner", text: data.reply }]);
@@ -69,7 +62,7 @@ export function TelegramChat() {
     setInput("");
     setMessages((prev) => [...prev, { from: "user", text }]);
     try {
-      await fetch(`${API}/api/send`, {
+      await fetch("/api/telegram/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session, message: text }),

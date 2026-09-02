@@ -1,7 +1,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { timingSafeEqual, randomUUID } from "node:crypto";
 import {
   getUpdates,
   sendMessage,
@@ -152,8 +152,27 @@ function json(res, code, body) {
   res.end(JSON.stringify(body));
 }
 
+// Verifica la cabecera x-api-key contra API_KEY (comparación de tiempo constante).
+function authorized(req) {
+  const secret = process.env.API_KEY;
+  if (!secret) {
+    console.error("⚠️  API_KEY no definida — rechazando todas las peticiones.");
+    return false;
+  }
+  const provided = req.headers["x-api-key"];
+  if (typeof provided !== "string" || provided.length !== secret.length) return false;
+  const a = Buffer.from(provided);
+  const b = Buffer.from(secret);
+  return timingSafeEqual(a, b);
+}
+
 async function handleHttp(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
+
+  // Guarda de autenticación: todos los endpoints exigen x-api-key correcta.
+  if (!authorized(req)) {
+    return json(res, 401, { error: "unauthorized" });
+  }
 
   if (req.method === "GET" && url.pathname === "/api/session") {
     const id = randomUUID();
