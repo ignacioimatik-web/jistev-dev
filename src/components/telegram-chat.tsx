@@ -95,14 +95,21 @@ export function TelegramChat() {
 
   return (
     <>
-      {/* Botón flotante */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Abrir chat de contacto"
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#2AABEE] text-white shadow-xl shadow-[#2AABEE]/30 transition-transform hover:scale-105"
-      >
-        {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
-      </button>
+      {/* Botón flotante + etiqueta */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        {!open && (
+          <span className="rounded-full border border-line bg-card/90 px-3 py-1.5 text-sm font-medium text-zinc-300 shadow-lg backdrop-blur">
+            ¿hablamos?
+          </span>
+        )}
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Abrir chat de contacto"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#2AABEE] text-white shadow-xl shadow-[#2AABEE]/30 transition-transform hover:scale-105"
+        >
+          {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        </button>
+      </div>
 
       {/* Panel */}
       {open && (
