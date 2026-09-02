@@ -5,6 +5,7 @@ import { timingSafeEqual, randomUUID } from "node:crypto";
 import {
   getUpdates,
   sendMessage,
+  sendDocument,
   formatVisitorAnnouncement,
 } from "./telegram.js";
 
@@ -272,27 +273,64 @@ async function handleHttp(req, res) {
     if (!meta) return json(res, 404, { error: "unknown_session" });
 
     const text = String(body.message ?? "").slice(0, 3500);
-    if (!text.trim()) return json(res, 400, { error: "empty" });
+    const file = body.file; // { name, mimeType, base64 } opcional
+    if (!text.trim() && !file?.base64) return json(res, 400, { error: "empty" });
 
-    // Marcar la sesión como usada, para que el dueño pueda responder normal.
+    // Marcar la sesión como usada (el dueño puede responder normal)
     meta.ever_used = true;
     meta.last_activity = Date.now();
     if (body.chatId) meta.chat_id = body.chatId;
+    if (body.name) meta.user_name = body.name;
     saveDb();
 
-    if (meta.chat_id) {
+    lastNotifiedSession = body.session;
+
+    // ── Aviso AL DUEÑO ──
+    // Primer mensaje: presentación del cliente + su mensaje.
+    // Siguientes: solo el texto (chat limpio tipo jistevbot).
+    const who = meta.user_name || "un visitante";
+    if (!meta.intro_done) {
+      meta.intro_done = true;
+      saveDb();
+      await sendMessage(
+        OWNER_ID(),
+        `👤 *${who}* quiere hablar contigo desde la web.\n🔒 Respóndeme normal y le llegará en su navegador.\n—————————————————`
+      );
+      // Pequeña espera para que el intro y el mensaje salgan en orden.
+      await sleep(300);
+    }
+
+    // Enviar adjunto si viene.
+    if (file?.base64) {
       try {
-        await sendMessage(meta.chat_id, `🙂 ${text}`);
-      } catch {
-        /* el visitante aún no ha pulsado Start */
+        const buffer = Buffer.from(file.base64, "base64");
+        await sendDocument(OWNER_ID(), {
+          buffer,
+          filename: file.name || "adjunto",
+          mimeType: file.mimeType || "application/octet-stream",
+        });
+      } catch (e) {
+        console.error("sendDocument error:", e.message);
       }
     }
 
-    lastNotifiedSession = body.session;
-    await sendMessage(
-      OWNER_ID(),
-      `💬 *Nuevo mensaje del widget* (sesión \`${body.session}\`${meta.user_name ? ` — ${meta.user_name}` : ""}):\n\n${text}`
-    );
+    // Enviar el texto del mensaje. Solo texto -> mensaje normal.
+    // Si hay adjunto y NO hay texto, enviamos el nombre como caption.
+    if (text.trim()) {
+      await sendMessage(OWNER_ID(), text);
+    } else if (file?.name) {
+      await sendMessage(OWNER_ID(), `📎 *Adjunto:* ${file.name}`);
+    }
+
+    // ── ECO al visitante (si inició chat en Telegram) ──
+    if (meta.chat_id && text.trim()) {
+      try {
+        await sendMessage(meta.chat_id, `🙂 ${text}`);
+      } catch {
+        /* sin chat activo */
+      }
+    }
+
     return json(res, 200, { ok: true });
   }
 

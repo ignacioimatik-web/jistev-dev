@@ -5,7 +5,7 @@
 // (VPS). El navegador nunca ve el secreto ni la URL del puente.
 
 import { useState, useEffect, useRef, type FormEvent } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, Paperclip, FileText } from "lucide-react";
 
 type Msg = { from: "user" | "owner"; text: string };
 
@@ -14,6 +14,8 @@ export function TelegramChat() {
   const [session, setSession] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
+  const [name, setName] = useState("");
+  const [attached, setAttached] = useState<{ name: string; type: string; data: string } | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "starting">("idle");
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -76,19 +78,43 @@ export function TelegramChat() {
 
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !session) return;
+    if ((!input.trim() && !attached) || !session) return;
     const text = input.trim();
     setInput("");
-    setMessages((prev) => [...prev, { from: "user", text }]);
+    setMessages((prev) => [
+      ...prev,
+      ...(text ? [{ from: "user" as const, text }] : []),
+      ...(attached ? [{ from: "user" as const, text: `📎 ${attached.name}` }] : []),
+    ]);
     try {
+      const payload: Record<string, unknown> = { session, message: text };
+      if (name) payload.name = name;
+      if (attached) payload.file = { name: attached.name, mimeType: attached.type, base64: attached.data };
       await fetch("/api/telegram/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session, message: text }),
+        body: JSON.stringify(payload),
       });
+      setAttached(null);
     } catch {
       /* sin red */
     }
+  };
+
+  // Adjunto: leer archivo como base64 (capa 20 MB, límites de Telegram/API).
+  const handleAttach = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 20 * 1024 * 1024) {
+      alert("Máximo 20MB por adjunto.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const data = String(reader.result).split(",")[1] ?? "";
+      setAttached({ name: f.name, type: f.type, data });
+    };
+    reader.readAsDataURL(f);
   };
 
   const startUrl = `https://t.me/jistevbot?start=${session}`;
@@ -150,21 +176,52 @@ export function TelegramChat() {
 
           {/* Input */}
           {session ? (
-            <form onSubmit={handleSend} className="flex items-center gap-2 border-t border-line p-3">
+            <div className="border-t border-line p-3">
+              {/* Nombre del cliente (opcional) */}
               <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Escribe tu mensaje…"
-                className="flex-1 rounded-xl border border-line bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-orange-400"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Tu nombre (opcional)"
+                className="mb-2 w-full rounded-xl border border-line bg-transparent px-3 py-1.5 text-xs text-foreground outline-none focus:border-orange-400"
               />
-              <button
-                type="submit"
-                aria-label="Enviar"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2AABEE] text-white transition-colors hover:bg-[#229ED9]"
-              >
-                <Send className="h-4 w-4" />
-              </button>
-            </form>
+              {/* Adjunto seleccionado */}
+              {attached && (
+                <div className="mb-2 flex items-center gap-2 rounded-lg border border-line bg-zinc-800/60 px-2 py-1.5 text-xs text-zinc-200">
+                  <FileText className="h-3.5 w-3.5 shrink-0 text-orange-400" />
+                  <span className="flex-1 truncate">{attached.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAttached(null)}
+                    aria-label="Quitar adjunto"
+                    className="text-zinc-400 hover:text-zinc-200"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+              <form onSubmit={handleSend} className="flex items-center gap-2">
+                <label className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors hover:text-orange-400">
+                  <Paperclip className="h-4 w-4" />
+                  <input type="file" className="hidden" accept="*/*" onChange={handleAttach} />
+                </label>
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Escribe tu mensaje… 😀"
+                  className="flex-1 rounded-xl border border-line bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-orange-400"
+                />
+                <button
+                  type="submit"
+                  aria-label="Enviar"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2AABEE] text-white transition-colors hover:bg-[#229ED9]"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </form>
+              <p className="mt-2 text-center text-[11px] text-zinc-500">
+                Puedes adjuntar archivos (máx. 20 MB).
+              </p>
+            </div>
           ) : (
             <div className="border-t border-line p-4">
               <p className="mb-2 text-center text-xs text-zinc-400">
