@@ -1,0 +1,12 @@
+{
+  "name": "jistev-telegram-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Puente de chat embebido: conecta el widget del portfolio con Telegram del dueño. Proceso continuo (NAS/Mac).",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {}
+}
