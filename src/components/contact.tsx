@@ -6,7 +6,7 @@ import { SectionWrapper, SectionHeading } from "@/components/section-wrapper";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Mail, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { Mail, Send, CheckCircle, AlertCircle, MessageCircle } from "lucide-react";
 
 export function Contact() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -126,6 +126,31 @@ export function Contact() {
             >
               <Mail className="h-4 w-4" />
               ignacio@digitalcode.es
+            </a>
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-line bg-gradient-to-br from-[#2AABEE]/10 to-[#229ED9]/5 p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#2AABEE] text-white">
+                <MessageCircle className="h-5 w-5" />
+              </div>
+              <div className="text-left">
+                <p className="font-semibold text-zinc-200">
+                  ¿Prefieres Telegram?
+                </p>
+                <p className="text-sm text-zinc-400">
+                  Respuesta casi inmediata en el chat
+                </p>
+              </div>
+            </div>
+            <a
+              href="https://t.me/jistevbot"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2AABEE] px-4 py-3 text-sm font-medium text-white shadow-lg shadow-[#2AABEE]/20 transition-colors hover:bg-[#229ED9]"
+            >
+              <MessageCircle className="h-4 w-4" />
+              Abrir chat en Telegram
             </a>
           </div>
         </motion.div>
