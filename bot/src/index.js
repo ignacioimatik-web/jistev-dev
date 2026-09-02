@@ -13,7 +13,8 @@ import {
 // ------------------------------------------------------------------
 const DB_PATH = path.join(process.cwd(), "conversations.json");
 
-let conversations = new Map(); // sessionId -> { chat_id, user_name, created_at, owner_reply }
+// sessionId -> { chat_id, user_name, created_at, owner_reply, ever_used, last_activity }
+let conversations = new Map();
 
 function loadDb() {
   try {
@@ -29,9 +30,9 @@ function saveDb() {
 }
 
 // ------------------------------------------------------------------
-// Enrutado de updates del bot
+// Utilidades
 // ------------------------------------------------------------------
-let offset = 0;
+const OWNER_ID = () => Number(process.env.OWNER_CHAT_ID);
 
 function findSessionByChatId(chatId) {
   for (const [id, meta] of conversations) {
@@ -40,22 +41,53 @@ function findSessionByChatId(chatId) {
   return null;
 }
 
+// Sesión "más reciente que escribió algo" (para responder normal en el chat).
+function mostRecentActiveSession() {
+  let best = null;
+  let bestActivity = -1;
+  for (const [id, meta] of conversations) {
+    const act = meta.last_activity || meta.created_at || 0;
+    if ((meta.chat_id || meta.ever_used) && act > bestActivity) {
+      bestActivity = act;
+      best = { id, ...meta };
+    }
+  }
+  return best;
+}
+
+function extractSessionIdFromText(text) {
+  if (!text) return null;
+  // Busca "(sesión `UUID`" o "sesión UUID" — forma que usamos en los avisos al dueño.
+  const m = text.match(/sesion[\)\s]*["'`]?\s*([0-9a-f]{8}-[0-9a-f-]{27,})/i);
+  return m ? m[1] : null;
+}
+
+// ------------------------------------------------------------------
+// Enrutado de updates del bot
+// ------------------------------------------------------------------
+let offset = 0;
+// Última sesión cuyo mensaje se notificó al dueño. Sirve para enrutar su
+// respuesta NORMAL (sin reply) a la sesión correcta aunque haya varias.
+let lastNotifiedSession = null;
+
 async function handleUpdate(upd) {
   if (!upd.message) return;
   const msg = upd.message;
   const chatId = msg.chat.id;
   const user = `${msg.from?.first_name ?? ""} ${msg.from?.last_name ?? ""}`.trim();
+  const text = (msg.text ?? "").trim();
 
   // /start con payload -> el visitante (o el dueño probando) inicia la sesión.
-  if (msg.text && msg.text.startsWith("/start")) {
-    const payload = msg.text.replace("/start", "").trim();
+  if (text.startsWith("/start")) {
+    const payload = text.replace("/start", "").trim();
     const sessionId = payload || randomUUID();
 
     // Si quien inicia es el DUEÑO, es prueba propia.
-    if (chatId === Number(process.env.OWNER_CHAT_ID)) {
+    if (chatId === OWNER_ID()) {
       await sendMessage(
         chatId,
-        "✅ Puente listo. La ventana de chat embebida ya puede conectar aquí."
+        "✅ Puente listo. La ventana de chat embebida ya puede conectar aquí. " +
+          "Responde normal a los avisos de visitantes y llegarán a su navegador."
       );
       return;
     }
@@ -65,13 +97,12 @@ async function handleUpdate(upd) {
       user_name: user,
       created_at: Date.now(),
       owner_reply: null,
+      ever_used: true,
+      last_activity: Date.now(),
     });
     saveDb();
 
-    await sendMessage(
-      process.env.OWNER_CHAT_ID,
-      formatVisitorAnnouncement({ id: sessionId })
-    );
+    await sendMessage(OWNER_ID(), formatVisitorAnnouncement({ id: sessionId }));
     await sendMessage(
       chatId,
       "¡Hola! Me comunico con mi dueño al instante. Escríbeme por aquí y te responderá enseguida. 🙂"
@@ -79,47 +110,85 @@ async function handleUpdate(upd) {
     return;
   }
 
-  // Mensaje normal del visitante -> reenviar al dueño.
-  const session = findSessionByChatId(chatId);
-  if (session) {
-    await sendMessage(
-      process.env.OWNER_CHAT_ID,
-      `💬 *Nuevo mensaje* (sesión \`${session.id}\` — ${session.user_name || "visitante"}):\n\n${msg.text ?? "(medio no textual)"}`
-    );
+  // 1) Mensaje del DUEÑO -> responder a la sesión + guardar para el widget.
+  if (chatId === OWNER_ID()) {
+    await handleOwnerMessage(msg);
     return;
   }
 
-  // Mensaje del DUEÑO (respondiendo, con reply) -> reenviar al visitante de esa sesión.
-  if (chatId === Number(process.env.OWNER_CHAT_ID) && msg.reply_to_message) {
-    const repliedText = msg.reply_to_message.text || "";
-    const m = repliedText.match(/sesión[\(`\s]*([0-9a-f-]{8,})/i);
-    if (!m) return;
-    const meta = conversations.get(m[1]);
-    let target = null;
-    if (meta?.chat_id) target = meta.chat_id;
-    // La respuesta también se guarda para que el WIDGET la recoja por polling.
+  // 2) Mensaje del VISITANTE (desde su Telegram) -> reenviar al dueño.
+  const session = findSessionByChatId(chatId);
+  if (session) {
+    const meta = conversations.get(session.id);
     if (meta) {
-      meta.owner_reply = msg.text ?? "";
+      meta.last_activity = Date.now();
       saveDb();
     }
-    // Si la sesión no tenía chat_id aún (visitante que solo usó el widget), intenta la más reciente con chat activo.
-    if (!target) {
-      const latest = [...conversations.entries()]
-        .filter(([, v]) => v.chat_id)
-        .sort((a, b) => b[1].created_at - a[1].created_at)[0];
-      if (latest) target = latest[1].chat_id;
-    }
-    if (target) {
-      try {
-        await sendMessage(target, `👨‍💻 ${msg.text ?? ""}`);
-      } catch {
-        /* sin chat activo */
-      }
-    }
+    lastNotifiedSession = session.id;
+    await sendMessage(
+      OWNER_ID(),
+      `💬 *Nuevo mensaje* (sesión \`${session.id}\` — ${session.user_name || "visitante"}):\n\n${text || "(medio no textual)"}`
+    );
     return;
   }
 }
 
+// ------------------------------------------------------------------
+// El dueño responde. Funciona CON reply (preciso) y SIN reply (intuitivo:
+// va a la sesión más reciente con actividad).
+// ------------------------------------------------------------------
+async function handleOwnerMessage(msg) {
+  const answer = (msg.text ?? "").trim();
+  if (!answer) return;
+
+  let sessionId = null;
+
+  // 1. Si el dueño respondió (reply) a un aviso, extraemos el sessionId del texto.
+  if (msg.reply_to_message) {
+    sessionId = extractSessionIdFromText(msg.reply_to_message.text || "");
+  }
+
+  // 2. Sin reply -> enrutamos a la sesión del ÚLTIMO aviso enviado al dueño,
+  //    que es la que el visitante tiene abierta ahora mismo. Determinista.
+  if (!sessionId && lastNotifiedSession) {
+    sessionId = lastNotifiedSession;
+  }
+
+  // 3. Respaldo: si aún no hay pista, la sesión más reciente con actividad.
+  if (!sessionId) {
+    const active = mostRecentActiveSession();
+    if (active) sessionId = active.id;
+  }
+
+  if (!sessionId) {
+    await sendMessage(
+      OWNER_ID(),
+      "⚠️ Aún no hay ningún visitante con el que hablar. Cuando alguien escriba en la web, te aviso aquí y me respondes."
+    );
+    return;
+  }
+
+  const meta = conversations.get(sessionId);
+  if (!meta) return;
+
+  // Guardar la respuesta para que el WIDGET la recoja por polling.
+  meta.owner_reply = answer;
+  meta.last_activity = Date.now();
+  saveDb();
+
+  // Si el visitante inició el chat en Telegram (tiene chat_id), reenviarle también ahí.
+  if (meta.chat_id) {
+    try {
+      await sendMessage(meta.chat_id, `👨‍💻 ${answer}`);
+    } catch {
+      /* sin chat activo */
+    }
+  }
+}
+
+// ------------------------------------------------------------------
+// Polling
+// ------------------------------------------------------------------
 async function startPolling() {
   console.log("🤖 Polling de Telegram iniciado...");
   for (;;) {
@@ -152,28 +221,20 @@ function json(res, code, body) {
   res.end(JSON.stringify(body));
 }
 
-// Verifica la cabecera x-api-key contra API_KEY (comparación de tiempo constante).
 function authorized(req) {
   const secret = process.env.API_KEY;
-  if (!secret) {
-    console.error("⚠️  API_KEY no definida — rechazando todas las peticiones.");
-    return false;
-  }
+  if (!secret) return false;
   const provided = req.headers["x-api-key"];
   if (typeof provided !== "string" || provided.length !== secret.length) return false;
-  const a = Buffer.from(provided);
-  const b = Buffer.from(secret);
-  return timingSafeEqual(a, b);
+  return timingSafeEqual(Buffer.from(provided), Buffer.from(secret));
 }
 
 async function handleHttp(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
-  // Guarda de autenticación: todos los endpoints exigen x-api-key correcta.
-  if (!authorized(req)) {
-    return json(res, 401, { error: "unauthorized" });
-  }
+  if (!authorized(req)) return json(res, 401, { error: "unauthorized" });
 
+  // GET /api/session -> nueva sesión para el widget.
   if (req.method === "GET" && url.pathname === "/api/session") {
     const id = randomUUID();
     conversations.set(id, {
@@ -189,18 +250,20 @@ async function handleHttp(req, res) {
     });
   }
 
+  // GET /api/poll?session=X -> el widget pregunta si el dueño ya respondió.
   if (req.method === "GET" && url.pathname === "/api/poll") {
     const sid = url.searchParams.get("session");
     const meta = conversations.get(sid);
     if (!meta) return json(res, 404, { error: "unknown_session" });
     const reply = meta.owner_reply || null;
     if (reply) {
-      meta.owner_reply = null;
+      meta.owner_reply = null; // consumido
       saveDb();
     }
     return json(res, 200, { reply });
   }
 
+  // POST /api/send -> el visitante escribió en el widget; reenviar al dueño.
   if (req.method === "POST" && url.pathname === "/api/send") {
     let bodyText = "";
     for await (const chunk of req) bodyText += chunk;
@@ -211,6 +274,12 @@ async function handleHttp(req, res) {
     const text = String(body.message ?? "").slice(0, 3500);
     if (!text.trim()) return json(res, 400, { error: "empty" });
 
+    // Marcar la sesión como usada, para que el dueño pueda responder normal.
+    meta.ever_used = true;
+    meta.last_activity = Date.now();
+    if (body.chatId) meta.chat_id = body.chatId;
+    saveDb();
+
     if (meta.chat_id) {
       try {
         await sendMessage(meta.chat_id, `🙂 ${text}`);
@@ -218,8 +287,10 @@ async function handleHttp(req, res) {
         /* el visitante aún no ha pulsado Start */
       }
     }
+
+    lastNotifiedSession = body.session;
     await sendMessage(
-      process.env.OWNER_CHAT_ID,
+      OWNER_ID(),
       `💬 *Nuevo mensaje del widget* (sesión \`${body.session}\`${meta.user_name ? ` — ${meta.user_name}` : ""}):\n\n${text}`
     );
     return json(res, 200, { ok: true });

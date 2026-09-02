@@ -17,21 +17,40 @@ export function TelegramChat() {
   const [status, setStatus] = useState<"idle" | "loading" | "starting">("idle");
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Crear sesión la primera vez que se abre el chat.
+  // Cada visitante (pestaña/navegador) mantiene su PROPIA sesión, persistida en
+  // localStorage para que sobreviva a recargas. Varios clientes a la vez OK.
+  const SESSION_KEY = "tg-chat-session";
+
+  // Crear (o recuperar) la sesión al abrir el chat.
   useEffect(() => {
-    if (!open || session) return;
+    if (!open) return;
+    let cancelled = false;
     (async () => {
+      // 1) Intentar reutilizar la sesión de este navegador.
+      const stored = localStorage.getItem(SESSION_KEY);
+      if (stored) {
+        setSession(stored);
+        setStatus("idle");
+        return;
+      }
+      // 2) Crear una sesión nueva si no hay ninguna.
       setStatus("starting");
       try {
         const res = await fetch("/api/telegram/session");
         const data = await res.json();
+        if (cancelled) return;
+        localStorage.setItem(SESSION_KEY, data.sessionId);
         setSession(data.sessionId);
         setStatus("idle");
       } catch {
-        setStatus("idle");
+        if (!cancelled) setStatus("idle");
       }
     })();
-  }, [open, session]);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Polling: cada 3s preguntamos si el dueño respondió a esta sesión.
   useEffect(() => {
