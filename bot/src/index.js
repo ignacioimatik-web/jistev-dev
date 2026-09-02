@@ -6,6 +6,7 @@ import {
   getUpdates,
   sendMessage,
   sendDocument,
+  sendVoice,
   formatVisitorAnnouncement,
 } from "./telegram.js";
 
@@ -230,8 +231,71 @@ function authorized(req) {
   return timingSafeEqual(Buffer.from(provided), Buffer.from(secret));
 }
 
+// Subida directa de archivo grande al puente (evita el límite de body de Vercel).
+// Se autentica con el uploadToken por sesión — NO requiere la API key global,
+// para que el navegador pueda subir sin exponer la clave.
+async function handleUpload(req, res) {
+  // CORS: el navegador sube directo al VPS (distinto origen). El uploadToken
+  // autentica, así que permitimos cualquier origen para subir.
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
+  let bodyText = "";
+  for await (const chunk of req) bodyText += chunk;
+  const body = JSON.parse(bodyText || "{}");
+
+  const meta = conversations.get(body.sessionId);
+  if (!meta || meta.upload_token !== body.uploadToken) {
+    return json(res, 401, { error: "invalid_token" });
+  }
+  if (req.method !== "POST") return json(res, 405, { error: "method" });
+
+  const file = body.file;
+  if (!file?.base64) return json(res, 400, { error: "empty" });
+
+  const buffer = Buffer.from(file.base64, "base64");
+  meta.last_activity = Date.now();
+  meta.ever_used = true;
+  saveDb();
+
+  const isVoice = /audio/.test(file.mimeType || "") && file.isVoice;
+  try {
+    if (isVoice) {
+      await sendVoice(OWNER_ID(), {
+        buffer,
+        filename: "voz.ogg",
+        mimeType: file.mimeType || "audio/ogg",
+      });
+      await sendMessage(OWNER_ID(), `🎤 Nota de voz del cliente${file.duration_ms ? ` · ${Math.round(file.duration_ms / 1000)}s` : ""}`);
+    } else {
+      await sendDocument(OWNER_ID(), {
+        buffer,
+        filename: file.name || "adjunto",
+        mimeType: file.mimeType || "application/octet-stream",
+      });
+      await sendMessage(OWNER_ID(), `📎 *Adjunto:* ${file.name || "archivo"}`);
+    }
+    return json(res, 200, { ok: true });
+  } catch (e) {
+    console.error("upload error:", e.message);
+    return json(res, 200, { ok: false, error: "telegram_send_failed" });
+  }
+}
+
 async function handleHttp(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
+
+  // /api/upload se autentica con el uploadToken por sesión (no requiere API key
+  // global, para que el navegador pueda subir archivos grandes sin exponer la clave).
+  if (url.pathname === "/api/upload") {
+    return handleUpload(req, res);
+  }
 
   if (!authorized(req)) return json(res, 401, { error: "unauthorized" });
 
@@ -243,12 +307,20 @@ async function handleHttp(req, res) {
       user_name: null,
       created_at: Date.now(),
       owner_reply: null,
+      upload_token: randomUUID(), // token para subir archivos grandes directo al VPS
     });
     saveDb();
     return json(res, 200, {
       sessionId: id,
       startUrl: `https://t.me/${process.env.BOT_USERNAME}?start=${id}`,
+      uploadToken: conversations.get(id).upload_token,
     });
+  }
+
+  // POST /api/upload -> subida directa de archivo grande (evita el límite de Vercel).
+  // (El dispatch ya lo enrutó a handleUpload; esta rama queda como seguridad.)
+  if (req.method === "POST" && url.pathname === "/api/upload") {
+    return handleUpload(req, res);
   }
 
   // GET /api/poll?session=X -> el widget pregunta si el dueño ya respondió.
@@ -274,7 +346,10 @@ async function handleHttp(req, res) {
 
     const text = String(body.message ?? "").slice(0, 3500);
     const file = body.file; // { name, mimeType, base64 } opcional
-    if (!text.trim() && !file?.base64) return json(res, 400, { error: "empty" });
+    const voice = body.voice; // { mimeType, base64, duration_ms } opcional
+    if (!text.trim() && !file?.base64 && !voice?.base64) {
+      return json(res, 400, { error: "empty" });
+    }
 
     // Marcar la sesión como usada (el dueño puede responder normal)
     meta.ever_used = true;
@@ -314,12 +389,28 @@ async function handleHttp(req, res) {
       }
     }
 
+    // Enviar nota de voz si viene.
+    if (voice?.base64) {
+      try {
+        const buffer = Buffer.from(voice.base64, "base64");
+        await sendVoice(OWNER_ID(), {
+          buffer,
+          filename: "voz.ogg",
+          mimeType: voice.mimeType || "audio/ogg",
+        });
+      } catch (e) {
+        console.error("sendVoice error:", e.message);
+      }
+    }
+
     // Enviar el texto del mensaje. Solo texto -> mensaje normal.
     // Si hay adjunto y NO hay texto, enviamos el nombre como caption.
     if (text.trim()) {
       await sendMessage(OWNER_ID(), text);
     } else if (file?.name) {
       await sendMessage(OWNER_ID(), `📎 *Adjunto:* ${file.name}`);
+    } else if (voice?.base64) {
+      await sendMessage(OWNER_ID(), `🎤 Nota de voz del cliente${voice.duration_ms ? ` · ${Math.round(voice.duration_ms / 1000)}s` : ""}`);
     }
 
     // ── ECO al visitante (si inició chat en Telegram) ──

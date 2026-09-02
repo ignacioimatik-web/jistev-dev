@@ -52,6 +52,26 @@ export async function sendDocument(chatId, { buffer, filename, mimeType }) {
   return (await res.json()).result;
 }
 
+// Envía una nota de voz. sendVoice solo acepta OGG/Opus; si el navegador grabó
+// en otro formato (p.ej. webm), usamos sendAudio que reproduce igualmente.
+export async function sendVoice(chatId, { buffer, filename = "voz.ogg", mimeType = "audio/ogg" }) {
+  const form = new FormData();
+  form.append("chat_id", String(chatId));
+  const blob = new Blob([buffer], { type: mimeType });
+  const isOgg = /ogg|opus/i.test(mimeType || "");
+  form.append(isOgg ? "voice" : "audio", blob, isOgg ? filename : `audio.${(mimeType || "").split("/")[1] || "bin"}`);
+
+  const res = await fetch(`${BASE}/${isOgg ? "sendVoice" : "sendAudio"}`, {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`${isOgg ? "sendVoice" : "sendAudio"} ${res.status}: ${err}`);
+  }
+  return (await res.json()).result;
+}
+
 // Texto "ficha" que el dueño ve cuando un visitante inicia una sesión nueva.
 export function formatVisitorAnnouncement(session) {
   return (

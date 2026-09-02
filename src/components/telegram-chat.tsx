@@ -1,17 +1,22 @@
 "use client";
 
-// Widget de chat embebido. Habla con rutas propias de este despliegue
-// (/api/telegram/*); el server de Vercel añade la API key y reenvía al puente
-// (VPS). El navegador nunca ve el secreto ni la URL del puente.
-
 import { useState, useEffect, useRef, type FormEvent } from "react";
 import { MessageCircle, X, Send, Paperclip, FileText } from "lucide-react";
+
+// Widget de chat embebido. Habla con rutas propias de este despliegue
+// (/api/telegram/*); el server de Vercel añade la API key y reenvía al puente
+// (VPS). El navegador nunca ve el secreto. Los ARCHIVOS GRANDES se suben DIRECTO
+// al VPS (/api/upload con uploadToken) para superar el límite de 4.5MB de Vercel.
+
+const UPLOAD_URL =
+  process.env.NEXT_PUBLIC_TG_UPLOAD_URL?.replace(/\/$/, "") || "";
 
 type Msg = { from: "user" | "owner"; text: string };
 
 export function TelegramChat() {
   const [open, setOpen] = useState(false);
   const [session, setSession] = useState<string | null>(null);
+  const [uploadToken, setUploadToken] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [name, setName] = useState("");
@@ -22,6 +27,7 @@ export function TelegramChat() {
   // Cada visitante (pestaña/navegador) mantiene su PROPIA sesión, persistida en
   // localStorage para que sobreviva a recargas. Varios clientes a la vez OK.
   const SESSION_KEY = "tg-chat-session";
+  const TOKEN_KEY = "tg-chat-uploadtoken";
 
   // Crear (o recuperar) la sesión al abrir el chat.
   useEffect(() => {
@@ -30,8 +36,10 @@ export function TelegramChat() {
     (async () => {
       // 1) Intentar reutilizar la sesión de este navegador.
       const stored = localStorage.getItem(SESSION_KEY);
+      const storedToken = localStorage.getItem(TOKEN_KEY);
       if (stored) {
         setSession(stored);
+        if (storedToken) setUploadToken(storedToken);
         setStatus("idle");
         return;
       }
@@ -42,7 +50,9 @@ export function TelegramChat() {
         const data = await res.json();
         if (cancelled) return;
         localStorage.setItem(SESSION_KEY, data.sessionId);
+        localStorage.setItem(TOKEN_KEY, data.uploadToken || "");
         setSession(data.sessionId);
+        setUploadToken(data.uploadToken || null);
         setStatus("idle");
       } catch {
         if (!cancelled) setStatus("idle");
@@ -87,9 +97,26 @@ export function TelegramChat() {
       ...(attached ? [{ from: "user" as const, text: `📎 ${attached.name}` }] : []),
     ]);
     try {
+      // 1) Archivo grande -> subida DIRECTA al VPS (no pasa por el proxy de Vercel,
+      //    que tiene límite de 4.5MB). Requiere UPLOAD_URL y el uploadToken.
+      if (attached && UPLOAD_URL && uploadToken) {
+        const uploadPayload = {
+          sessionId: session,
+          uploadToken,
+          file: { name: attached.name, mimeType: attached.type, base64: attached.data, isVoice: false },
+        };
+        await fetch(`${UPLOAD_URL}/api/upload`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(uploadPayload),
+        });
+      }
+      // 2) Texto (+ ref archivo si algo pequeño sin upload directo) -> proxy.
       const payload: Record<string, unknown> = { session, message: text };
       if (name) payload.name = name;
-      if (attached) payload.file = { name: attached.name, mimeType: attached.type, base64: attached.data };
+      if (attached && (!UPLOAD_URL || !uploadToken)) {
+        payload.file = { name: attached.name, mimeType: attached.type, base64: attached.data };
+      }
       await fetch("/api/telegram/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
