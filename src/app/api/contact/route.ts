@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { escapeHtml, isValidEmail, isRateLimited, getClientIp } from "@/lib/mail-utils";
+import { sendTelegramNotification } from "@/lib/telegram";
 
 export async function POST(req: NextRequest) {
   try {
@@ -91,6 +92,9 @@ export async function POST(req: NextRequest) {
       console.log("  → Para enviar, configura SMTP_HOST, SMTP_USER, SMTP_PASS en .env");
       console.log("──────────────────────────────────────");
     }
+
+    // Reenvío a Telegram: siempre se intenta (complementa al email, no lo sustituye)
+    await sendTelegramNotification({ name, email, message });
 
     return NextResponse.json({ success: true });
   } catch (error) {
