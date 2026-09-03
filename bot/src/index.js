@@ -82,7 +82,7 @@ function ownerStatus() {
 // ------------------------------------------------------------------
 const AUTO_REPLY_MSG =
   process.env.AUTO_REPLY_MSG ||
-  "¡Hola! He visto tu mensaje y te responderé en cuanto lo lea — dependerá de mi agenda. Si es urgente, dímelo y te doy prioridad. ¡Gracias por escribirme!";
+  "¡Hola! Aún no he visto tu mensaje pero te responderé en cuanto lo lea — dependerá de mi agenda. ¡Gracias por escribirme! Pásame tu número o correo y me pongo yo en contacto contigo. También puedes rellenar el formulario al final de la web.";
 const AUTO_REPLY_MS = Number(process.env.AUTO_REPLY_MS || 60000);
 const AUTO_CHECK_MS = 10000; // comprobación cada 10s
 
