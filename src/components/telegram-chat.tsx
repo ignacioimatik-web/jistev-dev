@@ -143,6 +143,23 @@ export function TelegramChat() {
   const [micLevel, setMicLevel] = useState(0); // 0..1, medidor en vivo
   const analyserRef = useRef<AnalyserNode | null>(null);
   const levelRafRef = useRef<number | null>(null);
+  const [micDevices, setMicDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedDevice, setSelectedDevice] = useState("");
+
+  // Enumerar los micrófonos reales del equipo (para elegir el correcto).
+  useEffect(() => {
+    if (!open) return;
+    navigator.mediaDevices
+      ?.enumerateDevices()
+      .then((devs) => {
+        const inputs = devs.filter((d) => d.kind === "audioinput");
+        setMicDevices(inputs);
+        if (inputs.length === 1) setSelectedDevice(inputs[0].deviceId);
+        else if (inputs.length > 1) pushLog(`micrófonos detectados: ${inputs.length}`);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Bucle de medición: lee el nivel del micrófono ~15 veces/segundo mientras
   // se graba. Si el medidor no sube al hablar, el micrófono no capta sonido.
@@ -210,7 +227,18 @@ export function TelegramChat() {
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Usar el micrófono elegido; si hay varios y ninguno seleccionado, el
+      // predeterminado del sistema (que en macOS puede ser un dispositivo sin
+      // señal — causa típica de grabaciones en silencio).
+      const constraints: MediaStreamConstraints = {
+        audio: selectedDevice ? { deviceId: { exact: selectedDevice } } : true,
+      };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      // Tras el primer permiso, los nombres de los micrófonos ya son visibles.
+      navigator.mediaDevices
+        ?.enumerateDevices()
+        .then((devs) => setMicDevices(devs.filter((d) => d.kind === "audioinput")))
+        .catch(() => {});
       const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
         ? "audio/webm;codecs=opus"
         : MediaRecorder.isTypeSupported("audio/mp4")
@@ -280,8 +308,21 @@ export function TelegramChat() {
       recTimerRef.current = setInterval(() => {
         setRecSeconds((s) => s + 1);
       }, 1000);
-    } catch {
-      alert("No pude acceder al micrófono. Revisa los permisos del navegador.");
+    } catch (err) {
+      const name = (err as DOMException)?.name || "";
+      if (name === "NotAllowedError" || name === "SecurityError") {
+        pushLog(`ERROR permisos de micrófono: ${name}`);
+        alert("El navegador no tiene permiso para usar el micrófono. Pulsa el candado 🔒 en la barra de dirección de digitalcode.es → Micrófono → Permitir, y recarga la página.");
+      } else if (name === "NotFoundError" || name === "OverconstrainedError") {
+        pushLog(`ERROR dispositivo no disponible: ${name}`);
+        alert("No se encontró el micrófono seleccionado. Comprueba en Ajustes de macOS → Sonido → Entrada que haya un micrófono activo, y vuelve a intentarlo.");
+      } else if (name === "NotReadableError") {
+        pushLog(`ERROR dispositivo ocupado: ${name}`);
+        alert("El micrófono está siendo usado por otra aplicación (Zoom, Discord, OBS…). Ciérrala y vuelve a intentarlo.");
+      } else {
+        pushLog(`ERROR al acceder al micrófono: ${name || (err as Error).message}`);
+        alert("No pude acceder al micrófono. Revisa los permisos del navegador.");
+      }
     }
   }
 
@@ -478,6 +519,33 @@ export function TelegramChat() {
                 placeholder="Tu nombre (opcional)"
                 className="mb-2 w-full rounded-xl border border-line bg-transparent px-3 py-1.5 text-xs text-foreground outline-none focus:border-orange-400"
               />
+              {/* Selector de micrófono (si hay varios) */}
+              {micDevices.length > 1 && !recording && (
+                <div className="mb-2 flex items-center gap-1.5">
+                  <Mic className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
+                  <select
+                    value={selectedDevice}
+                    onChange={(e) => {
+                      setSelectedDevice(e.target.value);
+                      pushLog("micrófono cambiado a " + (micDevices.find((d) => d.deviceId === e.target.value)?.label || "predeterminado"));
+                    }}
+                    className="w-full rounded-lg border border-line bg-transparent px-2 py-1 text-[11px] text-zinc-300 outline-none focus:border-orange-400"
+                  >
+                    <option value="" className="bg-zinc-900">Predeterminado del sistema</option>
+                    {micDevices.map((d) => (
+                      <option key={d.deviceId} value={d.deviceId} className="bg-zinc-900">
+                        {d.label || "Micrófono"}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {/* Aviso si no hay ningún micrófono detectado */}
+              {micDevices.length === 0 && !recording && (
+                <p className="mb-2 text-[11px] text-amber-400/90">
+                  No se ha detectado ningún micrófono. Conecta uno o revisa Ajustes → Sonido → Entrada.
+                </p>
+              )}
               {/* Adjunto seleccionado */}
               {attached && (
                 <div className="mb-2 flex items-center gap-2 rounded-lg border border-line bg-zinc-800/60 px-2 py-1.5 text-xs text-zinc-200">
