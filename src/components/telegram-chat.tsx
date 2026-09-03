@@ -76,6 +76,22 @@ export function TelegramChat() {
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordStartRef = useRef(0);
+  const titleClicksRef = useRef(0);
+  const titleClickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Gatillo oculto: 5 clics rápidos en el título del chat muestran/ocultan el
+  // panel de diagnóstico (invisible para los clientes).
+  const onTitleClick = () => {
+    titleClicksRef.current += 1;
+    if (titleClickTimerRef.current) clearTimeout(titleClickTimerRef.current);
+    titleClickTimerRef.current = setTimeout(() => {
+      titleClicksRef.current = 0;
+    }, 2000);
+    if (titleClicksRef.current >= 5) {
+      titleClicksRef.current = 0;
+      setShowLog((v) => !v);
+    }
+  };
 
   // Registro de actividad del widget (visible en el panel de diagnóstico).
   function pushLog(msg: string) {
@@ -587,7 +603,7 @@ export function TelegramChat() {
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
               <MessageCircle className="h-5 w-5" />
             </div>
-            <div>
+            <div className="cursor-default" onClick={onTitleClick}>
               <p className="text-sm font-semibold">jistev — contacto</p>
               {online !== null && !recording && (
                 <p className="flex items-center gap-1.5 text-[11px] text-white/90">
@@ -807,16 +823,22 @@ export function TelegramChat() {
                 </p>
               )}
 
-              {/* Panel de diagnóstico (log de actividad) */}
-              <div className="mt-2 border-t border-line pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowLog((v) => !v)}
-                  className="text-[10px] uppercase tracking-wide text-zinc-500 hover:text-zinc-300"
-                >
-                  {showLog ? "▾ Ocultar diagnóstico" : "▸ Diagnóstico"} ({activity.length})
-                </button>
-                {showLog && (
+              {/* Panel de diagnóstico OCULTO: solo se ve si se activa con 5
+                  clics rápidos en el título del chat (para depuración). */}
+              {showLog && (
+                <div className="mt-2 border-t border-line pt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase tracking-wide text-zinc-500">
+                      ▾ Diagnóstico ({activity.length})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowLog(false)}
+                      className="text-[10px] text-zinc-500 hover:text-zinc-300"
+                    >
+                      ocultar
+                    </button>
+                  </div>
                   <pre className="mt-1 max-h-28 overflow-y-auto rounded-lg bg-zinc-900/80 p-2 text-[10px] leading-tight text-zinc-400">
                     {activity.length === 0
                       ? "(sin actividad todavía — adjunta un archivo y envía)"
@@ -826,8 +848,8 @@ export function TelegramChat() {
                           </div>
                         ))}
                   </pre>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="border-t border-line p-4">
