@@ -74,12 +74,25 @@ export function TelegramChat() {
   // localStorage para que sobreviva a recargas. Varios clientes a la vez OK.
   const SESSION_KEY = "tg-chat-session";
   const TOKEN_KEY = "tg-chat-uploadtoken";
+  // Versión del contrato de sesión: si cambia (p.ej. nuevas features), las
+  // sesiones viejas del navegador se descartan y se crea una nueva.
+  const SESSION_VERSION_KEY = "tg-chat-session-version";
+  const SESSION_VERSION = "2";
 
   // Crear (o recuperar) la sesión al abrir el chat.
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
     (async () => {
+      // 0) Si la versión del contrato cambió, descartar la sesión guardada
+      //    (la nueva versión del puente puede requerir una sesión fresca).
+      const savedVersion = localStorage.getItem(SESSION_VERSION_KEY);
+      if (savedVersion !== SESSION_VERSION) {
+        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.setItem(SESSION_VERSION_KEY, SESSION_VERSION);
+        pushLog("versión de sesión actualizada — se creará una sesión nueva");
+      }
       // 1) Intentar reutilizar la sesión de este navegador.
       const stored = localStorage.getItem(SESSION_KEY);
       const storedToken = localStorage.getItem(TOKEN_KEY);
