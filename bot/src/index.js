@@ -91,8 +91,9 @@ function maybeAutoReply() {
   for (const [id, meta] of conversations) {
     if (id === OWNER_KEY) continue;
     if (!meta.visitor_msg_at || meta.auto_replied) continue;
-    // Si el dueño ya respondió a este mensaje, cancelar el auto-reply.
-    if ((meta.owner_replied_at || 0) > meta.visitor_msg_at) {
+    // Si el dueño YA respondió alguna vez en esta sesión, desactivar el
+    // auto-reply definitivamente: solo aplica a la primera interacción.
+    if (meta.owner_replied_at) {
       meta.auto_replied = true;
       saveDb();
       continue;
@@ -592,8 +593,8 @@ async function handleHttp(req, res) {
     meta.ever_used = true;
     meta.last_activity = Date.now();
     meta.visitor_msg_at = Date.now();
-    // Nuevo turno: rearmar el auto-reply solo si el dueño ya respondió al anterior.
-    if ((meta.owner_replied_at || 0) > (meta.auto_replied_at || 0)) meta.auto_replied = false;
+    // NOTA: el auto-reply NO se rearma aquí — solo aplica a la primera
+    // interacción de la sesión (si el dueño ya respondió, queda desactivado).
     if (body.chatId) meta.chat_id = body.chatId;
     if (body.name) meta.user_name = body.name;
     saveDb();

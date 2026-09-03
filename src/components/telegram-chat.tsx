@@ -697,97 +697,106 @@ export function TelegramChat() {
                   <audio controls src={voice.url} className="h-9 w-full" />
                 </div>
               )}
-              <form onSubmit={handleSend} className="flex items-end gap-2">
-                <label className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors hover:text-orange-400">
-                  <Paperclip className="h-4 w-4" />
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.csv,.md,.json,.docx,.xlsx,.pptx"
-                    onChange={handleAttach}
-                  />
-                </label>
-                {/* Selector de emojis */}
-                <div className="relative shrink-0">
+              <form onSubmit={handleSend} className="flex flex-col gap-1.5">
+                {/* Barra de herramientas: iconos encima del textarea */}
+                <div className="flex items-center gap-1">
+                  <label className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors hover:text-orange-400">
+                    <Paperclip className="h-4 w-4" />
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.csv,.md,.json,.docx,.xlsx,.pptx"
+                      onChange={handleAttach}
+                    />
+                  </label>
+                  {/* Selector de emojis */}
+                  <div className="relative shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setShowEmoji((v) => !v)}
+                      aria-label="Insertar emoji"
+                      title="Emojis"
+                      className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                        showEmoji ? "text-orange-400" : "text-zinc-400 hover:text-orange-400"
+                      }`}
+                    >
+                      <Smile className="h-4 w-4" />
+                    </button>
+                    {showEmoji && (
+                      <div className="absolute bottom-full left-0 z-50 mb-2 w-64 rounded-xl border border-line bg-card p-2 shadow-2xl">
+                        <div className="grid grid-cols-8 gap-0.5">
+                          {EMOJIS.map((em) => (
+                            <button
+                              key={em}
+                              type="button"
+                              onClick={() => insertEmoji(em)}
+                              className="rounded-md p-1 text-lg transition-colors hover:bg-zinc-800"
+                            >
+                              {em}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/* Botón micrófono: graba/para la nota de voz */}
                   <button
                     type="button"
-                    onClick={() => setShowEmoji((v) => !v)}
-                    aria-label="Insertar emoji"
-                    title="Emojis"
-                    className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
-                      showEmoji ? "text-orange-400" : "text-zinc-400 hover:text-orange-400"
+                    onClick={toggleRecord}
+                    disabled={!!voice}
+                    aria-label={recording ? "Parar grabación" : "Grabar nota de voz"}
+                    title={recording ? "Parar grabación" : "Grabar nota de voz"}
+                    className={`flex h-9 shrink-0 items-center justify-center gap-1 rounded-full px-2 transition-colors disabled:opacity-40 ${
+                      recording ? "bg-red-500 text-white animate-pulse" : "text-zinc-400 hover:text-orange-400"
                     }`}
                   >
-                    <Smile className="h-4 w-4" />
+                    {recording ? (
+                      <>
+                        <Square className="h-3.5 w-3.5" />
+                        <span className="text-[11px] font-semibold tabular-nums">{recSeconds}s</span>
+                      </>
+                    ) : (
+                      <Mic className="h-4 w-4" />
+                    )}
                   </button>
-                  {showEmoji && (
-                    <div className="absolute bottom-full left-0 z-50 mb-2 w-64 rounded-xl border border-line bg-card p-2 shadow-2xl">
-                      <div className="grid grid-cols-8 gap-0.5">
-                        {EMOJIS.map((em) => (
-                          <button
-                            key={em}
-                            type="button"
-                            onClick={() => insertEmoji(em)}
-                            className="rounded-md p-1 text-lg transition-colors hover:bg-zinc-800"
-                          >
-                            {em}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <span className="ml-auto text-[10px] text-zinc-600">
+                    Enter envía · Shift+Enter salto de línea
+                  </span>
                 </div>
-                {/* Botón micrófono: graba/para la nota de voz */}
-                <button
-                  type="button"
-                  onClick={toggleRecord}
-                  disabled={!!voice}
-                  aria-label={recording ? "Parar grabación" : "Grabar nota de voz"}
-                  title={recording ? "Parar grabación" : "Grabar nota de voz"}
-                  className={`flex h-9 shrink-0 items-center justify-center gap-1 rounded-full px-2 transition-colors disabled:opacity-40 ${
-                    recording ? "bg-red-500 text-white animate-pulse" : "text-zinc-400 hover:text-orange-400"
-                  }`}
-                >
-                  {recording ? (
-                    <>
-                      <Square className="h-3.5 w-3.5" />
-                      <span className="text-[11px] font-semibold tabular-nums">{recSeconds}s</span>
-                    </>
-                  ) : (
-                    <Mic className="h-4 w-4" />
-                  )}
-                </button>
-                <textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={(e) => {
-                    setInput(e.target.value);
-                    autoResize();
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
-                    }
-                  }}
-                  rows={1}
-                  placeholder={recording ? "Grabando… pulsa para parar" : "Escribe tu mensaje… 😀"}
-                  className="max-h-[110px] min-h-[42px] flex-1 resize-none rounded-xl border border-line bg-transparent px-3 py-2.5 text-sm leading-snug text-foreground outline-none focus:border-orange-400"
-                />
-                <button
-                  type="submit"
-                  aria-label="Enviar"
-                  className="flex h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#2AABEE] px-2.5 text-white transition-colors hover:bg-[#229ED9]"
-                >
-                  {voice ? (
-                    <>
-                      <span className="text-[11px] font-semibold">Enviar</span>
-                      <Mic className="h-3.5 w-3.5" />
-                    </>
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
-                </button>
+                {/* Fila de escritura: textarea a ancho completo + enviar */}
+                <div className="flex items-end gap-2">
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => {
+                      setInput(e.target.value);
+                      autoResize();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+                      }
+                    }}
+                    rows={1}
+                    placeholder={recording ? "Grabando… pulsa para parar" : "Escribe tu mensaje… 😀"}
+                    className="max-h-[110px] min-h-[42px] flex-1 resize-none rounded-xl border border-line bg-transparent px-3 py-2.5 text-sm leading-snug text-foreground outline-none focus:border-orange-400"
+                  />
+                  <button
+                    type="submit"
+                    aria-label="Enviar"
+                    className="flex h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#2AABEE] px-2.5 text-white transition-colors hover:bg-[#229ED9]"
+                  >
+                    {voice ? (
+                      <>
+                        <span className="text-[11px] font-semibold">Enviar</span>
+                        <Mic className="h-3.5 w-3.5" />
+                      </>
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </form>
               {/* Aviso discreto solo si el adjunto supera el límite */}
               {sizeWarning && (
