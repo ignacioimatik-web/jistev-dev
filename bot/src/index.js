@@ -14,6 +14,18 @@ import {
 // Estado persistente (conversations.json)
 // ------------------------------------------------------------------
 const DB_PATH = path.join(process.cwd(), "conversations.json");
+const LOG_PATH = path.join(process.cwd(), "activity.log");
+
+// Logger simple a archivo (journald no captura la salida del puente).
+function log(...parts) {
+  const line = `[${new Date().toISOString()}] ${parts.join(" ")}`;
+  try {
+    fs.appendFileSync(LOG_PATH, line + "\n");
+  } catch {
+    /* si no se puede escribir, ignorar */
+  }
+  console.log(line);
+}
 
 // sessionId -> { chat_id, user_name, created_at, owner_reply, ever_used, last_activity }
 let conversations = new Map();
@@ -253,14 +265,19 @@ async function handleUpload(req, res) {
 
   const meta = conversations.get(body.sessionId);
   if (!meta || meta.upload_token !== body.uploadToken) {
+    log(`UPLOAD auth-fail session=${body.sessionId} token=${String(body.uploadToken).slice(0, 8)}`);
     return json(res, 401, { error: "invalid_token" });
   }
   if (req.method !== "POST") return json(res, 405, { error: "method" });
 
   const file = body.file;
-  if (!file?.base64) return json(res, 400, { error: "empty" });
+  if (!file?.base64) {
+    log(`UPLOAD empty session=${body.sessionId}`);
+    return json(res, 400, { error: "empty" });
+  }
 
   const buffer = Buffer.from(file.base64, "base64");
+  log(`UPLOAD start session=${body.sessionId} file=${file.name} type=${file.mimeType} size=${buffer.length}B isVoice=${!!file.isVoice}`);
   meta.last_activity = Date.now();
   meta.ever_used = true;
   saveDb();
@@ -269,7 +286,7 @@ async function handleUpload(req, res) {
   console.log(`[upload] file=${file.name} type=${file.mimeType} size=${buffer.length} bytes isVoice=${isVoice}`);
   try {
     if (isVoice) {
-      console.log(`[upload] sending voice to ${OWNER_ID()}`);
+      log(`UPLOAD voice → sendVoice session=${body.sessionId}`);
       await sendVoice(OWNER_ID(), {
         buffer,
         filename: "voz.ogg",
@@ -282,12 +299,13 @@ async function handleUpload(req, res) {
         filename: file.name || "adjunto",
         mimeType: file.mimeType || "application/octet-stream",
       });
-      console.log(`[upload] sendDocument OK for ${file.name}`);
+      log(`UPLOAD sendDocument OK session=${body.sessionId} file=${file.name}`);
       await sendMessage(OWNER_ID(), `📎 *Adjunto:* ${file.name || "archivo"}`);
     }
+    log(`UPLOAD ok session=${body.sessionId}`);
     return json(res, 200, { ok: true });
   } catch (e) {
-    console.error("upload error:", e.message);
+    log(`UPLOAD error session=${body.sessionId} err=${e.message}`);
     return json(res, 200, { ok: false, error: "telegram_send_failed" });
   }
 }
@@ -314,6 +332,7 @@ async function handleHttp(req, res) {
       upload_token: randomUUID(), // token para subir archivos grandes directo al VPS
     });
     saveDb();
+    log(`SESSION created id=${id}`);
     return json(res, 200, {
       sessionId: id,
       startUrl: `https://t.me/${process.env.BOT_USERNAME}?start=${id}`,
@@ -354,6 +373,7 @@ async function handleHttp(req, res) {
     if (!text.trim() && !file?.base64 && !voice?.base64) {
       return json(res, 400, { error: "empty" });
     }
+    log(`SEND session=${body.session} text=${JSON.stringify(text.slice(0, 40))} hasFile=${!!file?.base64} hasVoice=${!!voice?.base64}`);
 
     // Marcar la sesión como usada (el dueño puede responder normal)
     meta.ever_used = true;

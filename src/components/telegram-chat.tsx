@@ -21,6 +21,7 @@ const UPLOAD_URL =
 
 type Msg = { from: "user" | "owner"; text: string };
 type Voice = { blob: Blob; url: string; mimeType: string; durationMs: number };
+type LogEntry = { t: string; msg: string };
 
 function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -42,10 +43,19 @@ export function TelegramChat() {
   const [voice, setVoice] = useState<Voice | null>(null);
   const [recording, setRecording] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "starting">("idle");
+  const [activity, setActivity] = useState<LogEntry[]>([]);
+  const [showLog, setShowLog] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordStartRef = useRef(0);
+
+  // Registro de actividad del widget (visible en el panel de diagnóstico).
+  function pushLog(msg: string) {
+    const entry = { t: new Date().toLocaleTimeString(), msg };
+    setActivity((prev) => [...prev.slice(-49), entry]);
+    console.log("[tg-chat]", entry.t, msg);
+  }
 
   // Cada visitante (pestaña/navegador) mantiene su PROPIA sesión, persistida en
   // localStorage para que sobreviva a recargas. Varios clientes a la vez OK.
@@ -65,15 +75,18 @@ export function TelegramChat() {
           setSession(stored);
           setUploadToken(storedToken);
           setStatus("idle");
+          pushLog(`sesión reutilizada (${stored.slice(0, 8)}…) token OK`);
           return;
         }
         // Sesión vieja sin token de subida -> descartar y crear una nueva
         // (sin uploadToken los adjuntos caen al proxy de Vercel y fallan).
         localStorage.removeItem(SESSION_KEY);
         localStorage.removeItem(TOKEN_KEY);
+        pushLog("sesión vieja sin token — descartada, creando nueva");
       }
       // 2) Crear una sesión nueva si no hay ninguna.
       setStatus("starting");
+      pushLog("creando sesión nueva…");
       try {
         const res = await fetch("/api/telegram/session");
         const data = await res.json();
@@ -83,8 +96,12 @@ export function TelegramChat() {
         setSession(data.sessionId);
         setUploadToken(data.uploadToken || null);
         setStatus("idle");
-      } catch {
+        pushLog(
+          `sesión creada (${data.sessionId.slice(0, 8)}…) token ${data.uploadToken ? "OK" : "FALTA"}`
+        );
+      } catch (e) {
         if (!cancelled) setStatus("idle");
+        pushLog(`ERROR creando sesión: ${(e as Error).message}`);
       }
     })();
     return () => {
@@ -173,24 +190,31 @@ export function TelegramChat() {
       ...(attached ? [{ from: "user" as const, text: `📎 ${attached.name}` }] : []),
       ...(voice ? [{ from: "user" as const, text: "🎤 Nota de voz" }] : []),
     ]);
+    pushLog(`enviando: texto=${text ? "sí" : "no"} adjunto=${attached?.name ?? "no"} voz=${voice ? "sí" : "no"}`);
     try {
       // 1) Archivo grande -> subida DIRECTA al VPS (no pasa por el proxy de Vercel,
       //    que tiene límite de 4.5MB). Requiere UPLOAD_URL y el uploadToken.
       if (attached && UPLOAD_URL && uploadToken) {
+        pushLog(`subiendo ${attached.name} (${(attached.data.length * 3) / 4 / 1024 / 1024 > 1 ? ((attached.data.length * 3) / 4 / 1024 / 1024).toFixed(1) + " MB" : Math.round((attached.data.length * 3) / 4 / 1024) + " KB"}) directo al VPS…`);
         const uploadPayload = {
           sessionId: session,
           uploadToken,
           file: { name: attached.name, mimeType: attached.type, base64: attached.data, isVoice: false },
         };
-        await fetch(`${UPLOAD_URL}/api/upload`, {
+        const upRes = await fetch(`${UPLOAD_URL}/api/upload`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(uploadPayload),
         });
+        const upData = await upRes.json().catch(() => ({}));
+        pushLog(`upload HTTP ${upRes.status}: ${JSON.stringify(upData)}`);
+      } else if (attached) {
+        pushLog("⚠ adjunto irá por el proxy de Vercel (sin UPLOAD_URL/token) — puede fallar si es grande");
       }
       // 1b) Nota de voz -> también subida directa (isVoice=true la enruta a sendVoice).
       if (voice && UPLOAD_URL && uploadToken) {
         const data = await blobToBase64(voice.blob);
+        pushLog("subiendo nota de voz directo al VPS…");
         const uploadPayload = {
           sessionId: session,
           uploadToken,
@@ -202,11 +226,13 @@ export function TelegramChat() {
             duration_ms: voice.durationMs,
           },
         };
-        await fetch(`${UPLOAD_URL}/api/upload`, {
+        const upRes = await fetch(`${UPLOAD_URL}/api/upload`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(uploadPayload),
         });
+        const upData = await upRes.json().catch(() => ({}));
+        pushLog(`upload voz HTTP ${upRes.status}: ${JSON.stringify(upData)}`);
         cancelVoice();
       }
       // 2) Texto (+ ref archivo si algo pequeño sin upload directo) -> proxy.
@@ -221,14 +247,17 @@ export function TelegramChat() {
         payload.voice = { mimeType: voice.mimeType, base64: data, duration_ms: voice.durationMs };
         cancelVoice();
       }
-      await fetch("/api/telegram/send", {
+      pushLog("enviando por proxy /api/telegram/send…");
+      const res = await fetch("/api/telegram/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      const data = await res.json().catch(() => ({}));
+      pushLog(`send HTTP ${res.status}: ${JSON.stringify(data)}`);
       setAttached(null);
-    } catch {
-      /* sin red */
+    } catch (err) {
+      pushLog(`ERROR de red: ${(err as Error).message}`);
     }
   };
 
@@ -238,13 +267,17 @@ export function TelegramChat() {
     if (!f) return;
     if (f.size > 20 * 1024 * 1024) {
       alert("Máximo 20MB por adjunto.");
+      pushLog(`archivo rechazado por tamaño: ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)`);
       return;
     }
+    pushLog(`adjuntando ${f.name} (${f.size > 1024 * 1024 ? (f.size / 1024 / 1024).toFixed(2) + " MB" : Math.round(f.size / 1024) + " KB"}, ${f.type || "sin tipo"})`);
     const reader = new FileReader();
     reader.onload = () => {
       const data = String(reader.result).split(",")[1] ?? "";
       setAttached({ name: f.name, type: f.type, data });
+      pushLog(`archivo leído: ${(data.length * 3) / 4 / 1024 / 1024 > 1 ? ((data.length * 3) / 4 / 1024 / 1024).toFixed(2) + " MB" : Math.round((data.length * 3) / 4 / 1024) + " KB"} base64`);
     };
+    reader.onerror = () => pushLog(`ERROR leyendo archivo ${f.name}`);
     reader.readAsDataURL(f);
   };
 
@@ -379,6 +412,28 @@ export function TelegramChat() {
               <p className="mt-2 text-center text-[11px] text-zinc-500">
                 Puedes adjuntar archivos (máx. 20 MB) o grabar una nota de voz.
               </p>
+
+              {/* Panel de diagnóstico (log de actividad) */}
+              <div className="mt-2 border-t border-line pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowLog((v) => !v)}
+                  className="text-[10px] uppercase tracking-wide text-zinc-500 hover:text-zinc-300"
+                >
+                  {showLog ? "▾ Ocultar diagnóstico" : "▸ Diagnóstico"} ({activity.length})
+                </button>
+                {showLog && (
+                  <pre className="mt-1 max-h-28 overflow-y-auto rounded-lg bg-zinc-900/80 p-2 text-[10px] leading-tight text-zinc-400">
+                    {activity.length === 0
+                      ? "(sin actividad todavía — adjunta un archivo y envía)"
+                      : activity.map((l, i) => (
+                          <div key={i}>
+                            <span className="text-zinc-600">{l.t}</span> {l.msg}
+                          </div>
+                        ))}
+                  </pre>
+                )}
+              </div>
             </div>
           ) : (
             <div className="border-t border-line p-4">
