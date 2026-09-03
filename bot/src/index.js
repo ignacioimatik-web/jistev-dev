@@ -101,6 +101,7 @@ async function handleUpdate(upd) {
       owner_reply: null,
       ever_used: true,
       last_activity: Date.now(),
+      upload_token: randomUUID(), // token para subir archivos directo al VPS
     });
     saveDb();
 

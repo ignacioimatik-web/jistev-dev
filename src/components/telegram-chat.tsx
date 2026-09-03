@@ -61,10 +61,16 @@ export function TelegramChat() {
       const stored = localStorage.getItem(SESSION_KEY);
       const storedToken = localStorage.getItem(TOKEN_KEY);
       if (stored) {
-        setSession(stored);
-        if (storedToken) setUploadToken(storedToken);
-        setStatus("idle");
-        return;
+        if (storedToken) {
+          setSession(stored);
+          setUploadToken(storedToken);
+          setStatus("idle");
+          return;
+        }
+        // Sesión vieja sin token de subida -> descartar y crear una nueva
+        // (sin uploadToken los adjuntos caen al proxy de Vercel y fallan).
+        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(TOKEN_KEY);
       }
       // 2) Crear una sesión nueva si no hay ninguna.
       setStatus("starting");
