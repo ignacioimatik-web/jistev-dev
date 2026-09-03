@@ -604,15 +604,17 @@ async function handleHttp(req, res) {
     // interacción de la sesión (si el dueño ya respondió, queda desactivado).
 
     // Registro de inicio de sesión (fecha/hora) + bienvenida automática,
-    // solo la primera vez que el visitante escribe.
-    let welcome = null;
+    // solo la primera vez que el visitante escribe. La bienvenida se PERSISTE
+    // en owner_reply (prefijo __SYSTEM__) para que el poll del widget la
+    // recoja siempre, igual que las respuestas del dueño. NO marca al dueño
+    // como respondido: el auto-reply de 1 min sigue activo.
     if (!meta.welcome_sent) {
       meta.welcome_sent = true;
       meta.started_at = meta.started_at || Date.now();
       const d = new Date(meta.started_at);
       const fecha = d.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" });
       log(`SESSION started session=${body.session} fecha=${fecha}`);
-      welcome = WELCOME_MSG;
+      meta.owner_reply = `${SYS_PREFIX}${WELCOME_MSG}`;
     }
 
     if (body.chatId) meta.chat_id = body.chatId;
@@ -707,7 +709,7 @@ async function handleHttp(req, res) {
       }
     }
 
-    return json(res, 200, { ok: true, welcome });
+    return json(res, 200, { ok: true });
   }
 
   return json(res, 404, { error: "not_found" });
