@@ -133,10 +133,16 @@ export function TelegramChat() {
   }, [messages]);
 
   // ── Grabación de voz ──────────────────────────────────────────────
-  // MediaRecorder captura en webm/opus (o mp4 como respaldo). El puente ya
-  // sabe enviarlo: si el MIME no es OGG usa sendAudio (se reproduce igual).
+  // MediaRecorder captura en webm/opus (o mp4 como respaldo). El puente lo
+  // convierte a OGG (voice) o MP3 (audio) y lo entrega a Telegram.
+  // Usamos un REF para el estado de grabación (no el estado de React) para
+  // evitar closures obsoletos al pulsar rápido.
+  const recordingRef = useRef(false);
+  const [recSeconds, setRecSeconds] = useState(0);
+  const recTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   async function toggleRecord() {
-    if (recording) {
+    if (recordingRef.current) {
       recorderRef.current?.stop();
       return;
     }
@@ -150,25 +156,45 @@ export function TelegramChat() {
       const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
       chunksRef.current = [];
       recordStartRef.current = Date.now();
+      setRecSeconds(0);
       rec.ondataavailable = (e) => {
         if (e.data.size) chunksRef.current.push(e.data);
       };
       rec.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
+        if (recTimerRef.current) {
+          clearInterval(recTimerRef.current);
+          recTimerRef.current = null;
+        }
         const mimeType = rec.mimeType || "audio/webm";
         const blob = new Blob(chunksRef.current, { type: mimeType });
-        setVoice({
-          blob,
-          url: URL.createObjectURL(blob),
-          mimeType,
-          durationMs: Date.now() - recordStartRef.current,
-        });
+        const durationMs = Date.now() - recordStartRef.current;
+        // Validación: grabación vacía o casi vacía -> no enviar, avisar.
+        if (blob.size < 2000 || durationMs < 800) {
+          pushLog(`grabación descartada: ${blob.size} bytes, ${Math.round(durationMs / 1000)}s`);
+          alert("La grabación quedó vacía o fue demasiado corta. Pulsa 🎤, espera a que se ponga rojo y vuelve a intentarlo.");
+          setVoice(null);
+        } else {
+          pushLog(`grabación OK: ${blob.size} bytes, ${Math.round(durationMs / 1000)}s (${mimeType})`);
+          setVoice({
+            blob,
+            url: URL.createObjectURL(blob),
+            mimeType,
+            durationMs,
+          });
+        }
         setRecording(false);
+        recordingRef.current = false;
+        setRecSeconds(0);
         recorderRef.current = null;
       };
       rec.start();
       recorderRef.current = rec;
+      recordingRef.current = true;
       setRecording(true);
+      recTimerRef.current = setInterval(() => {
+        setRecSeconds((s) => s + 1);
+      }, 1000);
     } catch {
       alert("No pude acceder al micrófono. Revisa los permisos del navegador.");
     }
@@ -389,11 +415,18 @@ export function TelegramChat() {
                   disabled={!!voice}
                   aria-label={recording ? "Parar grabación" : "Grabar nota de voz"}
                   title={recording ? "Parar grabación" : "Grabar nota de voz"}
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors disabled:opacity-40 ${
+                  className={`flex h-9 shrink-0 items-center justify-center gap-1 rounded-full px-2 transition-colors disabled:opacity-40 ${
                     recording ? "bg-red-500 text-white animate-pulse" : "text-zinc-400 hover:text-orange-400"
                   }`}
                 >
-                  {recording ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  {recording ? (
+                    <>
+                      <Square className="h-3.5 w-3.5" />
+                      <span className="text-[11px] font-semibold tabular-nums">{recSeconds}s</span>
+                    </>
+                  ) : (
+                    <Mic className="h-4 w-4" />
+                  )}
                 </button>
                 <input
                   value={input}
