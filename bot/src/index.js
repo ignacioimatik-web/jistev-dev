@@ -89,7 +89,7 @@ const AUTO_CHECK_MS = 10000; // comprobación cada 10s
 // Mensaje de bienvenida automático (sistema) al primer mensaje del visitante.
 const WELCOME_MSG =
   process.env.WELCOME_MSG ||
-  "🤖 Mensaje automático · ¡Hola! He recibido tu mensaje y ya he avisado a Ignacio (jistev). Te responderá en cuanto pueda — si no lo hace en un minuto, te lo confirmo automáticamente. ¡Gracias por escribirme!";
+  "Mensaje automático · ¡Hola! He recibido tu mensaje y ya he avisado a Ignacio (jistev). Te responderá en cuanto pueda — si no lo hace en un minuto, te lo confirmo automáticamente. ¡Gracias por escribirme!";
 // Prefijo para marcar mensajes del sistema (el widget los muestra como tales).
 const SYS_PREFIX = "__SYSTEM__:";
 

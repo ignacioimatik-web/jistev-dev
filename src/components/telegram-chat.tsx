@@ -29,6 +29,20 @@ const EMOJIS = [
   "🎯", "📎", "📅", "☕", "🍕", "💰", "🏆", "🙌",
 ];
 
+// Icono premium de bot (mensajes del sistema). SVG inline, sin emoji.
+function BotIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <path d="M12 2.6v2.6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <circle cx="12" cy="2.2" r="1.4" fill="currentColor" />
+      <rect x="3.5" y="6.5" width="17" height="12.5" rx="4.2" fill="currentColor" />
+      <circle cx="9" cy="12.6" r="1.4" fill="#fff" />
+      <circle cx="15" cy="12.6" r="1.4" fill="#fff" />
+      <path d="M9.4 16.4h5.2" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 type Msg = { from: "user" | "owner" | "system"; text: string; audioUrl?: string };
 type Voice = { blob: Blob; url: string; mimeType: string; durationMs: number };
 type LogEntry = { t: string; msg: string };
@@ -640,25 +654,35 @@ export function TelegramChat() {
             )}
             {messages.map((m, i) =>
               m.from === "system" ? (
-                <p
+                <div
                   key={i}
-                  className="mx-auto max-w-[90%] rounded-xl bg-zinc-800/50 px-3.5 py-2.5 text-center text-sm leading-snug text-zinc-300"
+                  className="mx-auto flex max-w-[90%] items-start gap-2 rounded-xl bg-zinc-800/50 px-3.5 py-2.5"
                 >
-                  {m.text}
-                </p>
+                  <BotIcon className="mt-0.5 h-4 w-4 shrink-0 text-[#2AABEE]" />
+                  <p className="text-sm leading-snug text-zinc-300">{m.text}</p>
+                </div>
+              ) : m.from === "owner" ? (
+                <div key={i} className="flex items-end gap-1.5">
+                  {/* Logo del dueño (avatar) */}
+                  <img
+                    src="/logo.png"
+                    alt=""
+                    aria-hidden
+                    className="h-6 w-6 shrink-0 rounded-full object-cover"
+                  />
+                  <div className="max-w-[75%] rounded-2xl bg-zinc-800 px-3 py-2 text-sm text-zinc-100">
+                    {m.text}
+                    {m.audioUrl && (
+                      <audio controls src={m.audioUrl} className="mt-1.5 h-9 w-52 max-w-full" />
+                    )}
+                  </div>
+                </div>
               ) : (
                 <div
                   key={i}
-                  className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
-                    m.from === "user"
-                      ? "ml-auto bg-[#2AABEE] text-white"
-                      : "bg-zinc-800 text-zinc-100"
-                  }`}
+                  className="ml-auto max-w-[80%] rounded-2xl bg-[#2AABEE] px-3 py-2 text-sm text-white"
                 >
                   {m.text}
-                  {m.audioUrl && (
-                    <audio controls src={m.audioUrl} className="mt-1.5 h-9 w-52 max-w-full" />
-                  )}
                 </div>
               )
             )}
