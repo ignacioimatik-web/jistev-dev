@@ -107,7 +107,7 @@ export function TelegramChat() {
   // Versión del contrato de sesión: si cambia (p.ej. nuevas features), las
   // sesiones viejas del navegador se descartan y se crea una nueva.
   const SESSION_VERSION_KEY = "tg-chat-session-version";
-  const SESSION_VERSION = "3";
+  const SESSION_VERSION = "4";
 
   // Crear (o recuperar) la sesión al abrir el chat.
   useEffect(() => {
