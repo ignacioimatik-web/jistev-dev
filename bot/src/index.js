@@ -1,12 +1,15 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
+import { execFile } from "node:child_process";
 import { timingSafeEqual, randomUUID } from "node:crypto";
 import {
   getUpdates,
   sendMessage,
   sendDocument,
   sendVoice,
+  sendAudio,
   formatVisitorAnnouncement,
 } from "./telegram.js";
 
@@ -244,9 +247,83 @@ function authorized(req) {
   return timingSafeEqual(Buffer.from(provided), Buffer.from(secret));
 }
 
+// Convierte un buffer webm/opus a OGG/Opus con ffmpeg (Telegram solo acepta
+// OGG/Opus en sendVoice). Si el buffer ya es OGG, se devuelve tal cual.
+function convertToOgg(buffer, mimeType) {
+  return new Promise((resolve, reject) => {
+    if (/ogg|opus/i.test(mimeType || "")) return resolve(buffer);
+    const inPath = path.join(os.tmpdir(), `voz-${randomUUID()}.webm`);
+    const outPath = path.join(os.tmpdir(), `voz-${randomUUID()}.ogg`);
+    fs.writeFileSync(inPath, buffer);
+    execFile(
+      "ffmpeg",
+      ["-y", "-i", inPath, "-c:a", "libopus", "-b:a", "48k", "-ar", "48000", "-ac", "1", outPath],
+      (err) => {
+        try { fs.unlinkSync(inPath); } catch { /* ya no existe */ }
+        if (err) {
+          try { fs.unlinkSync(outPath); } catch { /* no creado */ }
+          return reject(err);
+        }
+        fs.readFile(outPath, (rerr, data) => {
+          try { fs.unlinkSync(outPath); } catch { /* ya no existe */ }
+          if (rerr) return reject(rerr);
+          resolve(data);
+        });
+      }
+    );
+  });
+}
+
+// Convierte un buffer (webm/ogg/lo que sea) a MP3 con ffmpeg. MP3 lo reproduce
+// Telegram en iOS/Android/escritorio, a diferencia de un .ogg suelto.
+function convertToMp3(buffer) {
+  return new Promise((resolve, reject) => {
+    const inPath = path.join(os.tmpdir(), `voz-${randomUUID()}.in`);
+    const outPath = path.join(os.tmpdir(), `voz-${randomUUID()}.mp3`);
+    fs.writeFileSync(inPath, buffer);
+    execFile(
+      "ffmpeg",
+      ["-y", "-i", inPath, "-c:a", "libmp3lame", "-b:a", "96k", "-ar", "44100", "-ac", "1", outPath],
+      (err) => {
+        try { fs.unlinkSync(inPath); } catch { /* ya no existe */ }
+        if (err) {
+          try { fs.unlinkSync(outPath); } catch { /* no creado */ }
+          return reject(err);
+        }
+        fs.readFile(outPath, (rerr, data) => {
+          try { fs.unlinkSync(outPath); } catch { /* ya no existe */ }
+          if (rerr) return reject(rerr);
+          resolve(data);
+        });
+      }
+    );
+  });
+}
+
+// Envía la nota de voz del cliente: convierte a OGG y la manda como nota de
+// voz; si Telegram la rechaza (p.ej. VOICE_MESSAGES_FORBIDDEN por privacidad
+// del dueño), cae a sendAudio y, si también falla, a sendDocument — siempre en
+// MP3 para que se reproduzca en el iPhone. SIEMPRE llega algo reproducible.
+async function deliverVoice(chatId, { buffer, mimeType, durationMs }) {
+  const ogg = await convertToOgg(buffer, mimeType);
+  try {
+    await sendVoice(chatId, { buffer: ogg, filename: "voz.ogg", mimeType: "audio/ogg" });
+    return "voice";
+  } catch (e) {
+    log(`deliverVoice fallback a sendAudio (${String(e.message).slice(0, 60)})`);
+    const mp3 = await convertToMp3(buffer);
+    try {
+      await sendAudio(chatId, { buffer: mp3, filename: "voz.mp3", mimeType: "audio/mpeg" });
+      return "audio";
+    } catch (e2) {
+      log(`deliverVoice fallback a sendDocument (${String(e2.message).slice(0, 60)})`);
+      await sendDocument(chatId, { buffer: mp3, filename: "voz.mp3", mimeType: "audio/mpeg" });
+      return "document";
+    }
+  }
+}
+
 // Subida directa de archivo grande al puente (evita el límite de body de Vercel).
-// Se autentica con el uploadToken por sesión — NO requiere la API key global,
-// para que el navegador pueda subir sin exponer la clave.
 async function handleUpload(req, res) {
   // CORS: el navegador sube directo al VPS (distinto origen). El uploadToken
   // autentica, así que permitimos cualquier origen para subir.
@@ -286,12 +363,13 @@ async function handleUpload(req, res) {
   console.log(`[upload] file=${file.name} type=${file.mimeType} size=${buffer.length} bytes isVoice=${isVoice}`);
   try {
     if (isVoice) {
-      log(`UPLOAD voice → sendVoice session=${body.sessionId}`);
-      await sendVoice(OWNER_ID(), {
+      log(`UPLOAD voice → deliverVoice session=${body.sessionId}`);
+      const kind = await deliverVoice(OWNER_ID(), {
         buffer,
-        filename: "voz.ogg",
         mimeType: file.mimeType || "audio/ogg",
+        durationMs: file.duration_ms,
       });
+      log(`UPLOAD voice entregado como ${kind} session=${body.sessionId}`);
       await sendMessage(OWNER_ID(), `🎤 Nota de voz del cliente${file.duration_ms ? ` · ${Math.round(file.duration_ms / 1000)}s` : ""}`);
     } else {
       await sendDocument(OWNER_ID(), {
@@ -417,13 +495,13 @@ async function handleHttp(req, res) {
     if (voice?.base64) {
       try {
         const buffer = Buffer.from(voice.base64, "base64");
-        await sendVoice(OWNER_ID(), {
+        await deliverVoice(OWNER_ID(), {
           buffer,
-          filename: "voz.ogg",
           mimeType: voice.mimeType || "audio/ogg",
+          durationMs: voice.duration_ms,
         });
       } catch (e) {
-        console.error("sendVoice error:", e.message);
+        console.error("deliverVoice error:", e.message);
       }
     }
 

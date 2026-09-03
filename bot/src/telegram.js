@@ -72,6 +72,25 @@ export async function sendVoice(chatId, { buffer, filename = "voz.ogg", mimeType
   return (await res.json()).result;
 }
 
+// Envía un audio normal (no nota de voz). No sujeto a la restricción de
+// privacidad VOICE_MESSAGES_FORBIDDEN.
+export async function sendAudio(chatId, { buffer, filename = "voz.ogg", mimeType = "audio/ogg" }) {
+  const form = new FormData();
+  form.append("chat_id", String(chatId));
+  const blob = new Blob([buffer], { type: mimeType });
+  form.append("audio", blob, filename);
+
+  const res = await fetch(`${BASE}/sendAudio`, {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`sendAudio ${res.status}: ${err}`);
+  }
+  return (await res.json()).result;
+}
+
 // Texto "ficha" que el dueño ve cuando un visitante inicia una sesión nueva.
 export function formatVisitorAnnouncement(session) {
   return (
