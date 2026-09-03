@@ -177,6 +177,33 @@ export function TelegramChat() {
     setMicLevel(0);
   }
 
+  // Análisis objetivo del audio grabado: decodifica el blob y mide el nivel
+  // real (RMS y pico). Un audio de voz tiene RMS claramente > 0; el silencio
+  // da RMS ≈ 0. Esto distingue "grabación vacía" de "micrófono no capta".
+  async function analyzeVoice(blob: Blob): Promise<{ rms: number; peak: number } | null> {
+    try {
+      const Ctx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const ctx = new Ctx();
+      const audio = await ctx.decodeAudioData(await blob.arrayBuffer());
+      const data = audio.getChannelData(0);
+      let sum = 0;
+      let peak = 0;
+      for (let i = 0; i < data.length; i++) {
+        const v = data[i];
+        sum += v * v;
+        const a = Math.abs(v);
+        if (a > peak) peak = a;
+      }
+      const rms = Math.sqrt(sum / data.length);
+      try { (ctx as AudioContext & { close?: () => Promise<void> }).close?.(); } catch { /* Safari */ }
+      return { rms, peak };
+    } catch {
+      return null; // no se pudo decodificar (p.ej. Safari) -> decisión por tamaño
+    }
+  }
+
   async function toggleRecord() {
     if (recordingRef.current) {
       recorderRef.current?.stop();
@@ -196,7 +223,7 @@ export function TelegramChat() {
       rec.ondataavailable = (e) => {
         if (e.data.size) chunksRef.current.push(e.data);
       };
-      rec.onstop = () => {
+      rec.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
         stopLevelMeter();
         if (recTimerRef.current) {
@@ -206,13 +233,33 @@ export function TelegramChat() {
         const mimeType = rec.mimeType || "audio/webm";
         const blob = new Blob(chunksRef.current, { type: mimeType });
         const durationMs = Date.now() - recordStartRef.current;
-        // Validación: grabación vacía o casi vacía -> no enviar, avisar.
-        if (blob.size < 2000 || durationMs < 800) {
-          pushLog(`grabación descartada: ${blob.size} bytes, ${Math.round(durationMs / 1000)}s`);
-          alert("La grabación quedó vacía o fue demasiado corta. Pulsa 🎤, espera a que se ponga rojo y vuelve a intentarlo.");
+
+        // Análisis objetivo: RMS del audio real (distingue voz de silencio).
+        const analysis = await analyzeVoice(blob);
+        const rms = analysis?.rms ?? -1;
+        const peak = analysis?.peak ?? -1;
+        pushLog(
+          `grabación: ${blob.size} bytes, ${Math.round(durationMs / 1000)}s, RMS=${rms.toFixed(4)} pico=${peak.toFixed(3)} (${mimeType})`
+        );
+
+        // Voz real: RMS claramente > 0.005. Silencio/micrófono muerto: RMS ≈ 0.
+        const hasVoice = rms >= 0.005;
+
+        if (blob.size < 1500 || durationMs < 800 || !hasVoice) {
+          if (!hasVoice && blob.size >= 1500) {
+            pushLog("MICRÓFONO SIN SONIDO: duración y tamaño normales, pero el audio es silencio");
+            alert(
+              "La grabación NO contiene tu voz (el audio sale en silencio). El micrófono del navegador no está captando sonido. Revisa:\n\n1) Ajustes de macOS → Privacidad y seguridad → Micrófono → permite el navegador.\n2) En el navegador, pulsa el icono del candado → permitir el micrófono.\n3) Comprueba que el micrófono correcto esté activo en Ajustes de Sonido de macOS."
+            );
+          } else {
+            pushLog(`grabación descartada: ${blob.size} bytes, ${Math.round(durationMs / 1000)}s`);
+            alert(
+              "Grabación demasiado corta o vacía. Mantén pulsado 🎤 unos segundos hablando, y suéltalo para enviar."
+            );
+          }
           setVoice(null);
         } else {
-          pushLog(`grabación OK: ${blob.size} bytes, ${Math.round(durationMs / 1000)}s (${mimeType})`);
+          pushLog(`grabación OK con voz: ${blob.size} bytes, ${Math.round(durationMs / 1000)}s (${mimeType})`);
           setVoice({
             blob,
             url: URL.createObjectURL(blob),
