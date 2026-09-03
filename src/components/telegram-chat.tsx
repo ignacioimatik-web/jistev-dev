@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef, type FormEvent } from "react";
-import { MessageCircle, X, Send, Paperclip, FileText } from "lucide-react";
+import {
+  MessageCircle,
+  X,
+  Send,
+  Paperclip,
+  FileText,
+  Mic,
+  Square,
+} from "lucide-react";
 
 // Widget de chat embebido. Habla con rutas propias de este despliegue
 // (/api/telegram/*); el server de Vercel añade la API key y reenvía al puente
@@ -12,6 +20,16 @@ const UPLOAD_URL =
   process.env.NEXT_PUBLIC_TG_UPLOAD_URL?.replace(/\/$/, "") || "";
 
 type Msg = { from: "user" | "owner"; text: string };
+type Voice = { blob: Blob; url: string; mimeType: string; durationMs: number };
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1] ?? "");
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 
 export function TelegramChat() {
   const [open, setOpen] = useState(false);
@@ -21,8 +39,13 @@ export function TelegramChat() {
   const [input, setInput] = useState("");
   const [name, setName] = useState("");
   const [attached, setAttached] = useState<{ name: string; type: string; data: string } | null>(null);
+  const [voice, setVoice] = useState<Voice | null>(null);
+  const [recording, setRecording] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "starting">("idle");
   const listRef = useRef<HTMLDivElement>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const recordStartRef = useRef(0);
 
   // Cada visitante (pestaña/navegador) mantiene su PROPIA sesión, persistida en
   // localStorage para que sobreviva a recargas. Varios clientes a la vez OK.
@@ -86,15 +109,63 @@ export function TelegramChat() {
     listRef.current?.scrollTo?.({ top: listRef.current.scrollHeight });
   }, [messages]);
 
+  // ── Grabación de voz ──────────────────────────────────────────────
+  // MediaRecorder captura en webm/opus (o mp4 como respaldo). El puente ya
+  // sabe enviarlo: si el MIME no es OGG usa sendAudio (se reproduce igual).
+  async function toggleRecord() {
+    if (recording) {
+      recorderRef.current?.stop();
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/mp4")
+          ? "audio/mp4"
+          : "";
+      const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      chunksRef.current = [];
+      recordStartRef.current = Date.now();
+      rec.ondataavailable = (e) => {
+        if (e.data.size) chunksRef.current.push(e.data);
+      };
+      rec.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const mimeType = rec.mimeType || "audio/webm";
+        const blob = new Blob(chunksRef.current, { type: mimeType });
+        setVoice({
+          blob,
+          url: URL.createObjectURL(blob),
+          mimeType,
+          durationMs: Date.now() - recordStartRef.current,
+        });
+        setRecording(false);
+        recorderRef.current = null;
+      };
+      rec.start();
+      recorderRef.current = rec;
+      setRecording(true);
+    } catch {
+      alert("No pude acceder al micrófono. Revisa los permisos del navegador.");
+    }
+  }
+
+  function cancelVoice() {
+    if (voice) URL.revokeObjectURL(voice.url);
+    setVoice(null);
+  }
+
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
-    if ((!input.trim() && !attached) || !session) return;
+    if ((!input.trim() && !attached && !voice) || !session) return;
     const text = input.trim();
     setInput("");
     setMessages((prev) => [
       ...prev,
       ...(text ? [{ from: "user" as const, text }] : []),
       ...(attached ? [{ from: "user" as const, text: `📎 ${attached.name}` }] : []),
+      ...(voice ? [{ from: "user" as const, text: "🎤 Nota de voz" }] : []),
     ]);
     try {
       // 1) Archivo grande -> subida DIRECTA al VPS (no pasa por el proxy de Vercel,
@@ -111,11 +182,38 @@ export function TelegramChat() {
           body: JSON.stringify(uploadPayload),
         });
       }
+      // 1b) Nota de voz -> también subida directa (isVoice=true la enruta a sendVoice).
+      if (voice && UPLOAD_URL && uploadToken) {
+        const data = await blobToBase64(voice.blob);
+        const uploadPayload = {
+          sessionId: session,
+          uploadToken,
+          file: {
+            name: "voz.webm",
+            mimeType: voice.mimeType,
+            base64: data,
+            isVoice: true,
+            duration_ms: voice.durationMs,
+          },
+        };
+        await fetch(`${UPLOAD_URL}/api/upload`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(uploadPayload),
+        });
+        cancelVoice();
+      }
       // 2) Texto (+ ref archivo si algo pequeño sin upload directo) -> proxy.
       const payload: Record<string, unknown> = { session, message: text };
       if (name) payload.name = name;
       if (attached && (!UPLOAD_URL || !uploadToken)) {
         payload.file = { name: attached.name, mimeType: attached.type, base64: attached.data };
+      }
+      // 2b) Voz sin upload directo -> por el proxy (voice).
+      if (voice && (!UPLOAD_URL || !uploadToken)) {
+        const data = await blobToBase64(voice.blob);
+        payload.voice = { mimeType: voice.mimeType, base64: data, duration_ms: voice.durationMs };
+        cancelVoice();
       }
       await fetch("/api/telegram/send", {
         method: "POST",
@@ -226,15 +324,42 @@ export function TelegramChat() {
                   </button>
                 </div>
               )}
+              {/* Voz grabada (previsualización) */}
+              {voice && (
+                <div className="mb-2 flex items-center gap-2 rounded-lg border border-line bg-zinc-800/60 px-2 py-1.5">
+                  <audio controls src={voice.url} className="h-9 min-w-0 flex-1" />
+                  <button
+                    type="button"
+                    onClick={cancelVoice}
+                    aria-label="Descartar nota de voz"
+                    className="text-zinc-400 hover:text-zinc-200"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
               <form onSubmit={handleSend} className="flex items-center gap-2">
                 <label className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors hover:text-orange-400">
                   <Paperclip className="h-4 w-4" />
                   <input type="file" className="hidden" accept="*/*" onChange={handleAttach} />
                 </label>
+                {/* Botón micrófono: graba/para la nota de voz */}
+                <button
+                  type="button"
+                  onClick={toggleRecord}
+                  disabled={!!voice}
+                  aria-label={recording ? "Parar grabación" : "Grabar nota de voz"}
+                  title={recording ? "Parar grabación" : "Grabar nota de voz"}
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors disabled:opacity-40 ${
+                    recording ? "bg-red-500 text-white animate-pulse" : "text-zinc-400 hover:text-orange-400"
+                  }`}
+                >
+                  {recording ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </button>
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Escribe tu mensaje… 😀"
+                  placeholder={recording ? "Grabando… pulsa para parar" : "Escribe tu mensaje… 😀"}
                   className="flex-1 rounded-xl border border-line bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-orange-400"
                 />
                 <button
@@ -246,7 +371,7 @@ export function TelegramChat() {
                 </button>
               </form>
               <p className="mt-2 text-center text-[11px] text-zinc-500">
-                Puedes adjuntar archivos (máx. 20 MB).
+                Puedes adjuntar archivos (máx. 20 MB) o grabar una nota de voz.
               </p>
             </div>
           ) : (
