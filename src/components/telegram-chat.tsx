@@ -38,11 +38,11 @@ export function TelegramChat() {
   const [uploadToken, setUploadToken] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
-  const [name, setName] = useState("");
   const [attached, setAttached] = useState<{ name: string; type: string; data: string } | null>(null);
   const [voice, setVoice] = useState<Voice | null>(null);
   const [recording, setRecording] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "starting">("idle");
+  const [online, setOnline] = useState<boolean | null>(null);
   const [activity, setActivity] = useState<LogEntry[]>([]);
   const [showLog, setShowLog] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -126,6 +126,24 @@ export function TelegramChat() {
     }, 3000);
     return () => clearInterval(t);
   }, [open, session]);
+
+  // Presencia del dueño: el puente marca su última actividad en Telegram;
+  // si fue hace <5 min mostramos "En línea".
+  useEffect(() => {
+    if (!open) return;
+    const check = async () => {
+      try {
+        const res = await fetch("/api/telegram/status");
+        const data = await res.json();
+        setOnline(data?.online ?? null);
+      } catch {
+        /* silencio */
+      }
+    };
+    check();
+    const t = setInterval(check, 5000);
+    return () => clearInterval(t);
+  }, [open]);
 
   // Auto-scroll al último mensaje.
   useEffect(() => {
@@ -443,7 +461,6 @@ export function TelegramChat() {
       }
       // 2) Texto (+ ref archivo si algo pequeño sin upload directo) -> proxy.
       const payload: Record<string, unknown> = { session, message: text };
-      if (name) payload.name = name;
       if (attached && (!UPLOAD_URL || !uploadToken)) {
         payload.file = { name: attached.name, mimeType: attached.type, base64: attached.data };
       }
@@ -517,7 +534,16 @@ export function TelegramChat() {
             </div>
             <div>
               <p className="text-sm font-semibold">jistev — contacto</p>
-              <p className="text-xs text-white/80">Respuesta en menos de 24h</p>
+              {online !== null && !recording && (
+                <p className="flex items-center gap-1.5 text-[11px] text-white/90">
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      online ? "bg-green-400" : "bg-zinc-400"
+                    } ${online ? "animate-pulse" : ""}`}
+                  />
+                  {online ? "En línea" : "No disponible ahora"}
+                </p>
+              )}
             </div>
             {/* Medidor de nivel de micrófono durante la grabación */}
             {recording && (
@@ -562,13 +588,6 @@ export function TelegramChat() {
           {/* Input */}
           {session ? (
             <div className="max-h-[340px] overflow-y-auto border-t border-line p-3">
-              {/* Nombre del cliente (opcional) */}
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Tu nombre (opcional)"
-                className="mb-2 w-full rounded-xl border border-line bg-transparent px-3 py-1.5 text-xs text-foreground outline-none focus:border-orange-400"
-              />
               {/* Selector de micrófono (si hay varios) */}
               {micDevices.length > 1 && !recording && (
                 <div className="mb-2 flex items-center gap-1.5">

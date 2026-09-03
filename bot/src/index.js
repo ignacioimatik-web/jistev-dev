@@ -56,6 +56,25 @@ function saveDb() {
 // ------------------------------------------------------------------
 const OWNER_ID = () => Number(process.env.OWNER_CHAT_ID);
 
+// Marca la última actividad del dueño (clave reservada "__owner__" en el Map,
+// se persiste en conversations.json). Sirve para el indicador "En línea".
+const OWNER_KEY = "__owner__";
+const OWNER_ONLINE_MS = 5 * 60 * 1000; // 5 minutos
+
+function markOwnerSeen() {
+  conversations.set(OWNER_KEY, { owner_last_seen: Date.now() });
+  saveDb();
+}
+
+function ownerStatus() {
+  const meta = conversations.get(OWNER_KEY);
+  const last = meta?.owner_last_seen || 0;
+  return {
+    online: last > 0 && Date.now() - last < OWNER_ONLINE_MS,
+    lastSeen: last,
+  };
+}
+
 function findSessionByChatId(chatId) {
   for (const [id, meta] of conversations) {
     if (meta.chat_id === chatId) return { id, ...meta };
@@ -106,6 +125,7 @@ async function handleUpdate(upd) {
 
     // Si quien inicia es el DUEÑO, es prueba propia.
     if (chatId === OWNER_ID()) {
+      markOwnerSeen();
       await sendMessage(
         chatId,
         "✅ Puente listo. La ventana de chat embebida ya puede conectar aquí. " +
@@ -163,6 +183,7 @@ async function handleUpdate(upd) {
 async function handleOwnerMessage(msg) {
   const answer = (msg.text ?? "").trim();
   if (!answer) return;
+  markOwnerSeen();
 
   let sessionId = null;
 
@@ -421,6 +442,11 @@ async function handleHttp(req, res) {
   }
 
   if (!authorized(req)) return json(res, 401, { error: "unauthorized" });
+
+  // GET /api/status -> presencia del dueño para el indicador "En línea".
+  if (req.method === "GET" && url.pathname === "/api/status") {
+    return json(res, 200, ownerStatus());
+  }
 
   // GET /api/session -> nueva sesión para el widget.
   if (req.method === "GET" && url.pathname === "/api/session") {
