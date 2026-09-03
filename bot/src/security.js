@@ -40,8 +40,10 @@ function looksLikeText(buffer) {
 // Devuelve el tipo REAL del archivo por sus primeros bytes, o null si no es
 // un tipo permitido.
 export function detectAllowedType(buffer) {
+  // latin1 mapea byte→code point 1:1 (UTF-8 corrompería bytes binarios).
+  const head = buffer.subarray(0, 16).toString("latin1");
   for (const sig of SIGNATURES) {
-    if (sig.re.test(buffer.subarray(0, 16))) return sig;
+    if (sig.re.test(head)) return sig;
   }
   if (looksLikeText(buffer)) return { ext: [".txt", ".csv", ".md", ".json"], label: "text" };
   return null;

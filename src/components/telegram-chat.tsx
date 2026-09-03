@@ -403,6 +403,17 @@ export function TelegramChat() {
         });
         const upData = await upRes.json().catch(() => ({}));
         pushLog(`upload HTTP ${upRes.status}: ${JSON.stringify(upData)}`);
+        if (upData?.ok === false) {
+          const msgs: Record<string, string> = {
+            type_not_allowed: "Ese tipo de archivo no está permitido. Solo: PDF, imágenes, texto y documentos de Office.",
+            extension_mismatch: "El archivo no coincide con su extensión. Revisa el archivo e inténtalo de nuevo.",
+            virus: "⚠️ El archivo contenía un virus y ha sido bloqueado.",
+            too_large: "El archivo supera el límite de 20 MB.",
+            upload_limit: "Has alcanzado el límite de adjuntos en esta conversación.",
+            scanner_unavailable: "El escáner de virus no está disponible ahora. Inténtalo más tarde.",
+          };
+          alert(msgs[String(upData.error)] || "El archivo fue rechazado por el servidor.");
+        }
       } else if (attached) {
         pushLog("⚠ adjunto irá por el proxy de Vercel (sin UPLOAD_URL/token) — puede fallar si es grande");
       }
@@ -622,7 +633,12 @@ export function TelegramChat() {
               <form onSubmit={handleSend} className="flex items-center gap-2">
                 <label className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors hover:text-orange-400">
                   <Paperclip className="h-4 w-4" />
-                  <input type="file" className="hidden" accept="*/*" onChange={handleAttach} />
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.csv,.md,.json,.docx,.xlsx,.pptx"
+                    onChange={handleAttach}
+                  />
                 </label>
                 {/* Botón micrófono: graba/para la nota de voz */}
                 <button
