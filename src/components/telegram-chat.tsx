@@ -29,7 +29,7 @@ const EMOJIS = [
   "🎯", "📎", "📅", "☕", "🍕", "💰", "🏆", "🙌",
 ];
 
-type Msg = { from: "user" | "owner"; text: string; audioUrl?: string };
+type Msg = { from: "user" | "owner" | "system"; text: string; audioUrl?: string };
 type Voice = { blob: Blob; url: string; mimeType: string; durationMs: number };
 type LogEntry = { t: string; msg: string };
 
@@ -131,8 +131,13 @@ export function TelegramChat() {
         const res = await fetch(`/api/telegram/poll?session=${session}`);
         const data = await res.json();
         if (data.reply) {
-          // El puente marca los audios del dueño con __AUDIO__:<url>.
-          if (typeof data.reply === "string" && data.reply.startsWith("__AUDIO__:")) {
+          // Mensaje del sistema (bienvenida/auto-reply) marcado por el puente.
+          if (typeof data.reply === "string" && data.reply.startsWith("__SYSTEM__:")) {
+            setMessages((prev) => [
+              ...prev,
+              { from: "system", text: data.reply.slice("__SYSTEM__:".length) },
+            ]);
+          } else if (typeof data.reply === "string" && data.reply.startsWith("__AUDIO__:")) {
             const audioUrl = data.reply.slice("__AUDIO__:".length);
             setMessages((prev) => [...prev, { from: "owner", text: "🎤 Nota de voz", audioUrl }]);
           } else {
@@ -521,6 +526,10 @@ export function TelegramChat() {
       });
       const data = await res.json().catch(() => ({}));
       pushLog(`send HTTP ${res.status}: ${JSON.stringify(data)}`);
+      // Bienvenida automática del sistema (primer mensaje de la sesión).
+      if (data?.welcome) {
+        setMessages((prev) => [...prev, { from: "system", text: data.welcome }]);
+      }
       setAttached(null);
     } catch (err) {
       pushLog(`ERROR de red: ${(err as Error).message}`);
@@ -616,21 +625,30 @@ export function TelegramChat() {
                   : "¿En qué puedo ayudarte? Cuéntame tu proyecto."}
               </p>
             )}
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
-                  m.from === "user"
-                    ? "ml-auto bg-[#2AABEE] text-white"
-                    : "bg-zinc-800 text-zinc-100"
-                }`}
-              >
-                {m.text}
-                {m.audioUrl && (
-                  <audio controls src={m.audioUrl} className="mt-1.5 h-9 w-52 max-w-full" />
-                )}
-              </div>
-            ))}
+            {messages.map((m, i) =>
+              m.from === "system" ? (
+                <p
+                  key={i}
+                  className="mx-auto max-w-[90%] rounded-xl bg-zinc-800/50 px-3 py-2 text-center text-[11px] italic leading-snug text-zinc-400"
+                >
+                  {m.text}
+                </p>
+              ) : (
+                <div
+                  key={i}
+                  className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
+                    m.from === "user"
+                      ? "ml-auto bg-[#2AABEE] text-white"
+                      : "bg-zinc-800 text-zinc-100"
+                  }`}
+                >
+                  {m.text}
+                  {m.audioUrl && (
+                    <audio controls src={m.audioUrl} className="mt-1.5 h-9 w-52 max-w-full" />
+                  )}
+                </div>
+              )
+            )}
           </div>
 
           {/* Input */}

@@ -86,6 +86,13 @@ const AUTO_REPLY_MSG =
 const AUTO_REPLY_MS = Number(process.env.AUTO_REPLY_MS || 60000);
 const AUTO_CHECK_MS = 10000; // comprobación cada 10s
 
+// Mensaje de bienvenida automático (sistema) al primer mensaje del visitante.
+const WELCOME_MSG =
+  process.env.WELCOME_MSG ||
+  "🤖 Mensaje automático · ¡Hola! He recibido tu mensaje y ya he avisado a Ignacio (jistev). Te responderá en cuanto pueda — si no lo hace en un minuto, te lo confirmo automáticamente. ¡Gracias por escribirme!";
+// Prefijo para marcar mensajes del sistema (el widget los muestra como tales).
+const SYS_PREFIX = "__SYSTEM__:";
+
 function maybeAutoReply() {
   const now = Date.now();
   for (const [id, meta] of conversations) {
@@ -101,7 +108,7 @@ function maybeAutoReply() {
     if (now - meta.visitor_msg_at >= AUTO_REPLY_MS) {
       meta.auto_replied = true;
       meta.auto_replied_at = now;
-      meta.owner_reply = AUTO_REPLY_MSG; // el widget lo recoge por polling
+      meta.owner_reply = `${SYS_PREFIX}${AUTO_REPLY_MSG}`; // el widget lo recoge por polling
       log(`AUTO-REPLY session=${id} (${Math.round((now - meta.visitor_msg_at) / 1000)}s sin respuesta)`);
       saveDb();
       if (meta.chat_id) {
@@ -595,6 +602,19 @@ async function handleHttp(req, res) {
     meta.visitor_msg_at = Date.now();
     // NOTA: el auto-reply NO se rearma aquí — solo aplica a la primera
     // interacción de la sesión (si el dueño ya respondió, queda desactivado).
+
+    // Registro de inicio de sesión (fecha/hora) + bienvenida automática,
+    // solo la primera vez que el visitante escribe.
+    let welcome = null;
+    if (!meta.welcome_sent) {
+      meta.welcome_sent = true;
+      meta.started_at = meta.started_at || Date.now();
+      const d = new Date(meta.started_at);
+      const fecha = d.toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" });
+      log(`SESSION started session=${body.session} fecha=${fecha}`);
+      welcome = WELCOME_MSG;
+    }
+
     if (body.chatId) meta.chat_id = body.chatId;
     if (body.name) meta.user_name = body.name;
     saveDb();
@@ -608,9 +628,12 @@ async function handleHttp(req, res) {
     if (!meta.intro_done) {
       meta.intro_done = true;
       saveDb();
+      const inicio = meta.started_at
+        ? `🕐 ${new Date(meta.started_at).toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })}`
+        : "";
       await sendMessage(
         OWNER_ID(),
-        `👤 *${who}* quiere hablar contigo desde la web.\n🔒 Respóndeme normal y le llegará en su navegador.\n—————————————————`
+        `👤 *${who}* quiere hablar contigo desde la web.${inicio ? `\n${inicio}` : ""}\n🔒 Respóndeme normal y le llegará en su navegador.\n—————————————————`
       );
       // Pequeña espera para que el intro y el mensaje salgan en orden.
       await sleep(300);
@@ -684,7 +707,7 @@ async function handleHttp(req, res) {
       }
     }
 
-    return json(res, 200, { ok: true });
+    return json(res, 200, { ok: true, welcome });
   }
 
   return json(res, 404, { error: "not_found" });
