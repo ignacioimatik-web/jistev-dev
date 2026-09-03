@@ -12,6 +12,11 @@ import {
   sendAudio,
   formatVisitorAnnouncement,
 } from "./telegram.js";
+import {
+  validateAttachment,
+  sanitizeFilename,
+  MAX_UPLOADS_PER_SESSION,
+} from "./security.js";
 
 // ------------------------------------------------------------------
 // Estado persistente (conversations.json)
@@ -355,6 +360,24 @@ async function handleUpload(req, res) {
 
   const buffer = Buffer.from(file.base64, "base64");
   log(`UPLOAD start session=${body.sessionId} file=${file.name} type=${file.mimeType} size=${buffer.length}B isVoice=${!!file.isVoice}`);
+
+  // ── SEGURIDAD: validación de tipo (magic bytes) + escaneo ClamAV ──
+  const uploadCount = meta.uploads_count || 0;
+  if (uploadCount >= MAX_UPLOADS_PER_SESSION) {
+    log(`UPLOAD rechazado: límite de subidas por sesión session=${body.sessionId}`);
+    return json(res, 200, { ok: false, error: "upload_limit" });
+  }
+  const check = await validateAttachment({
+    buffer,
+    filename: file.name,
+    mimeType: file.mimeType,
+    isVoice: !!(file.isVoice && /^audio\//.test(file.mimeType || "")),
+  });
+  if (!check.ok) {
+    log(`UPLOAD RECHAZADO session=${body.sessionId} file=${file.name} razón=${check.reason}${check.virus ? ` virus=${check.virus}` : ""}`);
+    return json(res, 200, { ok: false, error: check.reason, virus: check.virus || null });
+  }
+  meta.uploads_count = uploadCount + 1;
   meta.last_activity = Date.now();
   meta.ever_used = true;
   saveDb();
@@ -481,9 +504,20 @@ async function handleHttp(req, res) {
     if (file?.base64) {
       try {
         const buffer = Buffer.from(file.base64, "base64");
+        const check = await validateAttachment({
+          buffer,
+          filename: file.name,
+          mimeType: file.mimeType,
+          isVoice: false,
+        });
+        if (!check.ok) {
+          log(`SEND adjunto RECHAZADO session=${body.session} razón=${check.reason}${check.virus ? ` virus=${check.virus}` : ""}`);
+          await sendMessage(OWNER_ID(), `⚠️ *Adjunto rechazado por seguridad* (${check.reason === "virus" ? "virus detectado: " + check.virus : check.reason === "type_not_allowed" ? "tipo de archivo no permitido" : check.reason === "extension_mismatch" ? "la extensión no coincide con el contenido" : check.reason})`);
+          return json(res, 200, { ok: true, rejected: check.reason });
+        }
         await sendDocument(OWNER_ID(), {
           buffer,
-          filename: file.name || "adjunto",
+          filename: sanitizeFilename(file.name) || "adjunto",
           mimeType: file.mimeType || "application/octet-stream",
         });
       } catch (e) {
@@ -495,6 +529,16 @@ async function handleHttp(req, res) {
     if (voice?.base64) {
       try {
         const buffer = Buffer.from(voice.base64, "base64");
+        const check = await validateAttachment({
+          buffer,
+          filename: "voz.webm",
+          mimeType: voice.mimeType || "audio/ogg",
+          isVoice: true,
+        });
+        if (!check.ok) {
+          log(`SEND voz RECHAZADA session=${body.session} razón=${check.reason}`);
+          return json(res, 200, { ok: true, rejected: check.reason });
+        }
         await deliverVoice(OWNER_ID(), {
           buffer,
           mimeType: voice.mimeType || "audio/ogg",
