@@ -459,7 +459,7 @@ export function TelegramChat() {
 
       {/* Panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 flex h-[480px] w-[360px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-line bg-card shadow-2xl">
+        <div className="fixed bottom-24 right-6 z-50 flex h-[560px] w-[360px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-line bg-card shadow-2xl">
           {/* Header */}
           <div className="flex items-center gap-3 bg-[#2AABEE] px-4 py-3 text-white">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
@@ -511,7 +511,7 @@ export function TelegramChat() {
 
           {/* Input */}
           {session ? (
-            <div className="border-t border-line p-3">
+            <div className="max-h-[340px] overflow-y-auto border-t border-line p-3">
               {/* Nombre del cliente (opcional) */}
               <input
                 value={name}
@@ -563,16 +563,21 @@ export function TelegramChat() {
               )}
               {/* Voz grabada (previsualización) */}
               {voice && (
-                <div className="mb-2 flex items-center gap-2 rounded-lg border border-line bg-zinc-800/60 px-2 py-1.5">
-                  <audio controls src={voice.url} className="h-9 min-w-0 flex-1" />
-                  <button
-                    type="button"
-                    onClick={cancelVoice}
-                    aria-label="Descartar nota de voz"
-                    className="text-zinc-400 hover:text-zinc-200"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+                <div className="mb-2 rounded-xl border-2 border-[#2AABEE]/60 bg-[#2AABEE]/10 px-3 py-2.5">
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#2AABEE]">
+                      🎤 Audio listo ({Math.round(voice.durationMs / 1000)}s)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={cancelVoice}
+                      aria-label="Descartar nota de voz"
+                      className="text-zinc-400 hover:text-zinc-200"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <audio controls src={voice.url} className="h-9 w-full" />
                 </div>
               )}
               <form onSubmit={handleSend} className="flex items-center gap-2">
@@ -609,9 +614,16 @@ export function TelegramChat() {
                 <button
                   type="submit"
                   aria-label="Enviar"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2AABEE] text-white transition-colors hover:bg-[#229ED9]"
+                  className="flex h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#2AABEE] px-2.5 text-white transition-colors hover:bg-[#229ED9]"
                 >
-                  <Send className="h-4 w-4" />
+                  {voice ? (
+                    <>
+                      <span className="text-[11px] font-semibold">Enviar</span>
+                      <Mic className="h-3.5 w-3.5" />
+                    </>
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </button>
               </form>
               <p className="mt-2 text-center text-[11px] text-zinc-500">
