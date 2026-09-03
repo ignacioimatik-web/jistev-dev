@@ -107,21 +107,41 @@ export function TelegramChat() {
   // Versión del contrato de sesión: si cambia (p.ej. nuevas features), las
   // sesiones viejas del navegador se descartan y se crea una nueva.
   const SESSION_VERSION_KEY = "tg-chat-session-version";
-  const SESSION_VERSION = "4";
+  const SESSION_VERSION = "5";
+  // Caducidad por inactividad: si la última actividad del navegador fue hace
+  // más de SESSION_TTL_MS (1h), la sesión se descarta y se crea una nueva
+  // (el welcome vuelve a salir). Cada mensaje/poll renueva la actividad.
+  const ACTIVE_KEY = "tg-chat-active-at";
+  const SESSION_TTL_MS = 60 * 60 * 1000;
+
+  function touchSession() {
+    try {
+      localStorage.setItem(ACTIVE_KEY, String(Date.now()));
+    } catch {
+      /* sin storage */
+    }
+  }
 
   // Crear (o recuperar) la sesión al abrir el chat.
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
     (async () => {
-      // 0) Si la versión del contrato cambió, descartar la sesión guardada
-      //    (la nueva versión del puente puede requerir una sesión fresca).
+      // 0) Si la versión del contrato cambió O la sesión lleva >1h sin
+      //    actividad, descartar la guardada y crear una nueva (el welcome
+      //    vuelve a salir).
       const savedVersion = localStorage.getItem(SESSION_VERSION_KEY);
-      if (savedVersion !== SESSION_VERSION) {
+      const lastActive = Number(localStorage.getItem(ACTIVE_KEY) || 0);
+      const expired = !lastActive || Date.now() - lastActive > SESSION_TTL_MS;
+      if (savedVersion !== SESSION_VERSION || expired) {
         localStorage.removeItem(SESSION_KEY);
         localStorage.removeItem(TOKEN_KEY);
         localStorage.setItem(SESSION_VERSION_KEY, SESSION_VERSION);
-        pushLog("versión de sesión actualizada — se creará una sesión nueva");
+        pushLog(
+          expired
+            ? "sesión caducada (>1h inactiva) — se creará una sesión nueva"
+            : "versión de sesión actualizada — se creará una sesión nueva"
+        );
       }
       // 1) Intentar reutilizar la sesión de este navegador.
       const stored = localStorage.getItem(SESSION_KEY);
@@ -131,6 +151,7 @@ export function TelegramChat() {
           setSession(stored);
           setUploadToken(storedToken);
           setStatus("idle");
+          touchSession();
           pushLog(`sesión reutilizada (${stored.slice(0, 8)}…) token OK`);
           return;
         }
@@ -149,6 +170,7 @@ export function TelegramChat() {
         if (cancelled) return;
         localStorage.setItem(SESSION_KEY, data.sessionId);
         localStorage.setItem(TOKEN_KEY, data.uploadToken || "");
+        touchSession();
         setSession(data.sessionId);
         setUploadToken(data.uploadToken || null);
         setStatus("idle");
@@ -170,6 +192,7 @@ export function TelegramChat() {
   useEffect(() => {
     if (!open || !session) return;
     const t = setInterval(async () => {
+      touchSession(); // renovar actividad: el chat está en uso
       try {
         const res = await fetch(`/api/telegram/poll?session=${session}`);
         const data = await res.json();
