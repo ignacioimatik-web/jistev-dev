@@ -9,6 +9,7 @@ import {
   FileText,
   Mic,
   Square,
+  Smile,
 } from "lucide-react";
 
 // Widget de chat embebido. Habla con rutas propias de este despliegue
@@ -18,6 +19,15 @@ import {
 
 const UPLOAD_URL =
   process.env.NEXT_PUBLIC_TG_UPLOAD_URL?.replace(/\/$/, "") || "";
+
+// Emojis frecuentes para el selector del chat.
+const EMOJIS = [
+  "😀", "😄", "😁", "😂", "🤣", "😊", "😍", "😘",
+  "😉", "😎", "🤔", "😅", "🙂", "🤗", "😴", "🥳",
+  "👍", "👎", "👏", "🙏", "💪", "🤝", "👋", "✌️",
+  "❤️", "🔥", "⭐", "✅", "🎉", "🚀", "💡", "⚡",
+  "🎯", "📎", "📅", "☕", "🍕", "💰", "🏆", "🙌",
+];
 
 type Msg = { from: "user" | "owner"; text: string; audioUrl?: string };
 type Voice = { blob: Blob; url: string; mimeType: string; durationMs: number };
@@ -45,6 +55,7 @@ export function TelegramChat() {
   const [online, setOnline] = useState<boolean | null>(null);
   const [activity, setActivity] = useState<LogEntry[]>([]);
   const [sizeWarning, setSizeWarning] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -404,8 +415,24 @@ export function TelegramChat() {
     el.style.height = Math.min(el.scrollHeight, 110) + "px";
   };
 
+  // Inserta un emoji en la posición del cursor del textarea.
+  const insertEmoji = (emoji: string) => {
+    const el = textareaRef.current;
+    const start = el?.selectionStart ?? input.length;
+    const end = el?.selectionEnd ?? input.length;
+    const next = input.slice(0, start) + emoji + input.slice(end);
+    setInput(next);
+    autoResize();
+    requestAnimationFrame(() => {
+      el?.focus();
+      const pos = start + emoji.length;
+      el?.setSelectionRange(pos, pos);
+    });
+  };
+
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
+    setShowEmoji(false);
     if (recordingRef.current) {
       pushLog("bloqueado: aún estás grabando — para la grabación antes de enviar");
       return;
@@ -680,6 +707,36 @@ export function TelegramChat() {
                     onChange={handleAttach}
                   />
                 </label>
+                {/* Selector de emojis */}
+                <div className="relative shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setShowEmoji((v) => !v)}
+                    aria-label="Insertar emoji"
+                    title="Emojis"
+                    className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                      showEmoji ? "text-orange-400" : "text-zinc-400 hover:text-orange-400"
+                    }`}
+                  >
+                    <Smile className="h-4 w-4" />
+                  </button>
+                  {showEmoji && (
+                    <div className="absolute bottom-full left-0 z-50 mb-2 w-64 rounded-xl border border-line bg-card p-2 shadow-2xl">
+                      <div className="grid grid-cols-8 gap-0.5">
+                        {EMOJIS.map((em) => (
+                          <button
+                            key={em}
+                            type="button"
+                            onClick={() => insertEmoji(em)}
+                            className="rounded-md p-1 text-lg transition-colors hover:bg-zinc-800"
+                          >
+                            {em}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 {/* Botón micrófono: graba/para la nota de voz */}
                 <button
                   type="button"
