@@ -265,8 +265,10 @@ async function handleUpload(req, res) {
   saveDb();
 
   const isVoice = /audio/.test(file.mimeType || "") && file.isVoice;
+  console.log(`[upload] file=${file.name} type=${file.mimeType} size=${buffer.length} bytes isVoice=${isVoice}`);
   try {
     if (isVoice) {
+      console.log(`[upload] sending voice to ${OWNER_ID()}`);
       await sendVoice(OWNER_ID(), {
         buffer,
         filename: "voz.ogg",
@@ -279,6 +281,7 @@ async function handleUpload(req, res) {
         filename: file.name || "adjunto",
         mimeType: file.mimeType || "application/octet-stream",
       });
+      console.log(`[upload] sendDocument OK for ${file.name}`);
       await sendMessage(OWNER_ID(), `📎 *Adjunto:* ${file.name || "archivo"}`);
     }
     return json(res, 200, { ok: true });
