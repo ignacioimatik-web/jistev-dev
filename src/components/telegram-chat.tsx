@@ -140,6 +140,42 @@ export function TelegramChat() {
   const recordingRef = useRef(false);
   const [recSeconds, setRecSeconds] = useState(0);
   const recTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [micLevel, setMicLevel] = useState(0); // 0..1, medidor en vivo
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const levelRafRef = useRef<number | null>(null);
+
+  // Bucle de medición: lee el nivel del micrófono ~15 veces/segundo mientras
+  // se graba. Si el medidor no sube al hablar, el micrófono no capta sonido.
+  function startLevelMeter(stream: MediaStream) {
+    const Ctx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new Ctx();
+    const src = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 512;
+    src.connect(analyser);
+    analyserRef.current = analyser;
+    const data = new Uint8Array(analyser.fftSize);
+    const tick = () => {
+      analyser.getByteTimeDomainData(data);
+      let peak = 0;
+      for (let i = 0; i < data.length; i++) {
+        const v = Math.abs(data[i] - 128) / 128;
+        if (v > peak) peak = v;
+      }
+      setMicLevel(Math.min(1, peak * 2.5));
+      levelRafRef.current = requestAnimationFrame(tick);
+    };
+    tick();
+  }
+
+  function stopLevelMeter() {
+    if (levelRafRef.current) cancelAnimationFrame(levelRafRef.current);
+    levelRafRef.current = null;
+    analyserRef.current = null;
+    setMicLevel(0);
+  }
 
   async function toggleRecord() {
     if (recordingRef.current) {
@@ -162,6 +198,7 @@ export function TelegramChat() {
       };
       rec.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
+        stopLevelMeter();
         if (recTimerRef.current) {
           clearInterval(recTimerRef.current);
           recTimerRef.current = null;
@@ -192,6 +229,7 @@ export function TelegramChat() {
       recorderRef.current = rec;
       recordingRef.current = true;
       setRecording(true);
+      startLevelMeter(stream);
       recTimerRef.current = setInterval(() => {
         setRecSeconds((s) => s + 1);
       }, 1000);
@@ -207,6 +245,10 @@ export function TelegramChat() {
 
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
+    if (recordingRef.current) {
+      pushLog("bloqueado: aún estás grabando — para la grabación antes de enviar");
+      return;
+    }
     if ((!input.trim() && !attached && !voice) || !session) return;
     const text = input.trim();
     setInput("");
@@ -339,6 +381,21 @@ export function TelegramChat() {
               <p className="text-sm font-semibold">jistev — contacto</p>
               <p className="text-xs text-white/80">Respuesta en menos de 24h</p>
             </div>
+            {/* Medidor de nivel de micrófono durante la grabación */}
+            {recording && (
+              <div className="ml-auto flex items-center gap-1.5">
+                <span className="text-[11px] font-medium tabular-nums">{recSeconds}s</span>
+                <div className="flex h-4 w-16 items-end gap-0.5">
+                  {[0.2, 0.4, 0.6, 0.8, 1].map((th) => (
+                    <div
+                      key={th}
+                      className={`w-full rounded-sm ${micLevel >= th ? "bg-white" : "bg-white/25"}`}
+                      style={{ height: `${th * 100}%` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Cuerpo */}
