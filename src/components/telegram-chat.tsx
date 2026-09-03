@@ -19,7 +19,7 @@ import {
 const UPLOAD_URL =
   process.env.NEXT_PUBLIC_TG_UPLOAD_URL?.replace(/\/$/, "") || "";
 
-type Msg = { from: "user" | "owner"; text: string };
+type Msg = { from: "user" | "owner"; text: string; audioUrl?: string };
 type Voice = { blob: Blob; url: string; mimeType: string; durationMs: number };
 type LogEntry = { t: string; msg: string };
 
@@ -120,7 +120,13 @@ export function TelegramChat() {
         const res = await fetch(`/api/telegram/poll?session=${session}`);
         const data = await res.json();
         if (data.reply) {
-          setMessages((prev) => [...prev, { from: "owner", text: data.reply }]);
+          // El puente marca los audios del dueño con __AUDIO__:<url>.
+          if (typeof data.reply === "string" && data.reply.startsWith("__AUDIO__:")) {
+            const audioUrl = data.reply.slice("__AUDIO__:".length);
+            setMessages((prev) => [...prev, { from: "owner", text: "🎤 Nota de voz", audioUrl }]);
+          } else {
+            setMessages((prev) => [...prev, { from: "owner", text: data.reply }]);
+          }
         }
       } catch {
         /* silencio */
@@ -593,6 +599,9 @@ export function TelegramChat() {
                 }`}
               >
                 {m.text}
+                {m.audioUrl && (
+                  <audio controls src={m.audioUrl} className="mt-1.5 h-9 w-52 max-w-full" />
+                )}
               </div>
             ))}
           </div>

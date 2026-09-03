@@ -217,8 +217,6 @@ async function handleUpdate(upd) {
 // va a la sesión más reciente con actividad).
 // ------------------------------------------------------------------
 async function handleOwnerMessage(msg) {
-  const answer = (msg.text ?? "").trim();
-  if (!answer) return;
   markOwnerSeen();
 
   let sessionId = null;
@@ -250,6 +248,37 @@ async function handleOwnerMessage(msg) {
 
   const meta = conversations.get(sessionId);
   if (!meta) return;
+
+  // ── Audio/voz del DUEÑO: descargar, guardar y pasarlo al widget ──
+  // Una nota de voz/audio no tiene msg.text; sin esto se descartaba en silencio.
+  const media = msg.voice || msg.audio || (msg.document?.mime_type?.startsWith("audio") ? msg.document : null);
+  if (media) {
+    try {
+      const fileUrl = await getFileUrl(media.file_id);
+      const resp = await fetch(fileUrl);
+      if (!resp.ok) throw new Error(`download ${resp.status}`);
+      const buf = Buffer.from(await resp.arrayBuffer());
+      const mt = media.mime_type || "";
+      const ext = /ogg|opus/i.test(mt) ? "ogg" : /mpeg|mp3/i.test(mt) ? "mp3" : /wav/i.test(mt) ? "wav" : "ogg";
+      const fname = `owner-audio-${Date.now()}.${ext}`;
+      const fdir = path.join(process.cwd(), "public");
+      if (!fs.existsSync(fdir)) fs.mkdirSync(fdir, { recursive: true });
+      fs.writeFileSync(path.join(fdir, fname), buf);
+      log(`OWNER AUDIO session=${sessionId} → ${fname} (${buf.length}B, ${mt})`);
+      meta.owner_reply = `__AUDIO__:https://chat.jazzone.click/audio/${fname}`;
+      meta.owner_replied_at = Date.now();
+      meta.auto_replied = true;
+      meta.last_activity = Date.now();
+      saveDb();
+      return;
+    } catch (e) {
+      log(`OWNER AUDIO error session=${sessionId} err=${e.message}`);
+      return;
+    }
+  }
+
+  const answer = (msg.text ?? "").trim();
+  if (!answer) return;
 
   // Guardar la respuesta para que el WIDGET la recoja por polling.
   meta.owner_reply = answer;
@@ -477,6 +506,25 @@ async function handleHttp(req, res) {
   // global, para que el navegador pueda subir archivos grandes sin exponer la clave).
   if (url.pathname === "/api/upload") {
     return handleUpload(req, res);
+  }
+
+  // GET /audio/<archivo> -> audio del dueño para el widget. Público vía túnel
+  // (el <audio> del navegador no puede mandar la API key).
+  if (req.method === "GET" && url.pathname.startsWith("/audio/")) {
+    const fname = path.basename(url.pathname);
+    const fpath = path.join(process.cwd(), "public", fname);
+    if (fname.includes("..") || !fs.existsSync(fpath)) {
+      return json(res, 404, { error: "not_found" });
+    }
+    const ext = path.extname(fname).slice(1);
+    const mime = ext === "mp3" ? "audio/mpeg" : ext === "wav" ? "audio/wav" : "audio/ogg";
+    res.writeHead(200, {
+      "Content-Type": mime,
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "public, max-age=86400",
+    });
+    fs.createReadStream(fpath).pipe(res);
+    return;
   }
 
   if (!authorized(req)) return json(res, 401, { error: "unauthorized" });

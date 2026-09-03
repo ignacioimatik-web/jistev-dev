@@ -91,6 +91,20 @@ export async function sendAudio(chatId, { buffer, filename = "voz.ogg", mimeType
   return (await res.json()).result;
 }
 
+// Obtiene la URL pública de descarga de un archivo enviado por el dueño
+// (notas de voz, audios…). La Bot API la genera bajo api.telegram.org/file/.
+export async function getFileUrl(fileId) {
+  const res = await fetch(`${BASE}/getFile`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ file_id: fileId }),
+  });
+  if (!res.ok) throw new Error(`getFile ${res.status}`);
+  const data = await res.json();
+  if (!data.ok || !data.result?.file_path) throw new Error("getFile: sin file_path");
+  return `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${data.result.file_path}`;
+}
+
 // Texto "ficha" que el dueño ve cuando un visitante inicia una sesión nueva.
 export function formatVisitorAnnouncement(session) {
   return (
