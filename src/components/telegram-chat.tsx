@@ -629,7 +629,7 @@ export function TelegramChat() {
               m.from === "system" ? (
                 <p
                   key={i}
-                  className="mx-auto max-w-[90%] rounded-xl bg-zinc-800/50 px-3 py-2 text-center text-[11px] italic leading-snug text-zinc-400"
+                  className="mx-auto max-w-[90%] rounded-xl bg-zinc-800/50 px-3.5 py-2.5 text-center text-sm leading-snug text-zinc-300"
                 >
                   {m.text}
                 </p>
