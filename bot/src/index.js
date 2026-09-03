@@ -75,6 +75,42 @@ function ownerStatus() {
   };
 }
 
+// ------------------------------------------------------------------
+// Auto-respuesta: si el dueño no responde en AUTO_REPLY_MS, se envía un
+// mensaje estándar al visitante (aparece en el widget y en su Telegram).
+// Configurable por env: AUTO_REPLY_MSG (texto) y AUTO_REPLY_MS (ms).
+// ------------------------------------------------------------------
+const AUTO_REPLY_MSG =
+  process.env.AUTO_REPLY_MSG ||
+  "¡Hola! He visto tu mensaje y te responderé en cuanto lo lea — dependerá de mi agenda. Si es urgente, dímelo y te doy prioridad. ¡Gracias por escribirme!";
+const AUTO_REPLY_MS = Number(process.env.AUTO_REPLY_MS || 60000);
+const AUTO_CHECK_MS = 10000; // comprobación cada 10s
+
+function maybeAutoReply() {
+  const now = Date.now();
+  for (const [id, meta] of conversations) {
+    if (id === OWNER_KEY) continue;
+    if (!meta.visitor_msg_at || meta.auto_replied) continue;
+    // Si el dueño ya respondió a este mensaje, cancelar el auto-reply.
+    if ((meta.owner_replied_at || 0) > meta.visitor_msg_at) {
+      meta.auto_replied = true;
+      saveDb();
+      continue;
+    }
+    if (now - meta.visitor_msg_at >= AUTO_REPLY_MS) {
+      meta.auto_replied = true;
+      meta.auto_replied_at = now;
+      meta.owner_reply = AUTO_REPLY_MSG; // el widget lo recoge por polling
+      log(`AUTO-REPLY session=${id} (${Math.round((now - meta.visitor_msg_at) / 1000)}s sin respuesta)`);
+      saveDb();
+      if (meta.chat_id) {
+        sendMessage(meta.chat_id, AUTO_REPLY_MSG).catch(() => {});
+      }
+    }
+  }
+}
+setInterval(maybeAutoReply, AUTO_CHECK_MS).unref();
+
 function findSessionByChatId(chatId) {
   for (const [id, meta] of conversations) {
     if (meta.chat_id === chatId) return { id, ...meta };
@@ -217,6 +253,8 @@ async function handleOwnerMessage(msg) {
 
   // Guardar la respuesta para que el WIDGET la recoja por polling.
   meta.owner_reply = answer;
+  meta.owner_replied_at = Date.now();
+  meta.auto_replied = true; // cancelar cualquier auto-reply pendiente
   meta.last_activity = Date.now();
   saveDb();
 
@@ -505,6 +543,9 @@ async function handleHttp(req, res) {
     // Marcar la sesión como usada (el dueño puede responder normal)
     meta.ever_used = true;
     meta.last_activity = Date.now();
+    meta.visitor_msg_at = Date.now();
+    // Nuevo turno: rearmar el auto-reply solo si el dueño ya respondió al anterior.
+    if ((meta.owner_replied_at || 0) > (meta.auto_replied_at || 0)) meta.auto_replied = false;
     if (body.chatId) meta.chat_id = body.chatId;
     if (body.name) meta.user_name = body.name;
     saveDb();
