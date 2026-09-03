@@ -44,8 +44,10 @@ export function TelegramChat() {
   const [status, setStatus] = useState<"idle" | "loading" | "starting">("idle");
   const [online, setOnline] = useState<boolean | null>(null);
   const [activity, setActivity] = useState<LogEntry[]>([]);
+  const [sizeWarning, setSizeWarning] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordStartRef = useRef(0);
@@ -388,6 +390,14 @@ export function TelegramChat() {
     setVoice(null);
   }
 
+  // Auto-crece el textarea hasta un máximo (Enter sigue enviando).
+  const autoResize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 110) + "px";
+  };
+
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
     if (recordingRef.current) {
@@ -489,10 +499,12 @@ export function TelegramChat() {
     const f = e.target.files?.[0];
     if (!f) return;
     if (f.size > 20 * 1024 * 1024) {
-      alert("Máximo 20MB por adjunto.");
+      setSizeWarning(true);
       pushLog(`archivo rechazado por tamaño: ${f.name} (${(f.size / 1024 / 1024).toFixed(1)} MB)`);
+      e.target.value = "";
       return;
     }
+    setSizeWarning(false);
     pushLog(`adjuntando ${f.name} (${f.size > 1024 * 1024 ? (f.size / 1024 / 1024).toFixed(2) + " MB" : Math.round(f.size / 1024) + " KB"}, ${f.type || "sin tipo"})`);
     const reader = new FileReader();
     reader.onload = () => {
@@ -649,7 +661,7 @@ export function TelegramChat() {
                   <audio controls src={voice.url} className="h-9 w-full" />
                 </div>
               )}
-              <form onSubmit={handleSend} className="flex items-center gap-2">
+              <form onSubmit={handleSend} className="flex items-end gap-2">
                 <label className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors hover:text-orange-400">
                   <Paperclip className="h-4 w-4" />
                   <input
@@ -679,11 +691,22 @@ export function TelegramChat() {
                     <Mic className="h-4 w-4" />
                   )}
                 </button>
-                <input
+                <textarea
+                  ref={textareaRef}
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    autoResize();
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+                    }
+                  }}
+                  rows={1}
                   placeholder={recording ? "Grabando… pulsa para parar" : "Escribe tu mensaje… 😀"}
-                  className="flex-1 rounded-xl border border-line bg-transparent px-3 py-2 text-sm text-foreground outline-none focus:border-orange-400"
+                  className="max-h-[110px] min-h-[42px] flex-1 resize-none rounded-xl border border-line bg-transparent px-3 py-2.5 text-sm leading-snug text-foreground outline-none focus:border-orange-400"
                 />
                 <button
                   type="submit"
@@ -700,9 +723,12 @@ export function TelegramChat() {
                   )}
                 </button>
               </form>
-              <p className="mt-2 text-center text-[11px] text-zinc-500">
-                Puedes adjuntar archivos (máx. 20 MB) o grabar una nota de voz.
-              </p>
+              {/* Aviso discreto solo si el adjunto supera el límite */}
+              {sizeWarning && (
+                <p className="mt-1.5 text-center text-[11px] text-amber-400/90">
+                  Máximo 20 MB por adjunto.
+                </p>
+              )}
 
               {/* Panel de diagnóstico (log de actividad) */}
               <div className="mt-2 border-t border-line pt-2">
