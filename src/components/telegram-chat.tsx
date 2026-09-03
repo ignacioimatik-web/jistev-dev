@@ -194,10 +194,14 @@ export function TelegramChat() {
     setMicLevel(0);
   }
 
-  // Análisis objetivo del audio grabado: decodifica el blob y mide el nivel
-  // real (RMS y pico). Un audio de voz tiene RMS claramente > 0; el silencio
-  // da RMS ≈ 0. Esto distingue "grabación vacía" de "micrófono no capta".
-  async function analyzeVoice(blob: Blob): Promise<{ rms: number; peak: number } | null> {
+  // Decodifica el audio grabado y devuelve: RMS, pico y un blob WAV listo para
+  // reproducir. El webm de MediaRecorder no tiene metadatos de duración, por lo
+  // que el <audio> muestra 00:00 y puede no reproducir; el WAV funciona siempre.
+  async function analyzeVoice(blob: Blob): Promise<{
+    rms: number;
+    peak: number;
+    wav: Blob | null;
+  } | null> {
     try {
       const Ctx =
         window.AudioContext ||
@@ -214,10 +218,42 @@ export function TelegramChat() {
         if (a > peak) peak = a;
       }
       const rms = Math.sqrt(sum / data.length);
+
+      // Codifica el buffer a WAV PCM 16-bit mono (reproducible en todo).
+      const numCh = 1;
+      const sampleRate = audio.sampleRate;
+      const samples = data.length;
+      const blockAlign = numCh * 2;
+      const dataSize = samples * blockAlign;
+      const wavBuf = new ArrayBuffer(44 + dataSize);
+      const view = new DataView(wavBuf);
+      const writeStr = (o: number, s: string) => {
+        for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i));
+      };
+      writeStr(0, "RIFF");
+      view.setUint32(4, 36 + dataSize, true);
+      writeStr(8, "WAVE");
+      writeStr(12, "fmt ");
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, numCh, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * blockAlign, true);
+      view.setUint16(32, blockAlign, true);
+      view.setUint16(34, 16, true);
+      writeStr(36, "data");
+      view.setUint32(40, dataSize, true);
+      let off = 44;
+      for (let i = 0; i < samples; i++) {
+        const s = Math.max(-1, Math.min(1, data[i]));
+        view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+        off += 2;
+      }
+      const wav = new Blob([wavBuf], { type: "audio/wav" });
       try { (ctx as AudioContext & { close?: () => Promise<void> }).close?.(); } catch { /* Safari */ }
-      return { rms, peak };
+      return { rms, peak, wav };
     } catch {
-      return null; // no se pudo decodificar (p.ej. Safari) -> decisión por tamaño
+      return null; // no se pudo decodificar -> decisión por tamaño, sin WAV
     }
   }
 
@@ -288,9 +324,12 @@ export function TelegramChat() {
           setVoice(null);
         } else {
           pushLog(`grabación OK con voz: ${blob.size} bytes, ${Math.round(durationMs / 1000)}s (${mimeType})`);
+          // Preview en WAV (reproduce siempre y muestra duración real); el blob
+          // original (webm) se sigue enviando al servidor.
+          const previewBlob = analysis?.wav ?? blob;
           setVoice({
             blob,
-            url: URL.createObjectURL(blob),
+            url: URL.createObjectURL(previewBlob),
             mimeType,
             durationMs,
           });
