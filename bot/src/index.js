@@ -94,10 +94,28 @@ const WELCOME_MSG =
 // Prefijo para marcar mensajes del sistema (el widget los muestra como tales).
 const SYS_PREFIX = "__SYSTEM__:";
 
+// ------------------------------------------------------------------
+// Cola de atención: UNA sesión a la vez. Mientras el dueño atiende a un
+// cliente, los demás quedan EN COLA y no reciben sus respuestas (eso evitaba
+// que una respuesta "normal" se fuese a la sesión equivocada: el bug por el
+// que el primer cliente dejaba de recibir al entrar el segundo).
+// La línea activa se libera cuando el cliente la cierra (POST /api/end) o
+// tras IDLE_RELEASE_MS sin actividad; entonces pasa el siguiente en cola.
+// ------------------------------------------------------------------
+const ACTIVE_KEY = "__active__";          // sesión que el dueño atiende AHORA
+const IDLE_RELEASE_MS = 5 * 60 * 1000;    // 5 min sin actividad -> liberar línea
+const BUSY_MSG =
+  "Ahora mismo jistev está atendiendo a otro cliente. Te he puesto en cola: " +
+  "en cuanto se libere te aviso y me pongo contigo. Puedes seguir escribiendo aquí y se guarda.";
+const CONNECTED_MSG =
+  "✅ Ya está libre: jistev puede responderte. Si escribiste algo mientras esperabas, te lo he enviado.";
+
 function maybeAutoReply() {
   const now = Date.now();
+  const lid = liveId(); // solo la sesión que se está atendiendo genera auto-respuesta
   for (const [id, meta] of conversations) {
-    if (id === OWNER_KEY) continue;
+    if (id === OWNER_KEY || id === ACTIVE_KEY) continue;
+    if (id !== lid) continue; // los clientes en cola ya han recibido el aviso "ocupado"
     if (!meta.visitor_msg_at || meta.auto_replied) continue;
     // Si el dueño YA respondió alguna vez en esta sesión, desactivar el
     // auto-reply definitivamente: solo aplica a la primera interacción.
@@ -119,6 +137,9 @@ function maybeAutoReply() {
   }
 }
 setInterval(maybeAutoReply, AUTO_CHECK_MS).unref();
+// Cada 10s: liberar la línea si el cliente activo lleva >5 min inactivo y,
+// si se libera, promover al siguiente en cola.
+setInterval(() => { sweepLiveIdle(); }, AUTO_CHECK_MS).unref();
 
 function findSessionByChatId(chatId) {
   for (const [id, meta] of conversations) {
@@ -144,17 +165,138 @@ function mostRecentActiveSession() {
 function extractSessionIdFromText(text) {
   if (!text) return null;
   // Busca "(sesión `UUID`" o "sesión UUID" — forma que usamos en los avisos al dueño.
-  const m = text.match(/sesion[\)\s]*["'`]?\s*([0-9a-f]{8}-[0-9a-f-]{27,})/i);
+  const m = text.match(/sesion[\\)\s]*["'`]?\s*([0-9a-f]{8}-[0-9a-f-]{27,})/i);
   return m ? m[1] : null;
+}
+
+// ------------------------------------------------------------------
+// Cola de atención (UNA sesión a la vez)
+// ------------------------------------------------------------------
+function setLive(id) {
+  if (id) conversations.set(ACTIVE_KEY, { id });
+  else conversations.delete(ACTIVE_KEY);
+  saveDb();
+}
+
+// Sesión atendida ahora mismo (null si la línea está libre o apunta a una
+// sesión terminada — en ese caso la limpia y devuelve null).
+function liveId() {
+  const rec = conversations.get(ACTIVE_KEY);
+  if (!rec?.id) return null;
+  const meta = conversations.get(rec.id);
+  if (!meta || meta.ended) {
+    conversations.delete(ACTIVE_KEY);
+    saveDb();
+    return null;
+  }
+  return rec.id;
+}
+
+function liveMeta() {
+  const id = liveId();
+  return id ? conversations.get(id) : null;
+}
+
+// El dueño está atendiendo a OTRA sesión distinta de la indicada.
+function mustWait(sid) {
+  const cur = liveId();
+  return cur !== null && cur !== sid;
+}
+
+// Siguiente sesión en cola (la que lleva más tiempo esperando, por FIFO).
+function nextWaiting() {
+  let best = null;
+  let bestT = Infinity;
+  for (const [id, meta] of conversations) {
+    if (id === OWNER_KEY || id === ACTIVE_KEY || meta.ended) continue;
+    if (meta.waiting && (meta.queued_at || Infinity) < bestT) {
+      bestT = meta.queued_at;
+      best = { id, meta };
+    }
+  }
+  return best;
+}
+
+// Aparca el mensaje de un cliente que espera turno (el dueño está con otro).
+async function parkMessage(sid, { text }) {
+  const meta = conversations.get(sid);
+  if (!meta) return;
+  meta.waiting = true;
+  meta.queued_at = meta.queued_at || Date.now();
+  if (text) {
+    meta.pending = meta.pending || [];
+    if (meta.pending.length < 50) meta.pending.push(text);
+  }
+  meta.last_activity = Date.now();
+  if (!meta.waiting_notice) {
+    meta.waiting_notice = true;
+    meta.owner_reply = `${SYS_PREFIX}${BUSY_MSG}`;
+    if (meta.chat_id) sendMessage(meta.chat_id, BUSY_MSG).catch(() => {});
+  }
+  saveDb();
+}
+
+// Libera la línea y promueve al siguiente en cola (si lo hay).
+async function promoteNext() {
+  if (liveId()) return;
+  const w = nextWaiting();
+  if (!w) return;
+  const meta = w.meta;
+  meta.waiting = false;
+  meta.queued_at = meta.queued_at || Date.now();
+  meta.welcome_sent = true; // ya se le dio la bienvenida/aviso al conectar
+  meta.intro_done = true;   // ya se avisó al dueño de este cliente
+  setLive(w.id);
+  meta.last_activity = Date.now();
+  log(`PROMOTE -> session=${w.id} ahora activa`);
+  saveDb();
+
+  // Aviso al visitante (widget por polling + Telegram si tiene chat).
+  meta.owner_reply = `${SYS_PREFIX}${CONNECTED_MSG}`;
+  if (meta.chat_id) sendMessage(meta.chat_id, CONNECTED_MSG).catch(() => {});
+  saveDb();
+
+  // Aviso al dueño + reenvío de los mensajes guardados mientras esperaba.
+  const who = meta.user_name || "un visitante";
+  const inicio = meta.started_at
+    ? `\n🕐 ${new Date(meta.started_at).toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })}`
+    : "";
+  const pend = meta.pending || [];
+  meta.pending = [];
+  saveDb();
+  if (pend.length) {
+    await sendMessage(
+      OWNER_ID(),
+      `🟢 *${who}* ya puede hablar contigo.${inicio}\n🔻 Escribió ${pend.length} mensaje(s) mientras esperaba, te los reenvío ahora:`
+    );
+    for (const p of pend) await sendMessage(OWNER_ID(), p);
+  } else {
+    await sendMessage(
+      OWNER_ID(),
+      `🟢 *${who}* ya puede hablar contigo.${inicio}\nRespóndeme normal y le llegará en su navegador.`
+    );
+  }
+}
+
+// Libera la línea si el cliente activo lleva IDLE_RELEASE_MS sin actividad.
+function sweepLiveIdle() {
+  const meta = liveMeta();
+  if (!meta) {
+    promoteNext();
+    return;
+  }
+  const idle = Date.now() - (meta.last_activity || 0);
+  if (idle >= IDLE_RELEASE_MS) {
+    log(`RELEASE por inactividad session=${liveId()} (${Math.round(idle / 1000)}s sin actividad)`);
+    setLive(null);
+    promoteNext();
+  }
 }
 
 // ------------------------------------------------------------------
 // Enrutado de updates del bot
 // ------------------------------------------------------------------
 let offset = 0;
-// Última sesión cuyo mensaje se notificó al dueño. Sirve para enrutar su
-// respuesta NORMAL (sin reply) a la sesión correcta aunque haya varias.
-let lastNotifiedSession = null;
 
 async function handleUpdate(upd) {
   if (!upd.message) return;
@@ -204,15 +346,19 @@ async function handleUpdate(upd) {
     return;
   }
 
-  // 2) Mensaje del VISITANTE (desde su Telegram) -> reenviar al dueño.
+  // 2) Mensaje del VISITANTE (desde su Telegram) -> reenviar al dueño,
+  //    salvo que esté en cola (el dueño está atendiendo a otro).
   const session = findSessionByChatId(chatId);
   if (session) {
     const meta = conversations.get(session.id);
-    if (meta) {
-      meta.last_activity = Date.now();
-      saveDb();
+    if (!meta) return;
+    meta.last_activity = Date.now();
+    if (mustWait(session.id)) {
+      await parkMessage(session.id, { text });
+      return;
     }
-    lastNotifiedSession = session.id;
+    if (liveId() !== session.id) setLive(session.id);
+    saveDb();
     await sendMessage(
       OWNER_ID(),
       `💬 *Nuevo mensaje* (sesión \`${session.id}\` — ${session.user_name || "visitante"}):\n\n${text || "(medio no textual)"}`
@@ -231,17 +377,20 @@ async function handleOwnerMessage(msg) {
   let sessionId = null;
 
   // 1. Si el dueño respondió (reply) a un aviso, extraemos el sessionId del texto.
+  //    Es la vía PRECISA: va a la sesión que toca, aunque haya varias.
   if (msg.reply_to_message) {
     sessionId = extractSessionIdFromText(msg.reply_to_message.text || "");
   }
 
-  // 2. Sin reply -> enrutamos a la sesión del ÚLTIMO aviso enviado al dueño,
-  //    que es la que el visitante tiene abierta ahora mismo. Determinista.
-  if (!sessionId && lastNotifiedSession) {
-    sessionId = lastNotifiedSession;
+  // 2. Sin reply -> enrutamos a la sesión ACTIVA (la que se está atendiendo).
+  //    Modelo "una a la vez": con varios clientes, los que esperan NO reciben
+  //    la respuesta; solo la sesión en línea. Determinista, sin adivinar.
+  if (!sessionId) {
+    const live = liveId();
+    if (live) sessionId = live;
   }
 
-  // 3. Respaldo: si aún no hay pista, la sesión más reciente con actividad.
+  // 3. Respaldo: si aún no hay sesión activa, la más reciente con actividad.
   if (!sessionId) {
     const active = mostRecentActiveSession();
     if (active) sessionId = active.id;
@@ -257,6 +406,11 @@ async function handleOwnerMessage(msg) {
 
   const meta = conversations.get(sessionId);
   if (!meta) return;
+
+  // El dueño elige atender ESTA sesión: sacarla de cola y hacerla activa.
+  meta.waiting = false;
+  meta.pending = [];
+  if (liveId() !== sessionId) setLive(sessionId);
 
   // ── Audio/voz del DUEÑO: descargar, guardar y pasarlo al widget ──
   // Una nota de voz/audio no tiene msg.text; sin esto se descartaba en silencio.
@@ -578,7 +732,7 @@ async function handleHttp(req, res) {
       meta.owner_reply = null; // consumido
       saveDb();
     }
-    return json(res, 200, { reply });
+    return json(res, 200, { reply, waiting: mustWait(sid) });
   }
 
   // POST /api/send -> el visitante escribió en el widget; reenviar al dueño.
@@ -597,17 +751,27 @@ async function handleHttp(req, res) {
     }
     log(`SEND session=${body.session} text=${JSON.stringify(text.slice(0, 40))} hasFile=${!!file?.base64} hasVoice=${!!voice?.base64}`);
 
-    // Marcar la sesión como usada (el dueño puede responder normal)
+    // Marcar la sesión como usada + capturar datos del visitante SIEMPRE
+    // (también si queda en cola, para poder presentarlo al dueño después).
     meta.ever_used = true;
     meta.last_activity = Date.now();
     meta.visitor_msg_at = Date.now();
-    // NOTA: el auto-reply NO se rearma aquí — solo aplica a la primera
-    // interacción de la sesión (si el dueño ya respondió, queda desactivado).
+    if (body.chatId) meta.chat_id = body.chatId;
+    if (body.name) meta.user_name = body.name;
 
-    // Registro de inicio de sesión (fecha/hora) + bienvenida automática,
-    // solo la primera vez que el visitante escribe. La bienvenida se PERSISTE
-    // en owner_reply (prefijo __SYSTEM__) para que el poll del widget la
-    // recoja siempre, igual que las respuestas del dueño. NO marca al dueño
+    // ── COLA: si el dueño está atendiendo a OTRO cliente, aparcar ──
+    // Este cliente NO recibe las respuestas hasta que le toque; su mensaje
+    // queda guardado y se le avisa de que está en cola.
+    if (mustWait(body.session)) {
+      await parkMessage(body.session, { text });
+      return json(res, 200, { ok: true, waiting: true });
+    }
+    // Esta sesión toma (o mantiene) la línea activa.
+    if (liveId() !== body.session) setLive(body.session);
+
+    // Bienvenida automática solo cuando la sesión está activa (se atiende).
+    // Se PERSISTE en owner_reply (prefijo __SYSTEM__) para que el poll del
+    // widget la recoja, igual que las respuestas del dueño. NO marca al dueño
     // como respondido: el auto-reply de 1 min sigue activo.
     if (!meta.welcome_sent) {
       meta.welcome_sent = true;
@@ -617,12 +781,7 @@ async function handleHttp(req, res) {
       log(`SESSION started session=${body.session} fecha=${fecha}`);
       meta.owner_reply = `${SYS_PREFIX}${WELCOME_MSG}`;
     }
-
-    if (body.chatId) meta.chat_id = body.chatId;
-    if (body.name) meta.user_name = body.name;
     saveDb();
-
-    lastNotifiedSession = body.session;
 
     // ── Aviso AL DUEÑO ──
     // Primer mensaje: presentación del cliente + su mensaje.
@@ -713,6 +872,26 @@ async function handleHttp(req, res) {
     return json(res, 200, { ok: true });
   }
 
+  // POST /api/end -> el cliente cerró la conversación. Si era el que se estaba
+  // atendiendo, libera la línea y pasa el siguiente de la cola (no hace falta
+  // esperar a los 5 min de inactividad).
+  if (req.method === "POST" && url.pathname === "/api/end") {
+    let bodyText = "";
+    for await (const chunk of req) bodyText += chunk;
+    const body = JSON.parse(bodyText || "{}");
+    const meta = conversations.get(body.session);
+    if (!meta) return json(res, 404, { error: "unknown_session" });
+    meta.ended = true;
+    meta.waiting = false;
+    meta.owner_reply = null;
+    meta.last_activity = Date.now();
+    saveDb();
+    log(`SESSION ended session=${body.session}`);
+    liveId(); // fuerza limpieza de la línea si esta sesión era la activa
+    await promoteNext();
+    return json(res, 200, { ok: true });
+  }
+
   return json(res, 404, { error: "not_found" });
 }
 
@@ -725,7 +904,7 @@ const port = Number(process.env.PORT || 8787);
 const server = http.createServer(handleHttp);
 server.listen(port, () => {
   console.log(`🌐 Mini API escuchando en :${port}`);
-  console.log(`   Endpoints: GET /api/session · GET /api/poll?session= · POST /api/send`);
+  console.log(`   Endpoints: GET /api/session · GET /api/poll?session= · POST /api/send · POST /api/end`);
   console.log(`   DB: ${DB_PATH}`);
 });
 

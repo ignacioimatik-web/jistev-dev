@@ -71,6 +71,12 @@ export function TelegramChat() {
   const [sizeWarning, setSizeWarning] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
   const [showLog, setShowLog] = useState(false);
+  // Cola: true si el dueño está atendiendo a otro cliente (este espera turno).
+  const [queued, setQueued] = useState(false);
+  // Conversación cerrada por el propio cliente (libera la línea para otros).
+  const [ended, setEnded] = useState(false);
+  // Contador para forzar la creación de una sesión nueva tras finalizar.
+  const [sessionNonce, setSessionNonce] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -125,6 +131,7 @@ export function TelegramChat() {
   // Crear (o recuperar) la sesión al abrir el chat.
   useEffect(() => {
     if (!open) return;
+    setEnded(false); // al abrir (o reiniciar) la conversación, quitar el estado "cerrada"
     let cancelled = false;
     (async () => {
       // 0) Si la versión del contrato cambió O la sesión lleva >1h sin
@@ -186,7 +193,7 @@ export function TelegramChat() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, sessionNonce]);
 
   // Polling: cada 3s preguntamos si el dueño respondió a esta sesión.
   useEffect(() => {
@@ -196,6 +203,8 @@ export function TelegramChat() {
       try {
         const res = await fetch(`/api/telegram/poll?session=${session}`);
         const data = await res.json();
+        // Estado de cola: si el dueño está con otro cliente, mostramos espera.
+        if (typeof data.waiting === "boolean") setQueued(data.waiting);
         if (data.reply) {
           // Mensaje del sistema (bienvenida/auto-reply) marcado por el puente.
           if (typeof data.reply === "string" && data.reply.startsWith("__SYSTEM__:")) {
@@ -570,6 +579,8 @@ export function TelegramChat() {
       if (data?.welcome) {
         setMessages((prev) => [...prev, { from: "system", text: data.welcome }]);
       }
+      // Si el dueño está ocupado, el servidor devuelve waiting:true -> en cola.
+      setQueued(!!data?.waiting);
       setAttached(null);
     } catch (err) {
       pushLog(`ERROR de red: ${(err as Error).message}`);
@@ -596,6 +607,45 @@ export function TelegramChat() {
     };
     reader.onerror = () => pushLog(`ERROR leyendo archivo ${f.name}`);
     reader.readAsDataURL(f);
+  };
+
+  // Cierra la conversación: libera la línea para que jistev atienda a otros
+  // (no hace falta esperar a los 5 min de inactividad).
+  const handleEndConversation = async () => {
+    if (!session) return;
+    const ok = window.confirm(
+      "¿Terminar esta conversación?\n\nSi la cierras, jistev podrá atender a otros clientes que estén esperando. Puedes volver a escribir cuando quieras."
+    );
+    if (!ok) return;
+    pushLog("finalizando conversación…");
+    try {
+      await fetch("/api/telegram/end", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session }),
+      });
+    } catch {
+      /* cierre best-effort: si falla la llamada, igualmente se limpia lo local */
+    }
+    try {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(ACTIVE_KEY);
+    } catch {
+      /* sin storage */
+    }
+    setSession(null);
+    setUploadToken(null);
+    setQueued(false);
+    setMessages([]);
+    setEnded(true);
+    pushLog("conversación finalizada — línea liberada");
+  };
+
+  // Tras finalizar, empezar una conversación nueva (nueva sesión en el puente).
+  const restartAfterEnd = () => {
+    setEnded(false);
+    setSessionNonce((n) => n + 1); // fuerza la creación de una sesión nueva
   };
 
   const startUrl = `https://t.me/jistevbot?start=${session}`;
@@ -655,6 +705,17 @@ export function TelegramChat() {
               </div>
             )}
           </div>
+
+          {/* Aviso de cola: el dueño está atendiendo a otro cliente */}
+          {queued && session && (
+            <div className="flex items-start gap-2 border-b border-line bg-amber-500/10 px-4 py-2.5 text-xs leading-snug text-amber-300">
+              <span className="mt-0.5 shrink-0">⏳</span>
+              <p>
+                En espera: jistev está atendiendo a otro cliente. Cuando termine,
+                te aviso y me pongo contigo. Puedes seguir escribiendo aquí y se guarda.
+              </p>
+            </div>
+          )}
 
           {/* Cuerpo */}
           <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto p-4">
@@ -839,6 +900,16 @@ export function TelegramChat() {
                   </button>
                 </div>
               </form>
+              {/* Cerrar la conversación: libera la línea para otros clientes */}
+              <div className="mt-1.5 flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleEndConversation}
+                  className="text-[11px] text-zinc-500 transition-colors hover:text-zinc-300 hover:underline underline-offset-2"
+                >
+                  Finalizar conversación
+                </button>
+              </div>
               {/* Aviso discreto solo si el adjunto supera el límite */}
               {sizeWarning && (
                 <p className="mt-1.5 text-center text-[11px] text-amber-400/90">
@@ -873,6 +944,20 @@ export function TelegramChat() {
                   </pre>
                 </div>
               )}
+            </div>
+          ) : ended ? (
+            <div className="border-t border-line p-4 text-center">
+              <p className="mb-3 text-xs text-zinc-400">
+                Conversación cerrada. Gracias por tu mensaje — jistev ya puede
+                atender a otros clientes que estuvieran esperando.
+              </p>
+              <button
+                type="button"
+                onClick={restartAfterEnd}
+                className="block w-full rounded-xl bg-[#2AABEE] py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-[#229ED9]"
+              >
+                Iniciar nueva conversación
+              </button>
             </div>
           ) : (
             <div className="border-t border-line p-4">
