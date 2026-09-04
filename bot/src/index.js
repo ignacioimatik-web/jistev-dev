@@ -60,7 +60,10 @@ const OWNER_ID = () => Number(process.env.OWNER_CHAT_ID);
 // Marca la última actividad del dueño (clave reservada "__owner__" en el Map,
 // se persiste en conversations.json). Sirve para el indicador "En línea".
 const OWNER_KEY = "__owner__";
-const OWNER_ONLINE_MS = 5 * 60 * 1000; // 5 minutos
+// Ventana de presencia del dueño. Se marca con cada interacción del dueño con
+// el bot (responder un mensaje, /start, etc). 30 min evita que se apague el
+// indicador mientras atiende sin estar respondiendo constantemente.
+const OWNER_ONLINE_MS = 30 * 60 * 1000; // 30 minutos
 
 function markOwnerSeen() {
   conversations.set(OWNER_KEY, { owner_last_seen: Date.now() });

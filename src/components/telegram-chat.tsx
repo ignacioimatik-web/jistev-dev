@@ -800,6 +800,24 @@ export function TelegramChat() {
                 </div>
               )}
               <form onSubmit={handleSend} className="flex flex-col gap-1.5">
+                {/* Selector de emojis en flujo normal: empuja la barra hacia abajo y
+                    se ve entero (el absolute bottom-full se recortaba con el overflow). */}
+                {showEmoji && (
+                  <div className="rounded-xl border border-line bg-card p-2 shadow-2xl">
+                    <div className="grid grid-cols-8 gap-0.5">
+                      {EMOJIS.map((em) => (
+                        <button
+                          key={em}
+                          type="button"
+                          onClick={() => insertEmoji(em)}
+                          className="rounded-md p-1 text-lg transition-colors hover:bg-zinc-800"
+                        >
+                          {em}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {/* Barra de herramientas: iconos encima del textarea */}
                 <div className="flex items-center gap-1">
                   <label className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors hover:text-orange-400">
@@ -811,8 +829,8 @@ export function TelegramChat() {
                       onChange={handleAttach}
                     />
                   </label>
-                  {/* Selector de emojis */}
-                  <div className="relative shrink-0">
+                  {/* Selector de emojis (el panel se pinta en flujo normal, encima de la barra) */}
+                  <div className="shrink-0">
                     <button
                       type="button"
                       onClick={() => setShowEmoji((v) => !v)}
@@ -824,22 +842,6 @@ export function TelegramChat() {
                     >
                       <Smile className="h-4 w-4" />
                     </button>
-                    {showEmoji && (
-                      <div className="absolute bottom-full left-0 z-50 mb-2 w-64 rounded-xl border border-line bg-card p-2 shadow-2xl">
-                        <div className="grid grid-cols-8 gap-0.5">
-                          {EMOJIS.map((em) => (
-                            <button
-                              key={em}
-                              type="button"
-                              onClick={() => insertEmoji(em)}
-                              className="rounded-md p-1 text-lg transition-colors hover:bg-zinc-800"
-                            >
-                              {em}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                   {/* Botón micrófono: graba/para la nota de voz */}
                   <button
