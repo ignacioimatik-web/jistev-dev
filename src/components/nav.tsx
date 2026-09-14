@@ -12,7 +12,6 @@ const navLinks = [
   { href: "#metodo", label: "metodo" },
   { href: "#skills", label: "stack" },
   { href: "#contacto", label: "contacto" },
-  { href: "/correo", label: "correo" },
 ];
 
 const extExternal = [
